@@ -4,6 +4,7 @@
  */
 
 using System.Globalization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ using OpenERP.Web.Data.HR;
 using OpenERP.Web.Documents;
 using OpenERP.Web.Localization;
 using OpenERP.Web.Printing;
+using OpenERP.Web.Security;
 using AssetDbContext = OpenERP.Asset.Data.ApplicationDbContext;
 using CRMDbContext = OpenERP.CRM.Data.ApplicationDbContext;
 using FinanceDbContext = OpenERP.Finance.Data.ApplicationDbContext;
@@ -54,6 +56,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/login";
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        // Cookie 安全加固（HttpOnly 防脚本读取；SameSite=Lax 防跨站携带；生产环境强制仅 HTTPS 传输）。
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
     });
 
 // 支持的界面语言（简体中文、繁体中文、英文）。
@@ -107,6 +115,25 @@ builder.Services.AddScoped<IBasicDataRepository, BasicDataSqlRepository>();
 builder.Services.AddScoped<ICompanyPrintTemplateService, CompanyPrintTemplateService>();
 builder.Services.AddScoped<ICommonDocumentService, CommonDocumentService>();
 
+// 登录防暴力破解：内存缓存 + 账号失败锁定服务（连续 5 次失败锁定 15 分钟）。
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<LoginThrottler>();
+
+// 登录接口限流（按客户端 IP 每分钟最多 10 次，超出直接返回 429，配合 [EnableRateLimiting("login")] 使用）。
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+});
+
 var app = builder.Build();
 
 // 初始化人资模块与基础数据模块的表结构及种子数据。
@@ -131,6 +158,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRequestLocalization(requestLocalizationOptions);
 app.UseRouting();
+
+// 登录接口限流（需在 UseRouting 之后启用，配合控制器上的 [EnableRateLimiting] 特性生效）。
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

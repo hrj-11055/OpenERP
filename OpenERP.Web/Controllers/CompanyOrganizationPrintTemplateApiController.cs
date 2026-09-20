@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using OpenERP.Web.Data.HR;
@@ -10,6 +11,7 @@ namespace OpenERP.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/companyorganizationprinttemplate")]
+[Authorize]
 public class CompanyOrganizationPrintTemplateApiController : ControllerBase
 {
     /// <summary>

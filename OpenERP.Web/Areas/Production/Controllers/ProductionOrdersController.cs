@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using OpenERP.Web.Data.HR;
 namespace OpenERP.Web.Areas.Production.Controllers;
 
 [Area("Production")]
+[Authorize]
 public class ProductionOrdersController : Controller
 {
 	private readonly ApplicationDbContext _context;

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Localization;
 using OpenERP.Web.Data.HR;
 using OpenERP.Web.Localization;
@@ -32,6 +33,11 @@ public class AccountController : Controller
     private readonly IHrRepository _hrRepository;
 
     /// <summary>
+    /// 登录节流器（按账号统计失败次数并临时锁定）。
+    /// </summary>
+    private readonly LoginThrottler _loginThrottler;
+
+    /// <summary>
     /// 权限声明类型（写入当前登录用户的有效权限编码）。
     /// </summary>
     private const string PermissionClaimType = "erp:permission";
@@ -41,10 +47,14 @@ public class AccountController : Controller
     /// </summary>
     private const string RoleClaimType = "erp:role";
 
-    public AccountController(IStringLocalizer<SharedResource> localizer, IHrRepository hrRepository)
+    public AccountController(
+        IStringLocalizer<SharedResource> localizer,
+        IHrRepository hrRepository,
+        LoginThrottler loginThrottler)
     {
         _localizer = localizer;
         _hrRepository = hrRepository;
+        _loginThrottler = loginThrottler;
     }
 
     /// <summary>
@@ -94,6 +104,7 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         model.FiscalYearOptions = GetFiscalYearOptions();
@@ -112,6 +123,13 @@ public class AccountController : Controller
             return View(model);
         }
 
+        // 连续失败达到阈值的账号临时锁定，锁定期间不再执行密码校验。
+        if (_loginThrottler.IsLockedOut(model.Account))
+        {
+            ModelState.AddModelError(string.Empty, "登录失败次数过多，账号已临时锁定，请 15 分钟后再试。");
+            return View(model);
+        }
+
         // 先尝试员工账号校验。
         var (user, employee) = await TryValidateEmployeeWithAccountCheckAsync(model.Account, model.Password);
 
@@ -123,9 +141,13 @@ public class AccountController : Controller
 
         if (user is null)
         {
+            _loginThrottler.RecordFailure(model.Account);
             ModelState.AddModelError(string.Empty, _localizer["Login_InvalidCredentials"]);
             return View(model);
         }
+
+        // 密码已验证通过，清空该账号的失败计数。
+        _loginThrottler.ResetOnSuccess(model.Account);
 
         // 员工账号冻结校验。
         if (employee is not null && employee.IsAccountFrozen)
@@ -356,11 +378,12 @@ public class AccountController : Controller
         var employee = await _hrRepository.GetEmployeeByLoginAccountAsync(normalizedLoginAccount);
         if (employee is null)
         {
+            // 未知账号与未输入账号返回完全一致的展示口径，避免借此探测账号是否存在。
             return fallBackToAllWhenAccountUnknown
                 ? new CompanySelectionContext
                 {
                     Options = allCompanyOptions,
-                    HintMessage = "未识别到登录账号时，先显示全部公司组织。"
+                    HintMessage = "输入登录账号后，系统会自动过滤可登录的公司组织。"
                 }
                 : new CompanySelectionContext
                 {

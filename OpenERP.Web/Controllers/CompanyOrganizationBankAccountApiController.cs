@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenERP.BasicData.Data;
 using OpenERP.HR.Models.Entities;
@@ -11,6 +12,7 @@ namespace OpenERP.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/companyorganizationbankaccount")]
+[Authorize]
 public class CompanyOrganizationBankAccountApiController : ControllerBase
 {
     /// <summary>

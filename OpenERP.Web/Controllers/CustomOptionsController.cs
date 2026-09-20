@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenERP.BasicData.Data;
 using OpenERP.BasicData.Models;
@@ -11,6 +12,7 @@ namespace OpenERP.Web.Controllers;
 /// <summary>
 /// 通用自定义选项维护控制器（为职务、民族、职称等用户可维护下拉数据提供共用页面）。
 /// </summary>
+[Authorize]
 public class CustomOptionsController : Controller
 {
     /// <summary>

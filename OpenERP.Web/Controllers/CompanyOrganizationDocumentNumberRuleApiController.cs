@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenERP.HR.Models.Entities;
 using OpenERP.Web.Data.HR;
@@ -10,6 +11,7 @@ namespace OpenERP.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/companyorganizationdocumentnumberrule")]
+[Authorize]
 public class CompanyOrganizationDocumentNumberRuleApiController : ControllerBase
 {
     /// <summary>

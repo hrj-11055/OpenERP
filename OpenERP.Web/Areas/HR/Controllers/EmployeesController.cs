@@ -1,6 +1,6 @@
 /*
- * ÎÄ¼þ£ºOpenERP.Web/Areas/HR/Controllers/EmployeesController.cs
- * ËµÃ÷£ºÔ±¹¤¹ÜÀí¿ØÖÆÆ÷£¬¸ºÔðÔ±¹¤×ÊÁÏ¡¢Ô±¹¤Ö÷Í¼ÓëÏà¹ØÒ³ÃæÇëÇó¡£
+ * ï¿½Ä¼ï¿½ï¿½ï¿½OpenERP.Web/Areas/HR/Controllers/EmployeesController.cs
+ * Ëµï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ï¡ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 
 using System;
@@ -27,72 +27,72 @@ namespace OpenERP.Web.Areas.HR.Controllers
     public class EmployeesController : Controller
     {
         /// <summary>
-        /// ÈË×Ê²Ö´¢£¨¶ÁÈ¡Ô±¹¤¡¢×éÖ¯¡¢²¿ÃÅÓëÖ°Î»Êý¾Ý£©¡£
+        /// ï¿½ï¿½ï¿½Ê²Ö´ï¿½ï¿½ï¿½ï¿½ï¿½È¡Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö°Î»ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½
         /// </summary>
         private readonly IHrRepository _hrRepository;
 
         /// <summary>
-        /// »ù´¡Êý¾Ý²Ö´¢£¨¶ÁÈ¡Ãñ×å¡¢Ö°³ÆµÈÓÃ»§×Ô¶¨ÒåÏÂÀ­Êý¾Ý£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý²Ö´ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½å¡¢Ö°ï¿½Æµï¿½ï¿½Ã»ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½
         /// </summary>
         private readonly IBasicDataRepository _basicDataRepository;
 
         /// <summary>
-        /// ¹²Ïí±¾µØ»¯×ÊÔ´£¨ÓÃÓÚÔ±¹¤Ò³ÃæÓë±íµ¥¹ú¼Ê»¯£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê»ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private readonly IStringLocalizer<SharedResource> _localizer;
 
         /// <summary>
-        /// Í¨ÓÃÎÄµµ¹ÜÀí·þÎñ£¨ÓÃÓÚÐ£ÑéÔ±¹¤Í¼Æ¬ÎÄµµÊÇ·ñÊôÓÚµ±Ç°Ô±¹¤£©¡£
+        /// Í¨ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½Ô±ï¿½ï¿½Í¼Æ¬ï¿½Äµï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private readonly ICommonDocumentService _documentService;
 
         /// <summary>
-        /// Ô±¹¤Í¼Æ¬ÎÄµµ¹¦ÄÜ±àÂë£¨¶ÔÓ¦Ô±¹¤¡°¸ü¶àÍ¼Æ¬¡±ÉÏ´«µÄÍ¼Æ¬¼¯ºÏ£©¡£
+        /// Ô±ï¿½ï¿½Í¼Æ¬ï¿½Äµï¿½ï¿½ï¿½ï¿½Ü±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½
         /// </summary>
         private const string EmployeePhotoFeatureCode = "HR_EMPLOYEE_PHOTO";
 
         /// <summary>
-        /// Ö°Î»»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä POSITION£©¡£
+        /// Ö°Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ POSITIONï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string PositionTypeCode = "POSITION";
 
         /// <summary>
-        /// Ãñ×å»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä ETHNICITY£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ ETHNICITYï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string EthnicityTypeCode = "ETHNICITY";
 
         /// <summary>
-        /// Ö°³Æ»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä PROFESSIONAL_TITLE£©¡£
+        /// Ö°ï¿½Æ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ PROFESSIONAL_TITLEï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string ProfessionalTitleTypeCode = "PROFESSIONAL_TITLE";
 
         /// <summary>
-        /// ¹ú¼Ò/µØÇø»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦Ô±¹¤¹ú¼Ò/µØÇøÏÂÀ­£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string CountryRegionTypeCode = "COUNTRY_REGION";
 
         /// <summary>
-        /// ³ÇÊÐ»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦Ô±¹¤³ÇÊÐÏÂÀ­£©¡£
+        /// ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string CityTypeCode = "CITY";
 
         /// <summary>
-        /// ÏØ/Çø»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦Ô±¹¤ÏØ/ÇøÏÂÀ­£©¡£
+        /// ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦Ô±ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string CountyTypeCode = "COUNTY";
 
         /// <summary>
-        /// ½òÌù´ýÓö»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä ALLOWANCE_PACKAGE£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ ALLOWANCE_PACKAGEï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string AllowancePackageTypeCode = "ALLOWANCE_PACKAGE";
 
         /// <summary>
-        /// ÅÅ°à×é±ð»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä SCHEDULING_GROUP£©¡£
+        /// ï¿½Å°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ SCHEDULING_GROUPï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string SchedulingGroupTypeCode = "SCHEDULING_GROUP";
 
         /// <summary>
-        /// ÒøÐÐ»ù´¡Êý¾ÝÀàÐÍ±àÂë£¨¶ÔÓ¦»ù´¡Êý¾Ý×Öµä BANK£©¡£
+        /// ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë£¨ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ BANKï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private const string BankTypeCode = "BANK";
 
@@ -109,7 +109,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ÈËÔ±¹ÜÀíÁÐ±íÒ³£¨Ê¹ÓÃÒ³ÃæÄ£ÐÍ³ÐÔØÕ¹Ê¾Êý¾Ý£©¡£
+        /// ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½Ò³ï¿½ï¿½Ê¹ï¿½ï¿½Ò³ï¿½ï¿½Ä£ï¿½Í³ï¿½ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<IActionResult> Index()
         {
@@ -129,7 +129,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ÐÂÔöÔ±¹¤Ò³Ãæ£¨¿É´«Èë copyFromId ´ÓÒÑÓÐÔ±¹¤¸´ÖÆ×ÊÁÏ£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Ò³ï¿½æ£¨ï¿½É´ï¿½ï¿½ï¿½ copyFromId ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<IActionResult> Create(bool popup = false, int? copyFromId = null)
         {
@@ -137,7 +137,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
 
             if (copyFromId.HasValue && copyFromId.Value > 0)
             {
-                // ´ÓÀ´Ô´Ô±¹¤¸´ÖÆ×ÊÁÏ£¬²¢Çå³ýÖ÷¼üÓëÎ¨Ò»±êÊ¶×Ö¶Î¡£
+                // ï¿½ï¿½ï¿½ï¿½Ô´Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½Ö¶Î¡ï¿½
                 var source = await _hrRepository.GetEmployeeByIdAsync(copyFromId.Value);
                 if (source != null)
                 {
@@ -215,7 +215,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("EmployeeCode,FirstName,LastName,OrganizationId,Email,PhoneNumber,PhoneNumber2,PhoneNumber3,JobTitle,DepartmentId,PositionId,GroupId,GenderId,AliasName,BirthDate,IdCardNumber,CardNumber,EthnicityId,MaritalStatusId,EducationLevelId,EducationCertificateNumber,ProfessionalTitleId,CountryRegionId,CityId,CountyId,Address,Remarks,EmergencyContact,EmergencyContactPhone,Referrer,ArchivePath,PhotoPath,LoginAccount,LoginPassword,HireDate,LeaveDate,EmploymentTypeId,AllowancePackageId,ProbationEndDate,AnnualLeaveCalculationMethodId,IsAttendanceRequired,CurrentYearAnnualLeaveDays,AnnualLeaveMaxAccumulatedDays,AnnualLeaveRemainingDays,AnnualLeaveIncrementStartYears,AnnualLeaveIncrementPerYearDays,AnnualLeaveCapDays,DefaultShiftId,SchedulingGroupId,IsAutoSchedulingEnabled,SalaryGradeId,PayrollCompanyId,BankAccountNumber,BankAccountName,BankId")]
+            [Bind("EmployeeCode,FirstName,LastName,OrganizationId,Email,PhoneNumber,PhoneNumber2,PhoneNumber3,JobTitle,DepartmentId,PositionId,GroupId,GenderId,AliasName,BirthDate,IdCardNumber,CardNumber,EthnicityId,MaritalStatusId,EducationLevelId,EducationCertificateNumber,ProfessionalTitleId,CountryRegionId,CityId,CountyId,Address,Remarks,EmergencyContact,EmergencyContactPhone,Referrer,ArchivePath,PhotoPath,HireDate,LeaveDate,EmploymentTypeId,AllowancePackageId,ProbationEndDate,AnnualLeaveCalculationMethodId,IsAttendanceRequired,CurrentYearAnnualLeaveDays,AnnualLeaveMaxAccumulatedDays,AnnualLeaveRemainingDays,AnnualLeaveIncrementStartYears,AnnualLeaveIncrementPerYearDays,AnnualLeaveCapDays,DefaultShiftId,SchedulingGroupId,IsAutoSchedulingEnabled,SalaryGradeId,PayrollCompanyId,BankAccountNumber,BankAccountName,BankId")]
             Employee employee,
             bool popup = false)
         {
@@ -262,7 +262,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,EmployeeCode,FirstName,LastName,OrganizationId,Email,PhoneNumber,PhoneNumber2,PhoneNumber3,JobTitle,DepartmentId,PositionId,GroupId,GenderId,AliasName,BirthDate,IdCardNumber,CardNumber,EthnicityId,MaritalStatusId,EducationLevelId,EducationCertificateNumber,ProfessionalTitleId,CountryRegionId,CityId,CountyId,Address,Remarks,EmergencyContact,EmergencyContactPhone,Referrer,ArchivePath,PhotoPath,LoginAccount,LoginPassword,HireDate,LeaveDate,EmploymentTypeId,AllowancePackageId,ProbationEndDate,AnnualLeaveCalculationMethodId,IsAttendanceRequired,CurrentYearAnnualLeaveDays,AnnualLeaveMaxAccumulatedDays,AnnualLeaveRemainingDays,AnnualLeaveIncrementStartYears,AnnualLeaveIncrementPerYearDays,AnnualLeaveCapDays,DefaultShiftId,SchedulingGroupId,IsAutoSchedulingEnabled,SalaryGradeId,PayrollCompanyId,BankAccountNumber,BankAccountName,BankId")]
+            [Bind("Id,EmployeeCode,FirstName,LastName,OrganizationId,Email,PhoneNumber,PhoneNumber2,PhoneNumber3,JobTitle,DepartmentId,PositionId,GroupId,GenderId,AliasName,BirthDate,IdCardNumber,CardNumber,EthnicityId,MaritalStatusId,EducationLevelId,EducationCertificateNumber,ProfessionalTitleId,CountryRegionId,CityId,CountyId,Address,Remarks,EmergencyContact,EmergencyContactPhone,Referrer,ArchivePath,PhotoPath,HireDate,LeaveDate,EmploymentTypeId,AllowancePackageId,ProbationEndDate,AnnualLeaveCalculationMethodId,IsAttendanceRequired,CurrentYearAnnualLeaveDays,AnnualLeaveMaxAccumulatedDays,AnnualLeaveRemainingDays,AnnualLeaveIncrementStartYears,AnnualLeaveIncrementPerYearDays,AnnualLeaveCapDays,DefaultShiftId,SchedulingGroupId,IsAutoSchedulingEnabled,SalaryGradeId,PayrollCompanyId,BankAccountNumber,BankAccountName,BankId")]
             Employee employee,
             bool popup = false)
         {
@@ -314,7 +314,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Ô±¹¤ÏêÇé²é¿´Ò³Ãæ£¨Ö»¶ÁÄ£Ê½£¬Ðèµã»÷±à¼­²ÅÄÜÐÞ¸Ä£©¡£
+        /// Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é¿´Ò³ï¿½æ£¨Ö»ï¿½ï¿½Ä£Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Ä£ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<IActionResult> Details(int? id, bool popup = false)
         {
@@ -336,7 +336,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Ô±¹¤É¾³ýÈ·ÈÏÒ³Ãæ£¨Õ¹Ê¾Ô±¹¤ÐÅÏ¢¹©È·ÈÏºóÖ´ÐÐÈíÉ¾³ý£©¡£
+        /// Ô±ï¿½ï¿½É¾ï¿½ï¿½È·ï¿½ï¿½Ò³ï¿½æ£¨Õ¹Ê¾Ô±ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½È·ï¿½Ïºï¿½Ö´ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public async Task<IActionResult> Delete(int? id, bool popup = false)
         {
@@ -356,7 +356,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// È·ÈÏÉ¾³ýÔ±¹¤£¨±ê¼Ç IsDeleted ÎªÈíÉ¾³ý£©¡£
+        /// È·ï¿½ï¿½É¾ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ IsDeleted Îªï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -367,7 +367,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// »ñÈ¡Ô±¹¤µØÖ·¼¶ÁªÏÂÀ­Ñ¡Ïî£¨°´¹ú¼Ò/µØÇø»ò³ÇÊÐ¹ýÂËÏÂ¼¶Êý¾Ý£©¡£
+        /// ï¿½ï¿½È¡Ô±ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> LocationOptions(string level, int? parentId = null)
@@ -395,7 +395,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ÉèÖÃÔ±¹¤Ö÷Í¼£¨´ÓÔ±¹¤Í¼Æ¬ÎÄµµ¼¯ºÏÖÐÑ¡ÔñÒ»ÕÅÍ¼Æ¬Ð´Èë PhotoPath£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Í¼Æ¬ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½Í¼Æ¬Ð´ï¿½ï¿½ PhotoPathï¿½ï¿½ï¿½ï¿½
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -403,13 +403,13 @@ namespace OpenERP.Web.Areas.HR.Controllers
         {
             if (employeeId <= 0)
             {
-                return BadRequest(new { message = "ÇëÏÈ±£´æÔ±¹¤»ù±¾×ÊÁÏ£¬ÔÙÉèÖÃÔ±¹¤Ö÷Í¼¡£" });
+                return BadRequest(new { message = "ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½" });
             }
 
             var employee = await _hrRepository.GetEmployeeByIdAsync(employeeId);
             if (employee == null)
             {
-                return NotFound(new { message = "Î´ÕÒµ½Ô±¹¤×ÊÁÏ¡£" });
+                return NotFound(new { message = "Î´ï¿½Òµï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ï¡ï¿½" });
             }
 
             string? photoPath = null;
@@ -421,7 +421,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
                     || document.EntityId != employeeId
                     || !IsEmployeePhotoDocument(document))
                 {
-                    return BadRequest(new { message = "ÇëÑ¡Ôñµ±Ç°Ô±¹¤ÃûÏÂµÄÓÐÐ§Í¼Æ¬ÎÄµµ¡£" });
+                    return BadRequest(new { message = "ï¿½ï¿½Ñ¡ï¿½ï¿½Ç°Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½Ð§Í¼Æ¬ï¿½Äµï¿½ï¿½ï¿½" });
                 }
 
                 photoPath = $"/api/documents/{document.Id}/open";
@@ -431,18 +431,18 @@ namespace OpenERP.Web.Areas.HR.Controllers
             var updated = await _hrRepository.UpdateEmployeePhotoPathAsync(employeeId, photoPath, updatedBy);
             if (!updated)
             {
-                return NotFound(new { message = "Î´ÕÒµ½¿É¸üÐÂµÄÔ±¹¤×ÊÁÏ¡£" });
+                return NotFound(new { message = "Î´ï¿½Òµï¿½ï¿½É¸ï¿½ï¿½Âµï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ï¡ï¿½" });
             }
 
             return Ok(new
             {
-                message = string.IsNullOrWhiteSpace(photoPath) ? "Ô±¹¤Ö÷Í¼ÒÑÇå³ý¡£" : "Ô±¹¤Ö÷Í¼ÒÑ¸üÐÂ¡£",
+                message = string.IsNullOrWhiteSpace(photoPath) ? "Ô±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" : "Ô±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½Ñ¸ï¿½ï¿½Â¡ï¿½",
                 photoPath
             });
         }
 
         /// <summary>
-        /// ¹¹½¨Ô±¹¤ÁÐ±íÏîÊÓÍ¼Ä£ÐÍ£¨¸ºÔðÊµÌåµ½Ò³ÃæÕ¹Ê¾×Ö¶ÎµÄ×ª»»£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ä£ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½åµ½Ò³ï¿½ï¿½Õ¹Ê¾ï¿½Ö¶Îµï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private EmployeeListItemViewModel BuildEmployeeListItem(Employee employee, int sequenceNo)
         {
@@ -499,7 +499,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Éú³ÉÔ±¹¤Õ¹Ê¾ÐÕÃû£¬ÖÐÎÄÐÕÃûÖ±½ÓÆ´½Ó£¬Ó¢ÎÄÐÕÃû±£Áô¿Õ¸ñ¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Æ´ï¿½Ó£ï¿½Ó¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¸ï¿½
         /// </summary>
         private string BuildDisplayName(Employee employee)
         {
@@ -520,13 +520,13 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Éú³ÉÔ±¹¤±àºÅ£¬Î´Î¬»¤Ê±°´ÐòºÅ²¹ÆëÏÔÊ¾¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Å£ï¿½Î´Î¬ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Å²ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
         /// </summary>
         private static string BuildEmployeeCode(Employee employee, int sequenceNo)
             => !string.IsNullOrWhiteSpace(employee.EmployeeCode) ? employee.EmployeeCode : $"A{sequenceNo:000}";
 
         /// <summary>
-        /// Éú³ÉÔ±¹¤ÔÚÖ°×´Ì¬ÎÄ±¾¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Ö°×´Ì¬ï¿½Ä±ï¿½ï¿½ï¿½
         /// </summary>
         private string BuildEmploymentStatus(Employee employee)
             => employee.IsDeleted
@@ -536,7 +536,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
                     : _localizer["Employee_Status_Active"];
 
         /// <summary>
-        /// Éú³ÉÐÔ±ðÎÄ±¾£¬Î´Î¬»¤Ê±ÏÔÊ¾Ä¬ÈÏÖµ¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Î´Î¬ï¿½ï¿½Ê±ï¿½ï¿½Ê¾Ä¬ï¿½ï¿½Öµï¿½ï¿½
         /// </summary>
         private string BuildGenderLabel(Employee employee)
             => employee.GenderId switch
@@ -546,7 +546,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
             };
 
         /// <summary>
-        /// Éú³ÉËùÊô×éÖ¯Ãû³Æ£¬ÓÅÏÈÕ¹Ê¾×éÖ¯¼ò³Æ¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¯ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½Ö¯ï¿½ï¿½Æ¡ï¿½
         /// </summary>
         private string BuildOrganizationName(Employee employee)
         {
@@ -557,7 +557,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
                 return _localizer["Employee_DefaultOrganizationName"];
             }
 
-            foreach (var removableSuffix in new[] { "¹É·ÝÓÐÏÞ¹«Ë¾", "¼¯ÍÅÓÐÏÞ¹«Ë¾", "ÓÐÏÞÔðÈÎ¹«Ë¾", "ÓÐÏÞ¹«Ë¾" })
+            foreach (var removableSuffix in new[] { "ï¿½É·ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¹ï¿½Ë¾", "ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾" })
             {
                 if (organizationName.EndsWith(removableSuffix, StringComparison.Ordinal))
                 {
@@ -569,13 +569,13 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Éú³É²¿ÃÅÃû³Æ£¬Î´ÅäÖÃÊ±Ê¹ÓÃÄ¬ÈÏÖµ¡£
+        /// ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ê±Ê¹ï¿½ï¿½Ä¬ï¿½ï¿½Öµï¿½ï¿½
         /// </summary>
         private string BuildDepartmentLabel(Employee employee)
             => employee.Department?.Name ?? _localizer["Employee_DefaultDepartment"];
 
         /// <summary>
-        /// Éú³É×é±ðÃû³Æ£¬Î´ÅäÖÃÊ±ÏÔÊ¾Ä¬ÈÏ×é±ð¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ê¾Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private string BuildGroupLabel(Employee employee)
             => employee.GroupId.HasValue
@@ -583,7 +583,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
                 : _localizer["Employee_DefaultGroup"];
 
         /// <summary>
-        /// Éú³ÉÖ°ÎñÕ¹Ê¾ÄÚÈÝ£¬Î´Î¬»¤Ê±Ê¹ÓÃÄ¬ÈÏÖ°Îñ¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ö°ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½Î´Î¬ï¿½ï¿½Ê±Ê¹ï¿½ï¿½Ä¬ï¿½ï¿½Ö°ï¿½ï¿½
         /// </summary>
         private string BuildJobTitleLabel(Employee employee, int sequenceNo)
             => employee.JobTitle ?? employee.Position?.Name ?? (sequenceNo switch
@@ -595,37 +595,37 @@ namespace OpenERP.Web.Areas.HR.Controllers
             });
 
         /// <summary>
-        /// Éú³Éµç»°Õ¹Ê¾ÄÚÈÝ£¬Î´Î¬»¤Ê±Ê¹ÓÃÑÝÊ¾ºÅÂë¡£
+        /// ï¿½ï¿½ï¿½Éµç»°Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½Î´Î¬ï¿½ï¿½Ê±Ê¹ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ë¡£
         /// </summary>
         private static string BuildPhoneLabel(Employee employee)
             => employee.PhoneNumber ?? "(020) 6666 8888";
 
         /// <summary>
-        /// Éú³É´«ÕæÕ¹Ê¾ÄÚÈÝ£¬Î´Î¬»¤Ê±Ê¹ÓÃµç»°¶þ»òÑÝÊ¾ºÅÂë¡£
+        /// ï¿½ï¿½ï¿½É´ï¿½ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½Î´Î¬ï¿½ï¿½Ê±Ê¹ï¿½Ãµç»°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ë¡£
         /// </summary>
         private static string BuildFaxLabel(Employee employee)
             => employee.PhoneNumber2 ?? "(020) 6666 8889";
 
         /// <summary>
-        /// Éú³ÉÓÊÏäÕ¹Ê¾ÄÚÈÝ£¬Î´Î¬»¤Ê±Ê¹ÓÃÑÝÊ¾ÓÊÏä¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½Î´Î¬ï¿½ï¿½Ê±Ê¹ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ä¡£
         /// </summary>
         private static string BuildEmailLabel(Employee employee)
             => string.IsNullOrWhiteSpace(employee.Email) ? "jeky@honeyi.com" : employee.Email;
 
         /// <summary>
-        /// Éú³É±¸×¢Õ¹Ê¾ÄÚÈÝ£¬Î´ÌîÐ´Ê±·µ»Ø¿ÕÎÄ±¾¡£
+        /// ï¿½ï¿½ï¿½É±ï¿½×¢Õ¹Ê¾ï¿½ï¿½ï¿½Ý£ï¿½Î´ï¿½ï¿½Ð´Ê±ï¿½ï¿½ï¿½Ø¿ï¿½ï¿½Ä±ï¿½ï¿½ï¿½
         /// </summary>
         private string BuildRemarkLabel(Employee employee)
             => string.IsNullOrWhiteSpace(employee.Remarks) ? string.Empty : employee.Remarks;
 
         /// <summary>
-        /// ÅÐ¶Ï×Ö·û´®ÖÐÊÇ·ñ°üº¬Ó¢ÎÄ×ÖÄ¸£¬ÓÃÓÚÐÕÃûÏÔÊ¾¸ñÊ½ÇÐ»»¡£
+        /// ï¿½Ð¶ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ê½ï¿½Ð»ï¿½ï¿½ï¿½
         /// </summary>
         private static bool ContainsLatinLetter(string value)
             => value.Any(character => character is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
 
         /// <summary>
-        /// ½âÎöµ±Ç°µÇÂ¼²Ù×÷ÈËµÄÏÔÊ¾ÐÕÃû£¨ÓÅÏÈ°´µÇÂ¼ÕËºÅ·´²éÔ±¹¤×ÊÁÏ£¬±£Ö¤ÖÐÎÄÐÕÃûË³ÐòÕýÈ·£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È°ï¿½ï¿½ï¿½Â¼ï¿½ËºÅ·ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private async Task<string> ResolveCurrentOperatorDisplayNameAsync()
         {
@@ -649,7 +649,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ×¼±¸Ô±¹¤ÏêÇéÒ³ÏÂÀ­Êý¾Ý£¨×éÖ¯¡¢²¿ÃÅ¡¢Ö°Î»¼°¾²Ì¬×ÖµäÑ¡Ïî£©¡£
+        /// ×¼ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Ö¯ï¿½ï¿½ï¿½ï¿½ï¿½Å¡ï¿½Ö°Î»ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½Öµï¿½Ñ¡ï¿½î£©ï¿½ï¿½
         /// </summary>
         private async Task PopulateSelectListsAsync(Employee? employee = null, bool applyDefaults = false)
         {
@@ -773,7 +773,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ¹¹½¨¾²Ì¬ÏÂÀ­Ñ¡Ïî£¨ÓÃÓÚµ±Ç°ÔÝÊ±ÎÞ»ù´¡×Öµä½Ó¿ÚµÄÔ±¹¤×ÊÁÏÒ³£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î£¨ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½Ê±ï¿½Þ»ï¿½ï¿½ï¿½ï¿½Öµï¿½Ó¿Úµï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static List<SelectListItem> BuildStaticSelectList(int? selectedValue, IEnumerable<(int Value, string Text)> options)
         {
@@ -792,7 +792,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ¹¹½¨µØÖ·»ù´¡Êý¾ÝÏÂÀ­Ñ¡Ïî£¨Ö§³Ö°´ÉÏ¼¶Ñ¡Ïî¹ýÂË³ÇÊÐºÍÏØ/Çø£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î£¨Ö§ï¿½Ö°ï¿½ï¿½Ï¼ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½Ðºï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static List<SelectListItem> BuildFilteredBasicDataSelectList(
             IEnumerable<BasicDataItem> activeItems,
@@ -821,7 +821,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// »ñÈ¡µØÖ·»ù´¡Êý¾ÝÑ¡Ïî£¨¹©Ç°¶Ë¼¶ÁªÏÂÀ­°´²ã¼¶¶¯Ì¬¼ÓÔØ£©¡£
+        /// ï¿½ï¿½È¡ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î£¨ï¿½ï¿½Ç°ï¿½Ë¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã¼¶ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½Ø£ï¿½ï¿½ï¿½
         /// </summary>
         private async Task<List<BasicDataItem>> GetLocationItemsAsync(string typeCode, int? parentId = null)
         {
@@ -845,7 +845,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// Ð£ÑéÔ±¹¤µØÖ·²ã¼¶¹ØÏµ£¨³ÇÊÐ±ØÐëÊôÓÚ¹ú¼Ò/µØÇø£¬ÏØ/Çø±ØÐëÊôÓÚ³ÇÊÐ£©¡£
+        /// Ð£ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ã¼¶ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½Ð£ï¿½ï¿½ï¿½
         /// </summary>
         private async Task ValidateLocationSelectionAsync(
             int? countryRegionId,
@@ -867,28 +867,28 @@ namespace OpenERP.Web.Areas.HR.Controllers
 
             if (countryRegionId.HasValue && countryRegionItem == null)
             {
-                ModelState.AddModelError(countryRegionFieldName, "ËùÑ¡¹ú¼Ò/µØÇø²»´æÔÚ»òÒÑÍ£ÓÃ¡£");
+                ModelState.AddModelError(countryRegionFieldName, "ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½Í£ï¿½Ã¡ï¿½");
             }
 
             if (cityId.HasValue && cityItem == null)
             {
-                ModelState.AddModelError(cityFieldName, "ËùÑ¡³ÇÊÐ²»´æÔÚ»òÒÑÍ£ÓÃ¡£");
+                ModelState.AddModelError(cityFieldName, "ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½Í£ï¿½Ã¡ï¿½");
             }
 
             if (countyId.HasValue && countyItem == null)
             {
-                ModelState.AddModelError(countyFieldName, "ËùÑ¡ÏØ/Çø²»´æÔÚ»òÒÑÍ£ÓÃ¡£");
+                ModelState.AddModelError(countyFieldName, "ï¿½ï¿½Ñ¡ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½Í£ï¿½Ã¡ï¿½");
             }
 
             if (cityItem != null)
             {
                 if (!countryRegionId.HasValue)
                 {
-                    ModelState.AddModelError(countryRegionFieldName, "Ñ¡Ôñ³ÇÊÐÇ°ÇëÏÈÑ¡Ôñ¹ú¼Ò/µØÇø¡£");
+                    ModelState.AddModelError(countryRegionFieldName, "Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                 }
                 else if (cityItem.ParentId != countryRegionId.Value)
                 {
-                    ModelState.AddModelError(cityFieldName, "ËùÑ¡³ÇÊÐ²»ÊôÓÚµ±Ç°¹ú¼Ò/µØÇø¡£");
+                    ModelState.AddModelError(cityFieldName, "ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                 }
             }
 
@@ -896,17 +896,17 @@ namespace OpenERP.Web.Areas.HR.Controllers
             {
                 if (!cityId.HasValue)
                 {
-                    ModelState.AddModelError(cityFieldName, "Ñ¡ÔñÏØ/ÇøÇ°ÇëÏÈÑ¡Ôñ³ÇÊÐ¡£");
+                    ModelState.AddModelError(cityFieldName, "Ñ¡ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½");
                 }
                 else if (countyItem.ParentId != cityId.Value)
                 {
-                    ModelState.AddModelError(countyFieldName, "ËùÑ¡ÏØ/Çø²»ÊôÓÚµ±Ç°³ÇÊÐ¡£");
+                    ModelState.AddModelError(countyFieldName, "ï¿½ï¿½Ñ¡ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½Ð¡ï¿½");
                 }
             }
         }
 
         /// <summary>
-        /// ¹æ·¶Ô±¹¤¿¨ºÅ²¢Ð£ÑéÔÚÖ°Ô±¹¤Î¨Ò»ÐÔ£¨Áô¿ÕÔÊÐí±£´æ£©¡£
+        /// ï¿½æ·¶Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Å²ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ö°Ô±ï¿½ï¿½Î¨Ò»ï¿½Ô£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ£©ï¿½ï¿½
         /// </summary>
         private async Task ValidateEmployeeCardNumberAsync(Employee employee, int? excludedEmployeeId = null)
         {
@@ -919,12 +919,12 @@ namespace OpenERP.Web.Areas.HR.Controllers
             var exists = await _hrRepository.ExistsActiveEmployeeCardNumberAsync(employee.CardNumber, excludedEmployeeId);
             if (exists)
             {
-                ModelState.AddModelError(nameof(Employee.CardNumber), "µ±Ç°Ô±¹¤¿¨ºÅÒÑ±»ÆäËûÔÚÖ°Ô±¹¤Ê¹ÓÃ¡£");
+                ModelState.AddModelError(nameof(Employee.CardNumber), "ï¿½ï¿½Ç°Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö°Ô±ï¿½ï¿½Ê¹ï¿½Ã¡ï¿½");
             }
         }
 
         /// <summary>
-        /// ÅÐ¶ÏÎÄµµÊÇ·ñÎªÔ±¹¤Í¼Æ¬ÎÄµµ£¨ÓÃÓÚÏÞÖÆÖ÷Í¼Ö»ÄÜÀ´×ÔÊÜ¿ØÍ¼Æ¬¼¯ºÏ£©¡£
+        /// ï¿½Ð¶ï¿½ï¿½Äµï¿½ï¿½Ç·ï¿½ÎªÔ±ï¿½ï¿½Í¼Æ¬ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½
         /// </summary>
         private static bool IsEmployeePhotoDocument(ManagedDocument document)
         {
@@ -935,13 +935,13 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ¹æ·¶¿É¿ÕÎÄ±¾ÊäÈë£¨È¥³ýÊ×Î²¿Õ¸ñ£¬¿Õ°×ÖµÍ³Ò»×ªÎª null£©¡£
+        /// ï¿½æ·¶ï¿½É¿ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ë£¨È¥ï¿½ï¿½ï¿½ï¿½Î²ï¿½Õ¸ñ£¬¿Õ°ï¿½ÖµÍ³Ò»×ªÎª nullï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static string? NormalizeOptionalText(string? value)
             => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
         /// <summary>
-        /// ¹éÒ»»¯µØÖ·²ã¼¶Ñ¡ÖÐÖµ£¨×Ó¼¶´æÔÚÊ±×Ô¶¯²¹Æë¸¸¼¶£¬¸¸×Ó²»Æ¥ÅäÊ±Çå¿ÕÎÞÐ§×Ó¼¶£©¡£
+        /// ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ã¼¶Ñ¡ï¿½ï¿½Öµï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ë¸¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó²ï¿½Æ¥ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static void NormalizeLocationSelection(
             IReadOnlyCollection<BasicDataItem> activeItems,
@@ -996,7 +996,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// »ñÈ¡Ö¸¶¨µØÖ·ÀàÐÍµÄÒÑÆôÓÃ»ù´¡Êý¾ÝÏî£¨°´Ñ¡ÖÐÖµºÍÀàÐÍË«ÖØÐ£Ñé£©¡£
+        /// ï¿½ï¿½È¡Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î£¨ï¿½ï¿½Ñ¡ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë«ï¿½ï¿½Ð£ï¿½é£©ï¿½ï¿½
         /// </summary>
         private static BasicDataItem? FindActiveItem(
             IEnumerable<BasicDataItem> activeItems,
@@ -1013,7 +1013,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// »ñÈ¡Ö¸¶¨ÀàÐÍµÄÄ¬ÈÏ»ù´¡Êý¾ÝÏî ID£¨ÓÃÓÚÐÂ½¨Ô±¹¤Ê±Ìî³äÄ¬ÈÏµØÖ·£©¡£
+        /// ï¿½ï¿½È¡Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½Ä¬ï¿½Ï»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½Ô±ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ä¬ï¿½Ïµï¿½Ö·ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static int? FindDefaultItemId(
             IEnumerable<BasicDataItem> activeItems,
@@ -1034,7 +1034,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// »ñÈ¡Ö¸¶¨¸¸¼¶ÏÂµÄÄ¬ÈÏ×Ó¼¶»ù´¡Êý¾ÝÏî ID£¨ÓÃÓÚ°´²ã¼¶²¹È«Ä¬ÈÏ³ÇÊÐºÍÏØ/Çø£©¡£
+        /// ï¿½ï¿½È¡Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Ä¬ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ IDï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ï¿½ã¼¶ï¿½ï¿½È«Ä¬ï¿½Ï³ï¿½ï¿½Ðºï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static int? FindDefaultChildItemId(
             IEnumerable<BasicDataItem> activeItems,
@@ -1057,7 +1057,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// °´»ù´¡Êý¾ÝÀàÐÍ±àÂë¹¹½¨ÏÂÀ­Ñ¡Ïî£¨ÓÃÓÚÃñ×å¡¢Ö°³ÆµÈÓÃ»§¿ÉÎ¬»¤×Öµä£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ë¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¡¢Ö°ï¿½Æµï¿½ï¿½Ã»ï¿½ï¿½ï¿½Î¬ï¿½ï¿½ï¿½Öµä£©ï¿½ï¿½
         /// </summary>
         private async Task<List<SelectListItem>> BuildBasicDataSelectListAsync(string typeCode, int? selectedValue)
         {
@@ -1081,7 +1081,7 @@ namespace OpenERP.Web.Areas.HR.Controllers
         }
 
         /// <summary>
-        /// ·µ»ØÔ±¹¤ÏêÇéÒ³¹Ø±Õ½Å±¾£¨Í¨Öª¸¸Ò³Ãæ¹Ø±Õµ¯²ã²¢Ë¢ÐÂÁÐ±í£©¡£
+        /// ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½Ø±Õ½Å±ï¿½ï¿½ï¿½Í¨Öªï¿½ï¿½Ò³ï¿½ï¿½Ø±Õµï¿½ï¿½ã²¢Ë¢ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private ContentResult BuildDetailPageCloseResult()
         {

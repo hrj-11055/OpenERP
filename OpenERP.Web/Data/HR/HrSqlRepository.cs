@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using OpenERP.HR.Models.Entities;
+using OpenERP.Web.Security;
 using System.Data;
 
 namespace OpenERP.Web.Data.HR;
@@ -141,8 +142,10 @@ public class HrSqlRepository : IHrRepository
         await ExecuteNonQueryAsync(conn, BuildPositionMigrationSql());
         await ExecuteNonQueryAsync(conn, BuildEmployeeMigrationSql());
         await SeedCompanyOrganizationsAsync(conn);
-        await SeedEmployeesAsync(conn);
-        await ExecuteNonQueryAsync(conn, BuildEmployeeCredentialDefaultSql());
+        // 默认登录密码统一在 C# 侧生成 PBKDF2 哈希后写入数据库（不再落明文）。
+        var defaultPasswordHash = PasswordHasher.HashPassword("123456");
+        await SeedEmployeesAsync(conn, defaultPasswordHash);
+        await ExecuteNonQueryAsync(conn, BuildEmployeeCredentialDefaultSql(), new SqlParameter("@DefaultHash", defaultPasswordHash));
         await ExecuteNonQueryAsync(conn, BuildRoleInitializeSql());
         await ExecuteNonQueryAsync(conn, BuildPermissionInitializeSql());
         await ExecuteNonQueryAsync(conn, BuildRolePermissionInitializeSql());
@@ -154,6 +157,8 @@ public class HrSqlRepository : IHrRepository
         await SeedPermissionsAsync(conn);
         await SeedRolePermissionsAsync(conn);
         await EnsureLocationDictionaryCompatibilityAsync(conn);
+        // 将存量明文登录密码一次性升级为 PBKDF2 哈希（放在初始化末尾，确保默认密码已先写入）。
+        await UpgradePlaintextPasswordsAsync(conn);
     }
 
     /// <summary>
@@ -1168,8 +1173,9 @@ public class HrSqlRepository : IHrRepository
 
     public async Task<List<Employee>> GetEmployeesAsync()
     {
+        // 列表查询不读取登录密码列（脱敏，降低密码外泄面）。
         var sql = $"""
-            {BuildEmployeeSelectSql(includeNav: true)}
+            {BuildEmployeeSelectSql(includeNav: true, includeCredentials: false)}
             WHERE e.IsDeleted = 0
             ORDER BY e.Id DESC;
             """;
@@ -1209,8 +1215,9 @@ public class HrSqlRepository : IHrRepository
 
     public async Task<Employee?> GetEmployeeDetailsAsync(int id)
     {
+        // 详情查询不读取登录密码列（脱敏；账号密码维护走 GetEmployeeByIdAsync 与账号及权限页签）。
         var sql = $"""
-            {BuildEmployeeSelectSql(includeNav: true)}
+            {BuildEmployeeSelectSql(includeNav: true, includeCredentials: false)}
             WHERE e.Id = @Id AND e.IsDeleted = 0;
             """;
 
@@ -1677,7 +1684,7 @@ public class HrSqlRepository : IHrRepository
             """;
 
     /// <summary>
-    /// 为现有员工补齐默认登录账号与默认登录密码（账号默认使用员工编号，密码默认使用 123456）。
+    /// 为现有员工补齐默认登录账号与默认登录密码（账号默认使用员工编号，密码默认使用 123456 的 PBKDF2 哈希，经 @DefaultHash 参数传入）。
     /// </summary>
     private static string BuildEmployeeCredentialDefaultSql()
         => $"""
@@ -1700,7 +1707,7 @@ public class HrSqlRepository : IHrRepository
               AND NULLIF(LTRIM(RTRIM(ISNULL(EmployeeCode, N''))), N'') IS NOT NULL;
 
             UPDATE dbo.{EmployeeTableName}
-            SET LoginPassword = N'123456'
+            SET LoginPassword = @DefaultHash
             WHERE ISNULL(IsDeleted, 0) = 0
               AND NULLIF(LTRIM(RTRIM(ISNULL(LoginPassword, N''))), N'') IS NULL;
             """;
@@ -2285,7 +2292,7 @@ public class HrSqlRepository : IHrRepository
             FROM dbo.{CompanyOrganizationTableName}
             """;
 
-    private static string BuildEmployeeSelectSql(bool includeNav)
+    private static string BuildEmployeeSelectSql(bool includeNav, bool includeCredentials = true)
         => includeNav
             ? $"""
                 SELECT
@@ -2294,7 +2301,7 @@ public class HrSqlRepository : IHrRepository
                     e.AliasName, e.BirthDate, e.IdCardNumber, e.EthnicityId, e.MaritalStatusId, e.EducationLevelId,
                     e.EducationCertificateNumber, e.ProfessionalTitleId, e.CountryRegionId, e.CityId, e.CountyId,
                     e.Address, e.Remarks, e.EmergencyContact, e.EmergencyContactPhone, e.Referrer, e.ArchivePath,
-                    e.PhotoPath, e.HireDate, e.LeaveDate, e.LoginAccount, e.LoginPassword, e.ForceViewRecordDays,
+                    e.PhotoPath, e.HireDate, e.LeaveDate, e.LoginAccount, {(includeCredentials ? "e.LoginPassword" : "CAST(NULL AS NVARCHAR(200)) AS LoginPassword")}, e.ForceViewRecordDays,
                     e.RoleId, e.AccountValidUntil, e.IsAccountFrozen, e.EmploymentTypeId, e.AllowancePackageId,
                     e.ProbationEndDate, e.AnnualLeaveCalculationMethodId, e.IsAttendanceRequired,
                     e.CurrentYearAnnualLeaveDays, e.AnnualLeaveMaxAccumulatedDays, e.AnnualLeaveRemainingDays,
@@ -2318,7 +2325,7 @@ public class HrSqlRepository : IHrRepository
                     e.AliasName, e.BirthDate, e.IdCardNumber, e.EthnicityId, e.MaritalStatusId, e.EducationLevelId,
                     e.EducationCertificateNumber, e.ProfessionalTitleId, e.CountryRegionId, e.CityId, e.CountyId,
                     e.Address, e.Remarks, e.EmergencyContact, e.EmergencyContactPhone, e.Referrer, e.ArchivePath,
-                    e.PhotoPath, e.HireDate, e.LeaveDate, e.LoginAccount, e.LoginPassword, e.ForceViewRecordDays,
+                    e.PhotoPath, e.HireDate, e.LeaveDate, e.LoginAccount, {(includeCredentials ? "e.LoginPassword" : "CAST(NULL AS NVARCHAR(200)) AS LoginPassword")}, e.ForceViewRecordDays,
                     e.RoleId, e.AccountValidUntil, e.IsAccountFrozen, e.EmploymentTypeId, e.AllowancePackageId,
                     e.ProbationEndDate, e.AnnualLeaveCalculationMethodId, e.IsAttendanceRequired,
                     e.CurrentYearAnnualLeaveDays, e.AnnualLeaveMaxAccumulatedDays, e.AnnualLeaveRemainingDays,
@@ -2638,9 +2645,9 @@ public class HrSqlRepository : IHrRepository
     /// 绑定员工资料写入参数（用于新增与编辑）。
     /// </summary>
     /// <summary>
-    /// 初始化员工演示数据（仅在员工表为空时写入三条员工记录）。
+    /// 初始化员工演示数据（仅在员工表为空时写入三条员工记录，默认密码以 PBKDF2 哈希参数传入）。
     /// </summary>
-    private static async Task SeedEmployeesAsync(SqlConnection conn)
+    private static async Task SeedEmployeesAsync(SqlConnection conn, string defaultPasswordHash)
     {
         var sql = $"""
             IF EXISTS (SELECT 1 FROM dbo.{EmployeeTableName} WHERE IsDeleted = 0)
@@ -2666,7 +2673,7 @@ public class HrSqlRepository : IHrRepository
                     INNER JOIN dbo.BD_BasicDataType type ON type.Id = item.TypeId
                     WHERE type.TypeCode = 'POSITION' AND item.ItemCode = 'GENERAL_MANAGER' AND item.IsDeleted = 0
                 ),
-                1, 1, N'/archive/employee/a001', N'示例员工资料', N'A001', N'123456',
+                1, 1, N'/archive/employee/a001', N'示例员工资料', N'A001', @DefaultPassword,
                 DATEADD(DAY, -10, SYSDATETIME()), DATEADD(DAY, -2, SYSDATETIME()), N'Admin', N'Admin', 0
             ),
             (
@@ -2680,7 +2687,7 @@ public class HrSqlRepository : IHrRepository
                     INNER JOIN dbo.BD_BasicDataType type ON type.Id = item.TypeId
                     WHERE type.TypeCode = 'POSITION' AND item.ItemCode = 'ACCOUNTANT' AND item.IsDeleted = 0
                 ),
-                1, 2, N'/archive/employee/a002', N'示例员工资料', N'A002', N'123456',
+                1, 2, N'/archive/employee/a002', N'示例员工资料', N'A002', @DefaultPassword,
                 DATEADD(DAY, -8, SYSDATETIME()), DATEADD(DAY, -1, SYSDATETIME()), N'Admin', N'Admin', 0
             ),
             (
@@ -2694,12 +2701,53 @@ public class HrSqlRepository : IHrRepository
                     INNER JOIN dbo.BD_BasicDataType type ON type.Id = item.TypeId
                     WHERE type.TypeCode = 'POSITION' AND item.ItemCode = 'HR_SPECIALIST' AND item.IsDeleted = 0
                 ),
-                1, 2, N'/archive/employee/a003', N'示例员工资料', N'A003', N'123456',
+                1, 2, N'/archive/employee/a003', N'示例员工资料', N'A003', @DefaultPassword,
                 DATEADD(DAY, -6, SYSDATETIME()), NULL, N'Admin', NULL, 0
             );
             """;
 
-        await ExecuteNonQueryAsync(conn, sql);
+        await ExecuteNonQueryAsync(conn, sql, new SqlParameter("@DefaultPassword", defaultPasswordHash));
+    }
+
+    /// <summary>
+    /// 将存量明文登录密码一次性升级为 PBKDF2 哈希（密码本身不变，仅存储格式升级，用户无感知）。
+    /// </summary>
+    private static async Task UpgradePlaintextPasswordsAsync(SqlConnection conn)
+    {
+        // 找出仍以非 PBKDF2 格式存储的非空密码（历史明文数据）。
+        var selectSql = $"""
+            SELECT Id, LoginPassword
+            FROM dbo.{EmployeeTableName}
+            WHERE ISNULL(IsDeleted, 0) = 0
+              AND NULLIF(LTRIM(RTRIM(ISNULL(LoginPassword, N''))), N'') IS NOT NULL
+              AND LoginPassword NOT LIKE N'PBKDF2:%';
+            """;
+
+        var upgrades = new List<(int Id, string PlainPassword)>();
+        await using (var cmd = new SqlCommand(selectSql, conn))
+        await using (var reader = await cmd.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+            {
+                upgrades.Add((reader.GetInt32(0), reader.GetString(1)));
+            }
+        }
+
+        // 逐条将原明文值哈希后写回（原密码继续有效）。
+        var updateSql = $"""
+            UPDATE dbo.{EmployeeTableName}
+            SET LoginPassword = @LoginPassword, UpdatedAt = @UpdatedAt
+            WHERE Id = @Id AND ISNULL(IsDeleted, 0) = 0;
+            """;
+
+        foreach (var (id, plainPassword) in upgrades)
+        {
+            await using var cmd = new SqlCommand(updateSql, conn);
+            cmd.Parameters.Add(new SqlParameter("@Id", id));
+            cmd.Parameters.Add(new SqlParameter("@LoginPassword", PasswordHasher.HashPassword(plainPassword)));
+            cmd.Parameters.Add(new SqlParameter("@UpdatedAt", DateTime.Now));
+            await cmd.ExecuteNonQueryAsync();
+        }
     }
 
     /// <summary>
@@ -4617,11 +4665,16 @@ public class HrSqlRepository : IHrRepository
     }
 
     /// <summary>
-    /// 执行初始化 SQL 语句。
+    /// 执行初始化 SQL 语句（支持可选的参数化变量，用于传入哈希值等）。
     /// </summary>
-    private static async Task ExecuteNonQueryAsync(SqlConnection conn, string sql)
+    private static async Task ExecuteNonQueryAsync(SqlConnection conn, string sql, params SqlParameter[] parameters)
     {
         await using var cmd = new SqlCommand(sql, conn);
+        foreach (var parameter in parameters)
+        {
+            cmd.Parameters.Add(parameter);
+        }
+
         await cmd.ExecuteNonQueryAsync();
     }
 
