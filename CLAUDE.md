@@ -141,6 +141,20 @@ All entities inherit from `BaseEntity` which provides: `Id` (int, PK), `CreatedA
 7. Create Area in `OpenERP.Web/Areas/{Module}/` with Controllers and Views
 8. Run initial migration: `dotnet ef migrations add InitialCreate --project OpenERP.{Module} --startup-project OpenERP.Web`
 
+## Version Control
+
+Git repository. Remote `origin` = `https://hrj-11055@github.com/hrj-11055/OpenERP.git` (private GitHub repo). The username embedded in the URL is required: Git Credential Manager on this machine also holds credentials for a second GitHub account (`jiahui200911-pixel`), and without the embedded username pushes fail with "Repository not found".
+
+- Commit message format: `模块名: 说明`（中文），e.g. `HR: 新增员工导出功能`
+- `.mcp.json` contains a live Modao API token — gitignored, must never enter the repo
+- Ignored as build output: `bin/`, `obj/`, `artifacts/`, `artifacts_obj/`, `output/`, `OpenERP.Web/wwwroot/vue-login/` (regenerate via `npm run build` in OpenERP.Frontend)
+
+## Repository Root Extras
+
+- `docs/design/` — Modao (墨刀) HTML prototypes for HR pages; `docs/review/` — review report (docx) and issue matrix (xlsx)
+- `scripts/` — PowerShell scripts to generate/register the AI daily report scheduled task
+- No test projects exist yet; `dotnet build` is the only automated verification
+
 ## Connection String
 
 Default: LocalDB (`(localdb)\mssqllocaldb`), database name `OpenERP`.
