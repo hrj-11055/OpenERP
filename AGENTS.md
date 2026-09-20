@@ -24,6 +24,10 @@
   - `TR`：运输模块（Transport）
   - `BD`：基础数据模块（BasicData）
   - `HR`：人资模块（Human Resources）
+  - `FIN`：财务模块（Finance）
+  - `LOG`：物流模块（Logistics）
+  - `PO`：采购模块（Purchasing）
+  - `SA`：销售模块（Sales）
 - 实体名统一使用 PascalCase 单数形式，不使用复数。
 - 示例：
   - `OF_Meeting`
@@ -32,6 +36,7 @@
   - `BD_BasicDataType`
   - `HR_Employee`
 - 新增模块时，需先确定模块前缀，再创建或映射数据库表。
+- 注：Sales、Purchasing、Finance、Logistics 等早期 EF Core 模块尚未迁移到前缀表名；新模块必须在 `OnModelCreating` 中用 `modelBuilder.Entity<T>().ToTable("前缀_实体名")` 显式配置表名。
 - 系统级共享表使用 `SYS_` 前缀，例如通用文档表 `SYS_Document`。
 
 ## ASP.NET Core 控制器与权限规则

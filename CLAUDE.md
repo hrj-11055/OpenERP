@@ -75,6 +75,8 @@ OpenERP.{Module}/
 └── Migrations/         # EF Core migrations (EF Core modules only)
 ```
 
+All entities inherit from `BaseEntity` which provides: `Id` (int, PK), `CreatedAt`, `UpdatedAt` (timestamps), `CreatedBy`, `UpdatedBy` (string, optional), `IsDeleted` (soft delete flag).
+
 The web application uses ASP.NET Core Areas to organize controllers and views:
 ```
 OpenERP.Web/
@@ -99,36 +101,9 @@ OpenERP.Web/
 
 Place API controllers in `OpenERP.Web/Controllers/` with `[ApiController]` and `[Route("api/[controller]")]`. Reference pattern: [AuthApiController.cs](OpenERP.Web/Controllers/AuthApiController.cs). Return `ActionResult<T>`. Auth API uses raw ADO.NET for authentication queries against `HR_Employee` table.
 
-## Naming Conventions (from AGENTS.md)
+## Conventions
 
-### Code Comments
-- All class/property/field/method names must have Chinese comments explaining business meaning
-- Comments go above the member being documented
-- For foreign key `Id` fields, specify which dictionary/entity they reference
-- For abbreviations, provide Chinese explanation
-
-### Database Table Naming
-All business tables use format: `<ModulePrefix>_<EntityName>` (PascalCase, singular)
-
-| Module | Prefix | Example Table |
-|--------|--------|---------------|
-| Asset | AS | `AS_Asset` |
-| BasicData | BD | `BD_BasicDataType` |
-| CRM | CRM | `CRM_Lead` |
-| Finance | FIN | `FIN_Account` |
-| HR | HR | `HR_Employee` |
-| Logistics | LOG | `LOG_Shipment` |
-| Office | OF | `OF_Meeting` |
-| Production | PRD | `PRD_ProductionOrder` |
-| Purchasing | PO | `PO_PurchaseOrder` |
-| Sales | SA | `SA_SalesOrder` |
-| Service | SV | `SV_ServiceContract` |
-| Transport | TR | `TR_Vehicle` |
-
-**Note**: Some older EF Core modules (Sales, Purchasing, Finance, Logistics) don't yet use prefixed table names. New modules should always configure table names in `OnModelCreating` using `modelBuilder.Entity<T>().ToTable("Prefix_EntityName")`.
-
-### Entity Base Class
-All entities inherit from `BaseEntity` which provides: `Id` (int, PK), `CreatedAt`, `UpdatedAt` (timestamps), `CreatedBy`, `UpdatedBy` (string, optional), `IsDeleted` (soft delete flag).
+All coding and collaboration conventions live in [AGENTS.md](AGENTS.md) (Chinese) and are authoritative — read it before writing code. It covers: Chinese comments on all members, table naming `<ModulePrefix>_<EntityName>` (with the full prefix list), controller authorization/CSRF rules, file upload and document management, data access rules, frontend HTML escaping and button states, page visual style, build verification, and the code review checklist.
 
 ## Adding a New Module
 
@@ -164,4 +139,4 @@ Configured in `OpenERP.Web/appsettings.json`.
 
 - [OpenERP.slnx](OpenERP.slnx) - Solution file listing all projects
 - [OpenERP.Web/Program.cs](OpenERP.Web/Program.cs) - Application entry point, DI registration, middleware pipeline
-- [AGENTS.md](AGENTS.md) - Chinese naming and table convention rules
+- [AGENTS.md](AGENTS.md) - Authoritative coding conventions (Chinese): comments, table naming prefixes, auth/CSRF, file upload, frontend, visual style, review checklist
