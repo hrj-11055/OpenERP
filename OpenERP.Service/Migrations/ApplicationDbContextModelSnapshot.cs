@@ -33,6 +33,10 @@ namespace OpenERP.Service.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("CustomerName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -59,9 +63,13 @@ namespace OpenERP.Service.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceContracts");
+                    b.ToTable("SV_ServiceContract", (string)null);
                 });
 
             modelBuilder.Entity("OpenERP.Service.Models.Entities.ServiceRequest", b =>
@@ -74,6 +82,10 @@ namespace OpenERP.Service.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -98,11 +110,15 @@ namespace OpenERP.Service.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceContractId");
 
-                    b.ToTable("ServiceRequests");
+                    b.ToTable("SV_ServiceRequest", (string)null);
                 });
 
             modelBuilder.Entity("OpenERP.Service.Models.Entities.ServiceRequest", b =>

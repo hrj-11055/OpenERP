@@ -37,6 +37,10 @@ namespace OpenERP.Asset.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -58,9 +62,13 @@ namespace OpenERP.Asset.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Assets");
+                    b.ToTable("AS_Asset", (string)null);
                 });
 
             modelBuilder.Entity("OpenERP.Asset.Models.Entities.MaintenanceRecord", b =>
@@ -80,6 +88,10 @@ namespace OpenERP.Asset.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -94,11 +106,15 @@ namespace OpenERP.Asset.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssetId");
 
-                    b.ToTable("MaintenanceRecords");
+                    b.ToTable("AS_MaintenanceRecord", (string)null);
                 });
 
             modelBuilder.Entity("OpenERP.Asset.Models.Entities.MaintenanceRecord", b =>
