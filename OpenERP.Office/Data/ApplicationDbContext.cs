@@ -24,6 +24,10 @@ namespace OpenERP.Office.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Meeting>().ToTable("OF_Meeting");
             modelBuilder.Entity<OfficeTask>().ToTable("OF_Task");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Meeting>().HasQueryFilter(meeting => !meeting.IsDeleted);
+            modelBuilder.Entity<OfficeTask>().HasQueryFilter(task => !task.IsDeleted);
         }
     }
 }

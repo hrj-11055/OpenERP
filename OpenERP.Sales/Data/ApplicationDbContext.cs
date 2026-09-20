@@ -27,6 +27,13 @@ namespace OpenERP.Sales.Data
 
             modelBuilder.Entity<SalesQuotation>().ToTable("SA_SalesQuotation");
             modelBuilder.Entity<SalesQuotationItem>().ToTable("SA_SalesQuotationItem");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Customer>().HasQueryFilter(customer => !customer.IsDeleted);
+            modelBuilder.Entity<SalesOrder>().HasQueryFilter(order => !order.IsDeleted);
+            modelBuilder.Entity<SalesOrderItem>().HasQueryFilter(item => !item.IsDeleted);
+            modelBuilder.Entity<SalesQuotation>().HasQueryFilter(quotation => !quotation.IsDeleted);
+            modelBuilder.Entity<SalesQuotationItem>().HasQueryFilter(item => !item.IsDeleted);
         }
     }
 }

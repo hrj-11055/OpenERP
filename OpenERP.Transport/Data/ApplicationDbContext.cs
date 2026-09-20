@@ -23,6 +23,10 @@ namespace OpenERP.Transport.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Vehicle>().ToTable("TR_Vehicle");
             modelBuilder.Entity<TransportRequest>().ToTable("TR_TransportRequest");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Vehicle>().HasQueryFilter(vehicle => !vehicle.IsDeleted);
+            modelBuilder.Entity<TransportRequest>().HasQueryFilter(request => !request.IsDeleted);
         }
     }
 }

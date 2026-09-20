@@ -23,6 +23,10 @@ namespace OpenERP.Asset.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Models.Entities.Asset>().ToTable("AS_Asset");
             modelBuilder.Entity<MaintenanceRecord>().ToTable("AS_MaintenanceRecord");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Models.Entities.Asset>().HasQueryFilter(asset => !asset.IsDeleted);
+            modelBuilder.Entity<MaintenanceRecord>().HasQueryFilter(record => !record.IsDeleted);
         }
     }
 }

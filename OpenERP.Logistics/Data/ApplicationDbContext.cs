@@ -131,6 +131,11 @@ namespace OpenERP.Logistics.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // 软删除查询过滤器（承运商/物流单实体,列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Carrier>().HasQueryFilter(carrier => !carrier.IsDeleted);
+            modelBuilder.Entity<Shipment>().HasQueryFilter(shipment => !shipment.IsDeleted);
+            modelBuilder.Entity<ShipmentItem>().HasQueryFilter(item => !item.IsDeleted);
+
         }
     }
 }

@@ -25,6 +25,11 @@ namespace OpenERP.Production.Data
             modelBuilder.Entity<WorkCenter>().ToTable("PRD_WorkCenter");
             modelBuilder.Entity<ProductionOrder>().ToTable("PRD_ProductionOrder");
             modelBuilder.Entity<ProductionOrderItem>().ToTable("PRD_ProductionOrderItem");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<WorkCenter>().HasQueryFilter(workCenter => !workCenter.IsDeleted);
+            modelBuilder.Entity<ProductionOrder>().HasQueryFilter(order => !order.IsDeleted);
+            modelBuilder.Entity<ProductionOrderItem>().HasQueryFilter(item => !item.IsDeleted);
         }
     }
 }

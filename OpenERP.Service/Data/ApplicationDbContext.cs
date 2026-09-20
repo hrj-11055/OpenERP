@@ -23,6 +23,10 @@ namespace OpenERP.Service.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ServiceContract>().ToTable("SV_ServiceContract");
             modelBuilder.Entity<ServiceRequest>().ToTable("SV_ServiceRequest");
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<ServiceContract>().HasQueryFilter(contract => !contract.IsDeleted);
+            modelBuilder.Entity<ServiceRequest>().HasQueryFilter(request => !request.IsDeleted);
         }
     }
 }

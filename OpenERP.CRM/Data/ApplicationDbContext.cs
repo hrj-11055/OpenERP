@@ -55,6 +55,12 @@ namespace OpenERP.CRM.Data
                     .HasForeignKey(contact => contact.CustomerId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // 软删除查询过滤器（列表/详情查询自动排除已删除数据）。
+            modelBuilder.Entity<Lead>().HasQueryFilter(lead => !lead.IsDeleted);
+            modelBuilder.Entity<Opportunity>().HasQueryFilter(opportunity => !opportunity.IsDeleted);
+            modelBuilder.Entity<Customer>().HasQueryFilter(customer => !customer.IsDeleted);
+            modelBuilder.Entity<CustomerContact>().HasQueryFilter(contact => !contact.IsDeleted);
         }
     }
 }
