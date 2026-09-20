@@ -1,0 +1,23 @@
+@model OpenERP.HR.Models.Entities.Employee
+@{
+    ViewData["Title"] = "员工详细";
+    ViewData["PageTitle"] = "员工资料";
+    ViewData["FormAction"] = "Edit";
+    ViewData["SaveButtonText"] = "保存";
+
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/employee-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_EmployeeDetailForm", Model)
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script src="~/js/employee-detail.js" asp-append-version="true"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

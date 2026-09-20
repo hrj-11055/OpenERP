@@ -1,0 +1,632 @@
+@model OpenERP.Web.Areas.HR.ViewModels.Employees.EmployeeIndexViewModel
+@{
+    ViewData["Title"] = Localizer["Employee_PageTitle"];
+
+    var createEmployeeUrl = Url.Action("Create", "Employees", new { area = "HR", popup = true }) ?? "#";
+    var indexPageUrl = Url.Action("Index", "Employees", new { area = "HR" }) ?? "#";
+    var searchAllText = Localizer["Common_All"].Value;
+    var searchEmployeeText = Localizer["Employee_SearchItem_Employee"].Value;
+    var searchPhoneText = Localizer["Common_Phone"].Value;
+    var searchEmailText = Localizer["Common_Email"].Value;
+    var searchOrganizationText = Localizer["Employee_Organization"].Value;
+    var searchRemarksText = Localizer["Common_Remarks"].Value;
+    var statusActiveText = Localizer["Employee_Status_Active"].Value;
+    var statusLeftText = Localizer["Employee_Status_Left"].Value;
+    var statusDisabledText = Localizer["Employee_Status_Disabled"].Value;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+}
+
+<form id="employeeArchiveTokenForm" hidden>
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="company-org-page">
+    <section class="company-org-panel">
+        <div class="company-org-toolbar">
+            <div class="company-org-searchbar">
+                <select id="employeeStatusFilter" class="company-org-select" aria-label="@Localizer["Employee_StatusFilterAria"]">
+                    <option value="@searchAllText">@searchAllText</option>
+                    <option value="@searchEmployeeText">@searchEmployeeText</option>
+                    <option value="@searchPhoneText">@searchPhoneText</option>
+                    <option value="@searchEmailText">@searchEmailText</option>
+                    <option value="@searchOrganizationText">@searchOrganizationText</option>
+                    <option value="@searchRemarksText">@searchRemarksText</option>
+                    <option value="@statusActiveText">@statusActiveText</option>
+                    <option value="@statusLeftText">@statusLeftText</option>
+                    <option value="@statusDisabledText">@statusDisabledText</option>
+                </select>
+                <input id="employeeKeywordFilter" class="company-org-input" type="text" placeholder="@Localizer["Employee_KeywordPlaceholder"]" />
+                <button id="employeeSearchButton" type="button" class="company-org-btn company-org-btn--primary">@Localizer["Common_Search"]</button>
+                <button id="employeeAdvancedButton" type="button" class="company-org-btn company-org-btn--ghost">@Localizer["Common_AdvancedSearch"]</button>
+            </div>
+
+            <div class="company-org-actions">
+                <a href="@indexPageUrl" id="employeeRefreshButton" class="company-org-icon-btn" title="@Localizer["Common_Refresh"]">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </a>
+                <a href="@createEmployeeUrl"
+                   data-popup-url="@createEmployeeUrl"
+                   data-popup-title="@Localizer["Employee_CreatePopupTitle"]"
+                   data-popup-message="@Localizer["Employee_CreatePopupMessage"]"
+                   class="company-org-btn company-org-btn--action">@Localizer["Common_Create"]</a>
+                <button id="employeeEditButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Edit"]</button>
+                <button id="employeeDeleteButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Delete"]</button>
+                <button id="employeeCopyButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Copy"]</button>
+                <button id="employeeImportButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Import"]</button>
+                <button id="employeeExportButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Export"]</button>
+                <input id="employeeImportInput" type="file" hidden />
+            </div>
+        </div>
+
+        <div class="company-org-meta">
+            <div class="company-org-meta__left">
+                <span>@Localizer["Employee_FilteredCount", Model.FilteredCount]</span>
+            </div>
+            <div class="company-org-meta__right" id="selectedCounter" data-template="@Localizer["Employee_SelectedCount"]">
+                @Localizer["Employee_SelectedCount", 0]
+            </div>
+        </div>
+
+        <div class="company-org-table-wrap">
+            <table id="employeeRecordTable" class="company-org-table">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Common_SequenceNo"]</th>
+                        <th class="company-org-table__checkbox">
+                            <input id="selectAllRows" type="checkbox" aria-label="@Localizer["Employee_SelectAllAria"]" />
+                        </th>
+                        <th>@Localizer["Employee_Code"]</th>
+                        <th>@Localizer["Employee_Name"]</th>
+                        <th>@Localizer["Common_Status"]</th>
+                        <th>@Localizer["Employee_ArchiveText"]</th>
+                        <th>@Localizer["Employee_CardNumber"]</th>
+                        <th>@Localizer["Employee_Gender"]</th>
+                        <th>@Localizer["Employee_Organization"]</th>
+                        <th>@Localizer["Common_Department"]</th>
+                        <th>@Localizer["Employee_Group"]</th>
+                        <th>@Localizer["Employee_JobTitle"]</th>
+                        <th>@Localizer["Common_Phone"]</th>
+                        <th>@Localizer["Common_Fax"]</th>
+                        <th>@Localizer["Common_Email"]</th>
+                        <th>@Localizer["Common_Remarks"]</th>
+                        <th>@Localizer["Common_LastModifiedBy"]</th>
+                        <th>@Localizer["Common_LastModifiedAt"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Records.Any())
+                    {
+                        <tr>
+                            <td colspan="18" class="company-org-table__empty">@Localizer["Employee_NoRecords"]</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Records)
+                        {
+                            var editEmployeeUrl = Url.Action("Edit", "Employees", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+                            var viewEmployeeUrl = Url.Action("Details", "Employees", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+                            var deleteEmployeeUrl = Url.Action("Delete", "Employees", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+
+                            <tr data-search="@item.SearchText"
+                                data-status="@item.EmploymentStatusName"
+                                data-employee-search="@($"{item.EmployeeCode} {item.DisplayName} {item.CardNumber}")"
+                                data-phone-search="@item.Phone"
+                                data-email-search="@item.Email"
+                                data-organization-search="@item.OrganizationName"
+                                data-remarks-search="@item.Remarks"
+                                data-employee-id="@item.Id"
+                                data-edit-url="@editEmployeeUrl"
+                                data-delete-url="@deleteEmployeeUrl">
+                                <td>@item.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    <input class="row-selector" type="checkbox" aria-label="@Localizer["Employee_SelectRowAria", item.DisplayName]" />
+                                </td>
+                                <td class="company-org-code">
+                                    <a href="@viewEmployeeUrl"
+                                       data-popup-url="@viewEmployeeUrl"
+                                       data-popup-title="@Localizer["Employee_EditPopupTitle"]"
+                                       data-popup-message="@Localizer["Employee_EditPopupMessage"]"
+                                       class="employee-record-code company-org-code">@item.EmployeeCode</a>
+                                </td>
+                                <td class="company-org-name">@item.DisplayName</td>
+                                <td><span class="company-org-status">@item.EmploymentStatusName</span></td>
+                                <td>
+                                    <button type="button"
+                                            class="company-org-archive"
+                                            data-employee-archive
+                                            data-employee-id="@item.Id"
+                                            title="打开员工档案管理">
+                                        @item.ArchiveLabel
+                                    </button>
+                                </td>
+                                <td>@item.CardNumber</td>
+                                <td>@item.GenderName</td>
+                                <td>@item.OrganizationName</td>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.GroupName</td>
+                                <td>@item.JobTitle</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Fax</td>
+                                <td>@item.Email</td>
+                                <td>@item.Remarks</td>
+                                <td><span class="company-org-modifier">@item.LastModifiedBy</span></td>
+                                <td>@item.LastModifiedAtText</td>
+                            </tr>
+                        }
+                    }
+                    <tr id="employeeNoResultRow" hidden>
+                        <td colspan="18" class="company-org-table__empty">@Localizer["Employee_NoResult"]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span id="employeePageIndicator">@Localizer["Employee_PageIndicator", 1, 1]</span>
+            <div class="company-org-pagination">
+                <button id="employeePrevPage" type="button" class="company-org-pagebtn company-org-pagebtn--muted">&lsaquo;</button>
+                <div id="employeePageNumbers" class="company-org-pagination"></div>
+                <button id="employeeNextPage" type="button" class="company-org-pagebtn company-org-pagebtn--muted">&rsaquo;</button>
+                <span class="company-org-pagesize">
+                    <select id="employeePageSize" class="company-org-select" aria-label="@Localizer["Employee_PageSizeAria"]">
+                        <option value="5">@Localizer["Employee_PageSize", 5]</option>
+                        <option value="8">@Localizer["Employee_PageSize", 8]</option>
+                        <option value="10" selected>@Localizer["Employee_PageSize", 10]</option>
+                        <option value="20">@Localizer["Employee_PageSize", 20]</option>
+                    </select>
+                </span>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script>
+        (() => {
+            const table = document.getElementById("employeeRecordTable");
+            const indexPageUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(indexPageUrl));
+            const employeeDocumentFeatureCode = "HR_EMPLOYEE";
+
+            if (!table) {
+                return;
+            }
+
+            const localized = {
+                searchAll: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchAllText)),
+                searchEmployee: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchEmployeeText)),
+                searchPhone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchPhoneText)),
+                searchEmail: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchEmailText)),
+                searchOrganization: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchOrganizationText)),
+                searchRemarks: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(searchRemarksText)),
+                statusActive: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusActiveText)),
+                statusLeft: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusLeftText)),
+                statusDisabled: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusDisabledText)),
+                selectedCountPattern: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_SelectedCount"].Value)),
+                pageIndicatorPattern: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_PageIndicator"].Value)),
+                advancedSearchHint: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_AdvancedSearchHint"].Value)),
+                selectForEditPrompt: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_SelectForEditPrompt"].Value)),
+                selectForDeletePrompt: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_SelectForDeletePrompt"].Value)),
+                selectForCopyPrompt: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_SelectForCopyPrompt"].Value)),
+                selectOnlyOnePrompt: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_SelectOnlyOnePrompt"].Value)),
+                filteredCountPattern: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_FilteredCount"].Value)),
+                copySuffix: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_CopySuffix"].Value)),
+                copyNameSuffix: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_CopyNameSuffix"].Value)),
+                exportFileName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_ExportFileName"].Value)),
+                editPopupTitle: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Employee_EditPopupTitle"].Value))
+            };
+
+            const refreshButton = document.getElementById("employeeRefreshButton");
+            const tableWrap = table.closest(".company-org-table-wrap");
+            const statusFilter = document.getElementById("employeeStatusFilter");
+            const keywordFilter = document.getElementById("employeeKeywordFilter");
+            const searchButton = document.getElementById("employeeSearchButton");
+            const advancedButton = document.getElementById("employeeAdvancedButton");
+            const selectAllCheckbox = document.getElementById("selectAllRows");
+            const selectedCounter = document.getElementById("selectedCounter");
+            const pageIndicator = document.getElementById("employeePageIndicator");
+            const pageSizeSelect = document.getElementById("employeePageSize");
+            const prevPageButton = document.getElementById("employeePrevPage");
+            const nextPageButton = document.getElementById("employeeNextPage");
+            const pageNumbers = document.getElementById("employeePageNumbers");
+            const filteredCountSpan = document.querySelector(".company-org-meta__left span");
+            const importButton = document.getElementById("employeeImportButton");
+            const importInput = document.getElementById("employeeImportInput");
+            const editButton = document.getElementById("employeeEditButton");
+            const deleteButton = document.getElementById("employeeDeleteButton");
+            const copyButton = document.getElementById("employeeCopyButton");
+            const exportButton = document.getElementById("employeeExportButton");
+            let tbody = table.tBodies[0];
+            let emptyFilterRow = document.getElementById("employeeNoResultRow");
+            let initialEmptyRow = null;
+            let allRows = [];
+
+            let filteredRows = [];
+            let activePage = 1;
+
+            // 重新扫描当前表格中的数据行与空状态节点。
+            const syncEmployeeRows = () => {
+                tbody = table.tBodies[0];
+                emptyFilterRow = document.getElementById("employeeNoResultRow");
+                initialEmptyRow = Array.from(tbody.querySelectorAll("tr"))
+                    .find(row => row !== emptyFilterRow && row.querySelector(".company-org-table__empty")) ?? null;
+                allRows = Array.from(tbody.querySelectorAll("tr"))
+                    .filter(row => row !== emptyFilterRow && !row.querySelector(".company-org-table__empty"));
+            };
+
+            const getRowSelectors = () => Array.from(document.querySelectorAll(".row-selector"));
+            const rowIsVisible = row => row && row.style.display !== "none";
+
+            const updateSelectedCounter = () => {
+                const selectedCount = getRowSelectors().filter(item => item.checked).length;
+
+                if (selectedCounter) {
+                    selectedCounter.textContent = localized.selectedCountPattern.replace("{0}", selectedCount);
+                }
+
+                if (selectAllCheckbox && selectedCount === 0) {
+                    selectAllCheckbox.checked = false;
+                }
+            };
+
+            const getSelectedRow = () => allRows.find(row => row.querySelector(".row-selector")?.checked) ?? null;
+            const getSelectedCount = () => allRows.filter(row => row.querySelector(".row-selector")?.checked).length;
+
+            // 按当前下拉选项与关键字筛选记录。
+            const collectFilteredRows = () => {
+                const keyword = keywordFilter.value.trim().toLowerCase();
+                const filterType = statusFilter.value;
+
+                return allRows.filter(row => {
+                    const employeeSearch = (row.dataset.employeeSearch || "").toLowerCase();
+                    const phoneSearch = (row.dataset.phoneSearch || "").toLowerCase();
+                    const emailSearch = (row.dataset.emailSearch || "").toLowerCase();
+                    const organizationSearch = (row.dataset.organizationSearch || "").toLowerCase();
+                    const remarksSearch = (row.dataset.remarksSearch || "").toLowerCase();
+                    const statusSearch = (row.dataset.status || "").toLowerCase();
+
+                    if (filterType === localized.statusActive
+                        || filterType === localized.statusLeft
+                        || filterType === localized.statusDisabled) {
+                        return statusSearch === filterType.toLowerCase();
+                    }
+
+                    if (!keyword) {
+                        return true;
+                    }
+
+                    if (filterType === localized.searchEmployee) {
+                        return employeeSearch.includes(keyword);
+                    }
+
+                    if (filterType === localized.searchPhone) {
+                        return phoneSearch.includes(keyword);
+                    }
+
+                    if (filterType === localized.searchEmail) {
+                        return emailSearch.includes(keyword);
+                    }
+
+                    if (filterType === localized.searchOrganization) {
+                        return organizationSearch.includes(keyword);
+                    }
+
+                    if (filterType === localized.searchRemarks) {
+                        return remarksSearch.includes(keyword);
+                    }
+
+                    return employeeSearch.includes(keyword)
+                        || phoneSearch.includes(keyword)
+                        || emailSearch.includes(keyword)
+                        || organizationSearch.includes(keyword)
+                        || remarksSearch.includes(keyword);
+                });
+            };
+
+            const updatePager = () => {
+                const pageSize = Number(pageSizeSelect?.value || "10");
+                const totalPageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+
+                if (activePage > totalPageCount) {
+                    activePage = totalPageCount;
+                }
+
+                if (filteredCountSpan) {
+                    filteredCountSpan.textContent = localized.filteredCountPattern.replace("{0}", filteredRows.length);
+                }
+
+                if (pageIndicator) {
+                    pageIndicator.textContent = localized.pageIndicatorPattern
+                        .replace("{0}", activePage)
+                        .replace("{1}", totalPageCount);
+                }
+
+                const startIndex = (activePage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+
+                allRows.forEach(row => {
+                    const filteredIndex = filteredRows.indexOf(row);
+                    const isVisible = filteredIndex >= startIndex && filteredIndex < endIndex;
+                    row.style.display = isVisible ? "" : "none";
+
+                    if (isVisible && row.cells[0]) {
+                        row.cells[0].textContent = String(filteredIndex + 1);
+                    }
+                });
+
+                if (emptyFilterRow) {
+                    emptyFilterRow.hidden = filteredRows.length !== 0 || allRows.length === 0;
+                }
+
+                if (initialEmptyRow) {
+                    initialEmptyRow.hidden = allRows.length !== 0;
+                }
+
+                pageNumbers.innerHTML = "";
+
+                for (let page = 1; page <= totalPageCount; page++) {
+                    const pageButton = document.createElement("button");
+                    pageButton.type = "button";
+                    pageButton.className = "company-org-pagebtn";
+                    pageButton.textContent = String(page);
+                    pageButton.classList.toggle("company-org-pagebtn--active", page === activePage);
+                    pageButton.addEventListener("click", () => {
+                        activePage = page;
+                        updatePager();
+                    });
+                    pageNumbers.appendChild(pageButton);
+                }
+
+                prevPageButton.disabled = activePage <= 1;
+                nextPageButton.disabled = activePage >= totalPageCount;
+                updateSelectedCounter();
+            };
+
+            // 重新应用筛选条件，并按需回到第一页。
+            const applyFilters = ({ resetPage = true } = {}) => {
+                filteredRows = collectFilteredRows();
+
+                if (resetPage) {
+                    activePage = 1;
+                }
+
+                updatePager();
+            };
+
+            table.addEventListener("change", event => {
+                const target = event.target;
+                if (!(target instanceof HTMLInputElement) || !target.classList.contains("row-selector")) {
+                    return;
+                }
+
+                if (selectAllCheckbox) {
+                    const visibleSelectors = filteredRows
+                        .map(row => row.querySelector(".row-selector"))
+                        .filter(item => item && rowIsVisible(item.closest("tr")));
+                    selectAllCheckbox.checked = visibleSelectors.length > 0 && visibleSelectors.every(item => item.checked);
+                }
+                updateSelectedCounter();
+            });
+
+            table.addEventListener("click", event => {
+                const archiveButton = event.target.closest("[data-employee-archive]");
+                if (!archiveButton || !table.contains(archiveButton)) {
+                    return;
+                }
+
+                const employeeId = Number.parseInt(archiveButton.dataset.employeeId || "0", 10);
+                if (!Number.isInteger(employeeId) || employeeId <= 0) {
+                    window.alert("请先保存员工基本资料，再管理员工档案。");
+                    return;
+                }
+
+                if (!window.openErpDocumentManager?.open) {
+                    window.alert("档案管理功能尚未载入，请刷新页面后重试。");
+                    return;
+                }
+
+                window.openErpDocumentManager.open({
+                    featureCode: employeeDocumentFeatureCode,
+                    entityId: employeeId,
+                    title: "员工档案管理",
+                    emptyMessage: "请先保存员工基本资料，再管理员工档案。"
+                });
+            });
+
+            selectAllCheckbox?.addEventListener("change", event => {
+                filteredRows.forEach(row => {
+                    if (!rowIsVisible(row)) {
+                        return;
+                    }
+
+                    const checkbox = row.querySelector(".row-selector");
+                    if (checkbox) {
+                        checkbox.checked = event.target.checked;
+                    }
+                });
+                updateSelectedCounter();
+            });
+
+            // 重置员工列表查询条件。
+            const resetEmployeeFilters = () => {
+                if (statusFilter) {
+                    statusFilter.value = localized.searchAll;
+                }
+
+                if (keywordFilter) {
+                    keywordFilter.value = "";
+                }
+
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+            };
+
+            // 构造无缓存的员工列表刷新地址。
+            const buildEmployeeRefreshUrl = () => {
+                const refreshUrl = new URL(indexPageUrl, window.location.origin);
+                refreshUrl.searchParams.set("_ts", Date.now().toString());
+                return refreshUrl.toString();
+            };
+
+            // 异步刷新员工列表，忽略当前查询条件并重新加载全量记录。
+            const refreshRows = async () => {
+                const previousButtonHtml = refreshButton?.innerHTML ?? "";
+
+                resetEmployeeFilters();
+
+                if (refreshButton) {
+                    refreshButton.setAttribute("aria-busy", "true");
+                    refreshButton.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+                }
+
+                try {
+                    const response = await fetch(buildEmployeeRefreshUrl(), {
+                        cache: "no-store",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Refresh failed: ${response.status}`);
+                    }
+
+                    const html = await response.text();
+                    const documentFragment = new DOMParser().parseFromString(html, "text/html");
+                    const nextTable = documentFragment.getElementById("employeeRecordTable");
+
+                    if (!nextTable?.tBodies?.[0]) {
+                        throw new Error("Employee table body not found.");
+                    }
+
+                    tbody.innerHTML = nextTable.tBodies[0].innerHTML;
+                    syncEmployeeRows();
+                    activePage = 1;
+                    applyFilters({ resetPage: true });
+
+                    if (tableWrap) {
+                        tableWrap.scrollTop = 0;
+                    }
+                } catch {
+                    window.alert("刷新失败，请稍后重试。");
+                } finally {
+                    if (refreshButton) {
+                        refreshButton.removeAttribute("aria-busy");
+                        refreshButton.innerHTML = previousButtonHtml;
+                    }
+                }
+            };
+
+            searchButton?.addEventListener("click", applyFilters);
+            keywordFilter?.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    applyFilters();
+                }
+            });
+            statusFilter?.addEventListener("change", applyFilters);
+
+            advancedButton?.addEventListener("click", () => {
+                window.alert(localized.advancedSearchHint);
+            });
+
+            pageSizeSelect?.addEventListener("change", () => {
+                activePage = 1;
+                updatePager();
+            });
+
+            prevPageButton?.addEventListener("click", () => {
+                if (activePage > 1) {
+                    activePage -= 1;
+                    updatePager();
+                }
+            });
+
+            nextPageButton?.addEventListener("click", () => {
+                const totalPageCount = Math.max(1, Math.ceil(filteredRows.length / Number(pageSizeSelect?.value || "10")));
+                if (activePage < totalPageCount) {
+                    activePage += 1;
+                    updatePager();
+                }
+            });
+
+            importButton?.addEventListener("click", () => importInput?.click());
+
+            editButton?.addEventListener("click", () => {
+                const selectedCount = getSelectedCount();
+                if (selectedCount === 0) {
+                    window.alert(localized.selectForEditPrompt);
+                    return;
+                }
+                if (selectedCount > 1) {
+                    window.alert(localized.selectOnlyOnePrompt);
+                    return;
+                }
+                const editUrl = getSelectedRow()?.dataset.editUrl;
+                window.openBlockingPopup(editUrl, {
+                    title: localized.editPopupTitle
+                });
+            });
+
+            deleteButton?.addEventListener("click", () => {
+                const deleteUrl = getSelectedRow()?.dataset.deleteUrl;
+                if (!deleteUrl) {
+                    window.alert(localized.selectForDeletePrompt);
+                    return;
+                }
+                window.openBlockingPopup(deleteUrl, { title: "删除确认" });
+            });
+
+            copyButton?.addEventListener("click", () => {
+                const selectedCount = getSelectedCount();
+                if (selectedCount === 0) {
+                    window.alert(localized.selectForCopyPrompt);
+                    return;
+                }
+                if (selectedCount > 1) {
+                    window.alert(localized.selectOnlyOnePrompt);
+                    return;
+                }
+
+                const selectedRow = getSelectedRow();
+                const employeeId = selectedRow.dataset.employeeId;
+                const copyUrl = `@createEmployeeUrl&copyFromId=${encodeURIComponent(employeeId)}`;
+                window.openBlockingPopup(copyUrl, { title: "复制员工" });
+            });
+
+            exportButton?.addEventListener("click", () => {
+                const headerCells = Array.from(table.tHead.rows[0].cells)
+                    .slice(2)
+                    .map(cell => cell.textContent?.trim() || "");
+                const bodyRows = filteredRows.map(row =>
+                    Array.from(row.cells)
+                        .slice(2)
+                        .map(cell => `"${(cell.textContent || "").trim().replaceAll("\"", "\"\"")}"`)
+                        .join(","));
+                const csvContent = [headerCells.join(","), ...bodyRows].join("\r\n");
+                const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+                const downloadLink = document.createElement("a");
+
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = localized.exportFileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+                URL.revokeObjectURL(downloadLink.href);
+            });
+
+            refreshButton?.addEventListener("click", event => {
+                event.preventDefault();
+                void refreshRows();
+            });
+
+            syncEmployeeRows();
+            applyFilters();
+        })();
+    </script>
+}

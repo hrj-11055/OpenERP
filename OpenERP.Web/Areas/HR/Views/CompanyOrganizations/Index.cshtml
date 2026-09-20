@@ -1,0 +1,614 @@
+@model OpenERP.Web.Areas.HR.ViewModels.CompanyOrganizations.CompanyOrganizationIndexViewModel
+
+@{
+    ViewData["Title"] = Localizer["Layout_CompanyOrganization"];
+    var selectedCountPattern = Localizer["CompanyOrganization_SelectedCountPattern"].Value;
+    var defaultOrganizationId = Model.DefaultOrganizationId;
+    var createOrganizationUrl = Url.Action("Create", "CompanyOrganizations", new { area = "HR", popup = true }) ?? "#";
+    var indexPageUrl = Url.Action("Index", "CompanyOrganizations", new { area = "HR", keyword = Model.Keyword, statusId = Model.StatusId }) ?? "#";
+    var refreshPageUrl = Url.Action("Index", "CompanyOrganizations", new { area = "HR" }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+}
+
+<div class="company-org-page">
+    <section class="company-org-panel">
+        <div class="company-org-workspace" id="companyOrgWorkspace">
+            <div class="company-org-main">
+                <div class="company-org-toolbar">
+                    <form method="get" id="companyOrgSearchForm" class="company-org-searchbar">
+                        <select asp-for="StatusId" asp-items="Model.StatusOptions" class="company-org-select"></select>
+                        <input asp-for="Keyword" class="company-org-input" placeholder="@Localizer["CompanyOrganization_KeywordPlaceholder"]" />
+                        <button type="submit" class="company-org-btn company-org-btn--primary">@Localizer["Common_Search"]</button>
+                        <button type="button" class="company-org-btn company-org-btn--ghost" disabled>@Localizer["Common_AdvancedSearch"]</button>
+                    </form>
+
+                    <div class="company-org-actions">
+                        <a href="@refreshPageUrl"
+                           id="companyOrganizationRefreshButton"
+                           class="company-org-icon-btn"
+                           title="@Localizer["Common_Refresh"]">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                        <a href="@createOrganizationUrl"
+                           data-popup-url="@createOrganizationUrl"
+                           data-popup-title="新增公司组织"
+                           class="company-org-btn company-org-btn--action">@Localizer["Common_Create"]</a>
+                        <button id="companyOrganizationEditButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Edit"]</button>
+                        <button id="companyOrganizationDeleteButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Delete"]</button>
+                        <button id="companyOrganizationCopyButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Copy"]</button>
+                        <button id="companyOrganizationImportButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Import"]</button>
+                        <button id="companyOrganizationExportButton" type="button" class="company-org-btn company-org-btn--action">@Localizer["Common_Export"]</button>
+                    </div>
+                </div>
+
+                <div class="company-org-meta">
+                    <div class="company-org-meta__left">
+                        <span>@Localizer["CompanyOrganization_FilteredCount", Model.FilteredCount]</span>
+                    </div>
+                    <div class="company-org-meta__right" id="selectedCounter" data-template="@selectedCountPattern">
+                        @Localizer["CompanyOrganization_SelectedCount", 0]
+                    </div>
+                </div>
+
+                <div class="company-org-table-wrap">
+                    <table class="company-org-table" id="companyOrganizationTable">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Common_SequenceNo"]</th>
+                                <th class="company-org-table__checkbox">
+                                    <input id="selectAllRows" type="checkbox" />
+                                </th>
+                                <th>@Localizer["CompanyOrganization_OrganizationCode"]</th>
+                                <th>@Localizer["CompanyOrganization_OrganizationName"]</th>
+                                <th>@Localizer["Common_Status"]</th>
+                                <th>@Localizer["CompanyOrganization_Archive"]</th>
+                                <th>@Localizer["CompanyOrganization_CompanyName"]</th>
+                                <th>@Localizer["Common_Type"]</th>
+                                <th>国家/地区</th>
+                                <th>@Localizer["Common_Principal"]</th>
+                                <th>@Localizer["Common_Phone"]</th>
+                                <th>@Localizer["Common_Fax"]</th>
+                                <th>@Localizer["Common_Email"]</th>
+                                <th>@Localizer["Common_Remarks"]</th>
+                                <th>@Localizer["Common_LastModifiedBy"]</th>
+                                <th>@Localizer["Common_LastModifiedAt"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Records.Any())
+                            {
+                                <tr>
+                                    <td colspan="16" class="company-org-table__empty">@Localizer["CompanyOrganization_NoRecords"]</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.Records)
+                                {
+                                    var detailUrl = Url.Action("Details", "CompanyOrganizations", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+                                    var editUrl = Url.Action("Edit", "CompanyOrganizations", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+                                    var deleteUrl = Url.Action("Delete", "CompanyOrganizations", new { area = "HR", id = item.Id, popup = true }) ?? "#";
+
+                                    <tr class="company-org-record-row @(item.Id == defaultOrganizationId ? "is-active" : string.Empty)"
+                                        data-organization-id="@item.Id"
+                                        data-edit-url="@editUrl"
+                                        data-delete-url="@deleteUrl"
+                                        data-detail-url="@detailUrl"
+                                        data-organization-code="@item.OrganizationCode">
+                                        <td>@item.SequenceNo</td>
+                                        <td class="company-org-table__checkbox">
+                                            <input class="row-selector" type="checkbox" value="@item.Id" />
+                                        </td>
+                                        <td class="company-org-code">
+                                            <a href="@detailUrl"
+                                               data-popup-url="@detailUrl"
+                                               data-popup-title="公司组织"
+                                               class="company-org-code-link">@item.OrganizationCode</a>
+                                        </td>
+                                        <td class="company-org-name">@item.OrganizationShortName</td>
+                                        <td>
+                                            <span class="company-org-status">@item.StatusName</span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrWhiteSpace(item.ArchivePath))
+                                            {
+                                                <span class="company-org-archive" title="@item.ArchivePath">@Localizer["CompanyOrganization_ArchiveText"]</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="company-org-placeholder">-</span>
+                                            }
+                                        </td>
+                                        <td>@item.CompanyName</td>
+                                        <td>@item.EnterpriseTypeName</td>
+                                        <td>@item.RegionDisplayName</td>
+                                        <td>@item.Principal</td>
+                                        <td>@item.Phone</td>
+                                        <td>@item.Fax</td>
+                                        <td>@item.Email</td>
+                                        <td>@item.Remarks</td>
+                                        <td>
+                                            <div class="company-org-modifier">@item.LastModifiedBy</div>
+                                        </td>
+                                        <td>@item.LastModifiedAtText</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="company-org-footer">
+                    <span id="orgPageIndicator">@Localizer["CompanyOrganization_PageIndicator"]</span>
+                    <div class="company-org-pagination">
+                        <button id="orgPrevPage" type="button" class="company-org-pagebtn company-org-pagebtn--muted">&lsaquo;</button>
+                        <div id="orgPageNumbers" class="company-org-pagination"></div>
+                        <button id="orgNextPage" type="button" class="company-org-pagebtn company-org-pagebtn--muted">&rsaquo;</button>
+                        <span class="company-org-pagesize">
+                            <select id="orgPageSize" class="company-org-select">
+                                <option value="5">@Localizer["CompanyOrganization_PageSize", 5]</option>
+                                <option value="10" selected>@Localizer["CompanyOrganization_PageSize", 10]</option>
+                                <option value="20">@Localizer["CompanyOrganization_PageSize", 20]</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="company-org-sidecard" id="companyOrgSidecard">
+                <button id="companyOrgSidecardToggle"
+                        type="button"
+                        class="company-org-sidecard__toggle"
+                        aria-expanded="true"
+                        aria-controls="companyOrgSidecard"
+                        title="收起右侧人员卡片">
+                    <span class="company-org-sidecard__toggle-icon">
+                        <i class="bi bi-chevron-right"></i>
+                    </span>
+                    <span class="company-org-sidecard__toggle-text">管理</span>
+                </button>
+
+                <div class="company-org-sidecard__header">
+                    <div>
+                        <div class="company-org-sidecard__eyebrow">@Localizer["Layout_EmployeeManagement"]</div>
+                        <h3 class="company-org-sidecard__title">@Localizer["CompanyOrganization_EmployeeCardTitle"]</h3>
+                        <p class="company-org-sidecard__hint">@Localizer["CompanyOrganization_EmployeeCardHint"]</p>
+                    </div>
+                    <a asp-area="HR" asp-controller="Employees" asp-action="Index" class="company-org-btn company-org-btn--primary company-org-sidecard__link">
+                        @Localizer["Layout_EmployeeManagement"]
+                    </a>
+                </div>
+
+                <div class="company-org-sidecard__body">
+                    @if (!Model.EmployeeCards.Any())
+                    {
+                        <div class="company-org-sidecard__empty">
+                            @Localizer["CompanyOrganization_EmployeeCardEmpty"]
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var employeeCard in Model.EmployeeCards)
+                        {
+                            <section class="company-org-employee-panel @(employeeCard.OrganizationId == defaultOrganizationId ? "is-active" : string.Empty)"
+                                     data-organization-id="@employeeCard.OrganizationId">
+                                <div class="company-org-employee-panel__head">
+                                    <div>
+                                        <span class="company-org-employee-panel__code">@employeeCard.OrganizationCode</span>
+                                        <h4 class="company-org-employee-panel__name">@employeeCard.OrganizationName</h4>
+                                    </div>
+                                </div>
+
+                                <div class="company-org-employee-panel__summary">
+                                    <div class="company-org-employee-metric">
+                                        <span class="company-org-employee-metric__label">@Localizer["CompanyOrganization_EmployeeCountLabel"]</span>
+                                        <strong class="company-org-employee-metric__value">@employeeCard.EmployeeCount</strong>
+                                    </div>
+                                    <div class="company-org-employee-metric">
+                                        <span class="company-org-employee-metric__label">@Localizer["CompanyOrganization_ActiveEmployeeCountLabel"]</span>
+                                        <strong class="company-org-employee-metric__value">@employeeCard.ActiveEmployeeCount</strong>
+                                    </div>
+                                    <div class="company-org-employee-metric">
+                                        <span class="company-org-employee-metric__label">@Localizer["CompanyOrganization_DepartmentCountLabel"]</span>
+                                        <strong class="company-org-employee-metric__value">@employeeCard.DepartmentCount</strong>
+                                    </div>
+                                </div>
+
+                                <div class="company-org-employee-list">
+                                    @if (!employeeCard.Employees.Any())
+                                    {
+                                        <div class="company-org-sidecard__empty company-org-sidecard__empty--compact">
+                                            @Localizer["CompanyOrganization_EmployeeListEmpty"]
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        foreach (var employee in employeeCard.Employees)
+                                        {
+                                            <a asp-area="HR"
+                                               asp-controller="Employees"
+                                               asp-action="Edit"
+                                               asp-route-id="@employee.EmployeeId"
+                                               asp-route-popup="true"
+                                               data-popup-url="@Url.Action("Edit", "Employees", new { area = "HR", id = employee.EmployeeId, popup = true })"
+                                               data-popup-title="@Localizer["Employee_EditPopupTitle"]"
+                                               class="company-org-employee-item">
+                                                <div class="company-org-employee-item__head">
+                                                    <div>
+                                                        <div class="company-org-employee-item__name">@employee.DisplayName</div>
+                                                        <div class="company-org-employee-item__code">@employee.EmployeeCode</div>
+                                                    </div>
+                                                    <span class="company-org-employee-item__status">@employee.EmploymentStatusName</span>
+                                                </div>
+                                                <div class="company-org-employee-item__meta">@employee.DepartmentName · @employee.JobTitle</div>
+                                                <div class="company-org-employee-item__contact">@employee.Phone</div>
+                                                <div class="company-org-employee-item__contact company-org-employee-item__contact--email">@employee.Email</div>
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            </section>
+                        }
+                    }
+                </div>
+            </aside>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const createOrganizationUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(createOrganizationUrl));
+            const indexPageUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(indexPageUrl));
+            const refreshPageUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(refreshPageUrl));
+            const pageIndicatorPattern = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["CompanyOrganization_PageIndicator"].Value));
+            const table = document.getElementById("companyOrganizationTable");
+            const tableWrap = table?.closest(".company-org-table-wrap");
+            const refreshButton = document.getElementById("companyOrganizationRefreshButton");
+            const searchForm = document.getElementById("companyOrgSearchForm");
+            const selectAllRows = document.getElementById("selectAllRows");
+            const selectedCounter = document.getElementById("selectedCounter");
+            const selectedCountPattern = selectedCounter?.dataset.template ?? "{0}";
+            const filteredCountSpan = document.querySelector(".company-org-meta__left span");
+            const editButton = document.getElementById("companyOrganizationEditButton");
+            const deleteButton = document.getElementById("companyOrganizationDeleteButton");
+            const copyButton = document.getElementById("companyOrganizationCopyButton");
+            const importButton = document.getElementById("companyOrganizationImportButton");
+            const exportButton = document.getElementById("companyOrganizationExportButton");
+            const pageIndicator = document.getElementById("orgPageIndicator");
+            const pageSizeSelect = document.getElementById("orgPageSize");
+            const prevPageButton = document.getElementById("orgPrevPage");
+            const nextPageButton = document.getElementById("orgNextPage");
+            const pageNumbers = document.getElementById("orgPageNumbers");
+            const workspace = document.getElementById("companyOrgWorkspace");
+            const sidecard = document.getElementById("companyOrgSidecard");
+            const sidecardBody = sidecard?.querySelector(".company-org-sidecard__body");
+            const sidecardToggle = document.getElementById("companyOrgSidecardToggle");
+            const sidecardStateKey = "openErp.companyOrganizations.sidecardCollapsed";
+            let rowSelectors = [];
+            let organizationRows = [];
+            let employeePanels = [];
+            let activeOrgPage = 1;
+            let sidecardCollapsed = false;
+
+            // 重新扫描公司组织列表与右侧人员卡节点。
+            const syncOrganizationNodes = () => {
+                rowSelectors = Array.from(document.querySelectorAll(".row-selector"));
+                organizationRows = Array.from(document.querySelectorAll(".company-org-record-row"));
+                employeePanels = Array.from(document.querySelectorAll(".company-org-employee-panel"));
+            };
+            const renderSidecardToggle = collapsed => collapsed
+                ? '<span class="company-org-sidecard__toggle-icon"><i class="bi bi-chevron-left"></i></span><span class="company-org-sidecard__toggle-text">展开</span>'
+                : '<span class="company-org-sidecard__toggle-icon"><i class="bi bi-chevron-right"></i></span><span class="company-org-sidecard__toggle-text">管理</span>';
+
+            const syncSidecardState = collapsed => {
+                sidecardCollapsed = collapsed;
+                workspace?.classList.toggle("is-sidecard-collapsed", collapsed);
+                sidecard?.classList.toggle("is-collapsed", collapsed);
+
+                if (sidecardToggle) {
+                    sidecardToggle.setAttribute("aria-expanded", String(!collapsed));
+                    sidecardToggle.title = collapsed ? "展开右侧人员卡片" : "收起右侧人员卡片";
+                    sidecardToggle.innerHTML = renderSidecardToggle(collapsed);
+                }
+
+                sessionStorage.setItem(sidecardStateKey, collapsed ? "1" : "0");
+            };
+
+            const updateSelectedCounter = () => {
+                const selectedCount = rowSelectors.filter(item => item.checked).length;
+                if (selectedCounter) {
+                    selectedCounter.textContent = selectedCountPattern.replace("{0}", selectedCount);
+                }
+                if (selectAllRows && selectedCount === 0) {
+                    selectAllRows.checked = false;
+                }
+            };
+
+            const activateOrganization = organizationId => {
+                organizationRows.forEach(row => {
+                    row.classList.toggle("is-active", row.dataset.organizationId === organizationId);
+                });
+
+                employeePanels.forEach(panel => {
+                    panel.classList.toggle("is-active", panel.dataset.organizationId === organizationId);
+                });
+            };
+
+            const getSelectedRows = () => organizationRows.filter(row => row.querySelector(".row-selector")?.checked);
+            const getSingleSelectedRow = promptText => {
+                const selectedRows = getSelectedRows();
+                if (selectedRows.length === 0) {
+                    window.alert(promptText);
+                    return null;
+                }
+                if (selectedRows.length > 1) {
+                    window.alert("只能选择一条公司组织记录，请取消多余的选择。");
+                    return null;
+                }
+                return selectedRows[0];
+            };
+
+            if (selectAllRows) {
+                selectAllRows.addEventListener("change", event => {
+                    organizationRows.forEach(row => {
+                        if (row.style.display === "none") return;
+                        const checkbox = row.querySelector(".row-selector");
+                        if (checkbox) checkbox.checked = event.target.checked;
+                    });
+                    updateSelectedCounter();
+                });
+            }
+
+            table?.addEventListener("change", event => {
+                const target = event.target;
+                if (!(target instanceof HTMLInputElement) || !target.classList.contains("row-selector")) {
+                    return;
+                }
+
+                if (selectAllRows) {
+                    const visibleSelectors = organizationRows
+                        .filter(row => row.style.display !== "none")
+                        .map(row => row.querySelector(".row-selector"))
+                        .filter(Boolean);
+                    selectAllRows.checked = visibleSelectors.length > 0 && visibleSelectors.every(s => s.checked);
+                }
+                updateSelectedCounter();
+            });
+
+            table?.addEventListener("click", event => {
+                if (event.target.closest("input, button, a, label")) {
+                    return;
+                }
+
+                const row = event.target.closest(".company-org-record-row");
+                const organizationId = row?.dataset.organizationId;
+                if (organizationId) {
+                    activateOrganization(organizationId);
+                }
+            });
+
+            editButton?.addEventListener("click", () => {
+                const selectedRow = getSingleSelectedRow("请先选择一条公司组织记录再进行修改。");
+                const editUrl = selectedRow?.dataset.editUrl;
+                if (editUrl) {
+                    window.openBlockingPopup(editUrl, { title: "编辑公司组织" });
+                }
+            });
+
+            deleteButton?.addEventListener("click", () => {
+                const selectedRow = getSingleSelectedRow("请先选择一条公司组织记录再进行删除。");
+                const deleteUrl = selectedRow?.dataset.deleteUrl;
+                if (deleteUrl) {
+                    window.openBlockingPopup(deleteUrl, { title: "删除确认" });
+                }
+            });
+
+            copyButton?.addEventListener("click", () => {
+                const selectedRow = getSingleSelectedRow("请先选择一条公司组织记录再进行复制。");
+                if (!selectedRow) {
+                    return;
+                }
+
+                const organizationId = selectedRow.dataset.organizationId;
+                const copyUrl = `${createOrganizationUrl}&copyFromId=${encodeURIComponent(organizationId)}`;
+                window.openBlockingPopup(copyUrl, { title: "复制公司组织" });
+            });
+
+            importButton?.addEventListener("click", () => {
+                window.alert("导入功能待接入公司组织模板和校验流程。");
+            });
+
+            exportButton?.addEventListener("click", () => {
+                window.alert("导出功能待接入公司组织报表和文件生成。");
+            });
+
+            sidecardToggle?.addEventListener("click", () => {
+                syncSidecardState(!sidecardCollapsed);
+            });
+
+            // 重置公司组织列表查询条件。
+            const resetOrganizationFilters = () => {
+                if (!searchForm) {
+                    return;
+                }
+
+                const statusSelect = searchForm.querySelector("select");
+                const keywordInput = searchForm.querySelector("input[name='Keyword']");
+
+                if (statusSelect instanceof HTMLSelectElement) {
+                    statusSelect.selectedIndex = 0;
+                }
+
+                if (keywordInput instanceof HTMLInputElement) {
+                    keywordInput.value = "";
+                }
+
+                if (selectAllRows) {
+                    selectAllRows.checked = false;
+                }
+            };
+
+            // 构造无缓存的公司组织刷新地址。
+            const buildRefreshUrl = () => {
+                const refreshUrl = new URL(refreshPageUrl, window.location.origin);
+                refreshUrl.searchParams.set("_ts", Date.now().toString());
+                return `${refreshUrl.pathname}${refreshUrl.search}`;
+            };
+
+            // 异步刷新列表与右侧人员卡，忽略当前查询条件并重新加载全量数据。
+            const refreshOrganizations = async () => {
+                const previousButtonHtml = refreshButton?.innerHTML ?? "";
+
+                resetOrganizationFilters();
+
+                if (refreshButton) {
+                    refreshButton.setAttribute("aria-busy", "true");
+                    refreshButton.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+                }
+
+                try {
+                    const response = await fetch(buildRefreshUrl(), {
+                        cache: "no-store",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Refresh failed: ${response.status}`);
+                    }
+
+                    const html = await response.text();
+                    const documentFragment = new DOMParser().parseFromString(html, "text/html");
+                    const nextTable = documentFragment.getElementById("companyOrganizationTable");
+                    const nextSidecardBody = documentFragment.querySelector("#companyOrgSidecard .company-org-sidecard__body");
+                    const nextFilteredCount = documentFragment.querySelector(".company-org-meta__left span");
+
+                    if (!nextTable?.tBodies?.[0]) {
+                        throw new Error("Company organization table body not found.");
+                    }
+
+                    table.tBodies[0].innerHTML = nextTable.tBodies[0].innerHTML;
+
+                    if (sidecardBody && nextSidecardBody) {
+                        sidecardBody.innerHTML = nextSidecardBody.innerHTML;
+                    }
+
+                    if (filteredCountSpan && nextFilteredCount) {
+                        filteredCountSpan.textContent = nextFilteredCount.textContent ?? "";
+                    }
+
+                    syncOrganizationNodes();
+                    activeOrgPage = 1;
+                    updateOrgPager();
+
+                    const nextOrganizationId = organizationRows.find(row => row.classList.contains("is-active"))?.dataset.organizationId
+                        ?? organizationRows[0]?.dataset.organizationId;
+
+                    if (nextOrganizationId) {
+                        activateOrganization(nextOrganizationId);
+                    }
+
+                    if (tableWrap) {
+                        tableWrap.scrollTop = 0;
+                    }
+                } catch {
+                    window.alert("刷新失败，请稍后重试。");
+                } finally {
+                    if (refreshButton) {
+                        refreshButton.removeAttribute("aria-busy");
+                        refreshButton.innerHTML = previousButtonHtml;
+                    }
+                }
+            };
+
+            const updateOrgPager = () => {
+                const pageSize = Number(pageSizeSelect?.value || "10");
+                const totalPageCount = Math.max(1, Math.ceil(organizationRows.length / pageSize));
+
+                if (activeOrgPage > totalPageCount) {
+                    activeOrgPage = totalPageCount;
+                }
+
+                if (pageIndicator) {
+                    pageIndicator.textContent = pageIndicatorPattern
+                        .replace("{0}", activeOrgPage)
+                        .replace("{1}", totalPageCount);
+                }
+
+                const startIndex = (activeOrgPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+
+                organizationRows.forEach((row, index) => {
+                    const isVisible = index >= startIndex && index < endIndex;
+                    row.style.display = isVisible ? "" : "none";
+                    if (isVisible && row.cells[0]) {
+                        row.cells[0].textContent = String(index + 1);
+                    }
+                });
+
+                pageNumbers.innerHTML = "";
+
+                for (let page = 1; page <= totalPageCount; page++) {
+                    const pageButton = document.createElement("button");
+                    pageButton.type = "button";
+                    pageButton.className = "company-org-pagebtn";
+                    pageButton.textContent = String(page);
+                    pageButton.classList.toggle("company-org-pagebtn--active", page === activeOrgPage);
+                    pageButton.addEventListener("click", () => {
+                        activeOrgPage = page;
+                        updateOrgPager();
+                    });
+                    pageNumbers.appendChild(pageButton);
+                }
+
+                if (prevPageButton) prevPageButton.disabled = activeOrgPage <= 1;
+                if (nextPageButton) nextPageButton.disabled = activeOrgPage >= totalPageCount;
+                updateSelectedCounter();
+            };
+
+            pageSizeSelect?.addEventListener("change", () => {
+                activeOrgPage = 1;
+                updateOrgPager();
+            });
+
+            prevPageButton?.addEventListener("click", () => {
+                if (activeOrgPage > 1) {
+                    activeOrgPage -= 1;
+                    updateOrgPager();
+                }
+            });
+
+            nextPageButton?.addEventListener("click", () => {
+                const pageSize = Number(pageSizeSelect?.value || "10");
+                const totalPageCount = Math.max(1, Math.ceil(organizationRows.length / pageSize));
+                if (activeOrgPage < totalPageCount) {
+                    activeOrgPage += 1;
+                    updateOrgPager();
+                }
+            });
+
+            refreshButton?.addEventListener("click", event => {
+                event.preventDefault();
+                void refreshOrganizations();
+            });
+
+            syncOrganizationNodes();
+
+            const initialOrganizationId = organizationRows.find(row => row.classList.contains("is-active"))?.dataset.organizationId
+                ?? organizationRows[0]?.dataset.organizationId;
+
+            if (initialOrganizationId) {
+                activateOrganization(initialOrganizationId);
+            }
+
+            syncSidecardState(sessionStorage.getItem(sidecardStateKey) === "1");
+            updateOrgPager();
+        })();
+    </script>
+}

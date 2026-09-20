@@ -1,0 +1,34 @@
+@model OpenERP.Asset.Models.Entities.MaintenanceRecord
+@{
+    ViewData["Title"] = "新增维护记录";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增维护记录</h1>
+    <form asp-area="Asset" asp-controller="MaintenanceRecords" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">描述</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="MaintenanceDate" class="form-label">维护日期</label>
+            <input asp-for="MaintenanceDate" class="form-control" type="date" />
+            <span asp-validation-for="MaintenanceDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Cost" class="form-label">成本</label>
+            <input asp-for="Cost" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Cost" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="AssetId" class="form-label">资产</label>
+            <select asp-for="AssetId" class="form-select" asp-items="ViewBag.AssetId">
+                <option value="">请选择</option>
+            </select>
+            <span asp-validation-for="AssetId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Asset" asp-controller="MaintenanceRecords" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

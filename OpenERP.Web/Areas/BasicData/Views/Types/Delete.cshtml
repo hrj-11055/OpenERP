@@ -1,0 +1,34 @@
+﻿@model OpenERP.BasicData.Models.BasicDataType
+
+@{
+    ViewData["Title"] = "鍒犻櫎鍩虹鏁版嵁绫诲瀷";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4 text-danger">鍒犻櫎鍩虹鏁版嵁绫诲瀷</h1>
+    <div class="alert alert-warning">
+        鍒犻櫎绫诲瀷灏嗗悓鏃跺垹闄よ绫诲瀷涓嬬殑閫夐」锛岀‘璁ょ户缁悧锛?    </div>
+
+    <div class="card mb-4 col-md-8">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">绫诲瀷缂栫爜</dt>
+                <dd class="col-sm-9">@Model.TypeCode</dd>
+
+                <dt class="col-sm-3">绫诲瀷鍚嶇О</dt>
+                <dd class="col-sm-9">@Model.TypeName</dd>
+
+                <dt class="col-sm-3">璇存槑</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">纭鍒犻櫎</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">鍙栨秷</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+

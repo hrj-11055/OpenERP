@@ -1,0 +1,26 @@
+@model OpenERP.Finance.Models.Entities.Account
+@{
+    ViewData["Title"] = "编辑科目";
+}
+<div class="container">
+    <h2 class="mt-4">编辑科目</h2>
+    <form asp-area="Finance" asp-controller="Accounts" asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label asp-for="Code" class="form-label"></label>
+            <input asp-for="Code" class="form-control" />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Type" class="form-label"></label>
+            <input asp-for="Type" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Finance" asp-controller="Accounts" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

@@ -1,0 +1,22 @@
+@model OpenERP.HR.Models.Entities.CompanyOrganization
+@{
+    ViewData["Title"] = "公司组织详细";
+    ViewData["PageTitle"] = "公司组织";
+    ViewData["FormAction"] = "Edit";
+    ViewData["SaveButtonText"] = Localizer["Common_Save"].Value;
+    ViewData["IsReadOnly"] = true;
+
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organization-detail.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_CompanyOrganizationDetailForm", Model)
+
+@section Scripts {
+    <script src="~/js/company-organization-detail.js" asp-append-version="true"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

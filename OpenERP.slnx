@@ -1,0 +1,15 @@
+<Solution>
+  <Project Path="OpenERP.HR/OpenERP.HR.csproj" />
+  <Project Path="OpenERP.Purchasing/OpenERP.Purchasing.csproj" />
+  <Project Path="OpenERP.Logistics/OpenERP.Logistics.csproj" />
+  <Project Path="OpenERP.Finance/OpenERP.Finance.csproj" />
+  <Project Path="OpenERP.Production/OpenERP.Production.csproj" />
+  <Project Path="OpenERP.Sales/OpenERP.Sales.csproj" />
+  <Project Path="OpenERP.CRM/OpenERP.CRM.csproj" />
+  <Project Path="OpenERP.Service/OpenERP.Service.csproj" />
+  <Project Path="OpenERP.Transport/OpenERP.Transport.csproj" />
+  <Project Path="OpenERP.Asset/OpenERP.Asset.csproj" />
+  <Project Path="OpenERP.Office/OpenERP.Office.csproj" />
+  <Project Path="OpenERP.BasicData/OpenERP.BasicData.csproj" />
+  <Project Path="OpenERP.Web/OpenERP.Web.csproj" />
+</Solution>

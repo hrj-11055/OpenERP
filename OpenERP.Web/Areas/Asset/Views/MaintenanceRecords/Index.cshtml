@@ -1,0 +1,57 @@
+@model IEnumerable<OpenERP.Asset.Models.Entities.MaintenanceRecord>
+@{
+    ViewData["Title"] = "维护记录管理";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">维护记录管理</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">首页</a></li>
+        <li class="breadcrumb-item active">维护记录管理</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-tools me-1"></i>
+                维护记录列表
+            </div>
+            <a asp-area="Asset" asp-controller="MaintenanceRecords" asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> 新增记录
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>描述</th>
+                        <th>维护日期</th>
+                        <th>成本</th>
+                        <th>资产</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center">暂无数据</td></tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Description</td>
+                            <td>@item.MaintenanceDate.ToShortDateString()</td>
+                            <td>@item.Cost.ToString("C")</td>
+                            <td>@item.Asset?.Name</td>
+                            <td>
+                                <a asp-area="Asset" asp-controller="MaintenanceRecords" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info btn-sm">编辑</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

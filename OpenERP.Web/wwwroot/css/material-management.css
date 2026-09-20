@@ -1,0 +1,333 @@
+.material-page {
+    display: grid;
+    grid-template-rows: minmax(360px, 1fr) minmax(260px, 0.55fr);
+    gap: 0.85rem;
+    min-height: calc(100vh - 128px);
+}
+
+.material-panel {
+    border-radius: 0 8px 8px 8px;
+}
+
+.material-panel--related {
+    min-height: 0;
+}
+
+.material-toolbar,
+.material-sub-toolbar {
+    flex-shrink: 0;
+}
+
+.material-table-wrap {
+    min-height: 0;
+}
+
+.material-table {
+    min-width: 1560px;
+}
+
+.material-related-table {
+    min-width: 1360px;
+}
+
+.material-table tbody tr.is-selected td {
+    background: #edf6ff;
+}
+
+.material-number-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.material-related-tabs {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #2b95ff;
+    background: #f5f7fb;
+}
+
+.material-related-tabs__item,
+.material-related-tabs__settings {
+    min-height: 30px;
+    border: 1px solid #8ec5ff;
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    padding: 0 0.75rem;
+    background: #fff;
+    color: #0b69c7;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.material-related-tabs__item.is-active {
+    background: #1588f5;
+    color: #fff;
+}
+
+.material-related-tabs__settings {
+    width: 32px;
+    padding: 0;
+    color: #1f2937;
+}
+
+.material-archive-chip {
+    border: 0;
+    border-radius: 4px;
+    padding: 0.18rem 0.5rem;
+    background: #f5c6cc;
+    color: #7c2632;
+    font-weight: 700;
+}
+
+.material-detail {
+    min-height: calc(100vh - 48px);
+    padding: 0;
+    background: #fff;
+}
+
+.material-detail__form {
+    min-height: 0;
+}
+
+.material-detail__topbar .employee-detail-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+    text-decoration: none;
+}
+
+.material-validation:empty {
+    display: none;
+}
+
+.material-hero__grid {
+    grid-template-columns: minmax(190px, 0.8fr) minmax(180px, 0.75fr) minmax(180px, 0.75fr) minmax(220px, 0.9fr);
+}
+
+.material-hero__grid .employee-detail-field--full {
+    grid-column: span 3;
+}
+
+.material-field--required label::after {
+    color: #cf2e2e;
+    content: "*";
+}
+
+.material-tabpanel {
+    display: none;
+}
+
+.material-tabpanel.is-active {
+    display: grid;
+}
+
+.material-tabpanel[data-material-panel="basic"] {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    gap: 1rem;
+}
+
+.material-detail-grid {
+    max-width: none;
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
+}
+
+.material-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-width: 0;
+    padding: 0.9rem;
+    border-left: 1px solid #d6dde6;
+    background: #f7f8fa;
+}
+
+.material-unit-card {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.material-unit-row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) 12px 58px 28px;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.83rem;
+}
+
+.material-unit-row label {
+    margin: 0;
+    font-weight: 700;
+}
+
+.material-unit-row .form-control,
+.material-unit-row .form-select,
+.material-stock-box .form-control {
+    min-height: 28px;
+    padding: 0.18rem 0.35rem;
+    border-radius: 2px;
+    font-size: 0.83rem;
+}
+
+.material-stock-box {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    padding: 0.6rem;
+    border: 1px solid #d0d5dd;
+    background: #fff;
+}
+
+.material-stock-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.84rem;
+}
+
+.material-stock-row strong {
+    font-variant-numeric: tabular-nums;
+}
+
+.material-radio-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.4rem;
+    margin-top: 0.25rem;
+}
+
+.material-image-box {
+    display: grid;
+    min-height: 220px;
+    place-items: center;
+    border: 1px solid #cfd5de;
+    background: #fff;
+    color: #8a94a3;
+    font-size: 0.95rem;
+}
+
+.material-pink-btn {
+    min-height: 30px;
+    border: 0;
+    border-radius: 3px;
+    background: #e6a9b3;
+    color: #5a1822;
+    font-weight: 700;
+}
+
+.material-packing-panel {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+}
+
+.material-packing-table {
+    width: min(100%, 860px);
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.material-packing-table th,
+.material-packing-table td {
+    padding: 0.35rem;
+    border: 1px solid transparent;
+    vertical-align: middle;
+}
+
+.material-packing-table thead th {
+    text-align: center;
+    font-weight: 800;
+}
+
+.material-packing-table tbody th {
+    width: 62px;
+    text-align: right;
+}
+
+.material-packing-table .form-control {
+    min-height: 28px;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.material-shipping-mark {
+    width: min(100%, 720px);
+}
+
+.material-switch-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.86rem;
+}
+
+.material-switch-row .form-control {
+    width: 64px;
+    min-height: 28px;
+    border-radius: 2px;
+}
+
+.material-grid-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+    padding: 0.8rem 0;
+}
+
+.material-edit-table {
+    min-width: 1340px;
+}
+
+.material-price-table {
+    min-width: 1080px;
+}
+
+.material-task-table {
+    min-width: 1500px;
+}
+
+.material-table-input {
+    width: 100%;
+    min-width: 76px;
+    min-height: 28px;
+    padding: 0.18rem 0.35rem;
+    border-radius: 2px;
+    font-size: 0.84rem;
+}
+
+.material-table-input--wide {
+    min-width: 170px;
+}
+
+.material-row-action {
+    min-width: 52px;
+}
+
+@media (max-width: 960px) {
+    .material-page {
+        grid-template-rows: auto auto;
+    }
+
+    .material-tabpanel[data-material-panel="basic"] {
+        grid-template-columns: 1fr;
+    }
+
+    .material-side {
+        border-left: 0;
+        border-top: 1px solid #d6dde6;
+    }
+
+    .material-hero__grid,
+    .material-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .material-hero__grid .employee-detail-field--full {
+        grid-column: auto;
+    }
+}

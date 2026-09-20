@@ -1,0 +1,52 @@
+@model OpenERP.Web.Printing.CompanyPrintTemplateSettings?
+@{
+    string[] SplitLines(string? content)
+        => string.IsNullOrWhiteSpace(content)
+            ? Array.Empty<string>()
+            : content
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+    var shouldRender = Model is not null
+        && (Model.HasLogo
+            || !string.IsNullOrWhiteSpace(Model.OrganizationName)
+            || !string.IsNullOrWhiteSpace(Model.PrintHeaderContent)
+            || !string.IsNullOrWhiteSpace(Model.PrintFooterContent));
+}
+
+@if (shouldRender)
+{
+    <div class="company-print-chrome" aria-hidden="true">
+        <div class="company-print-chrome__header">
+            <div class="company-print-chrome__header-main">
+                @if (Model!.HasLogo && !string.IsNullOrWhiteSpace(Model.LogoUrl))
+                {
+                    <div class="company-print-chrome__logo-wrap">
+                        <img src="@Model.LogoUrl"
+                             alt="@($"{Model.OrganizationName} LOGO")"
+                             class="company-print-chrome__logo" />
+                    </div>
+                }
+
+                <div class="company-print-chrome__header-text">
+                    @if (!string.IsNullOrWhiteSpace(Model.OrganizationName))
+                    {
+                        <div class="company-print-chrome__organization-name">@Model.OrganizationName</div>
+                    }
+
+                    @foreach (var line in SplitLines(Model.PrintHeaderContent))
+                    {
+                        <div class="company-print-chrome__line">@line</div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="company-print-chrome__footer">
+            @foreach (var line in SplitLines(Model!.PrintFooterContent))
+            {
+                <div class="company-print-chrome__line">@line</div>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,41 @@
+@model OpenERP.Service.Models.Entities.ServiceContract
+@{
+    ViewData["Title"] = "新增服务合同";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增服务合同</h1>
+    <form asp-area="Service" asp-controller="ServiceContracts" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">名称</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CustomerName" class="form-label">客户名称</label>
+            <input asp-for="CustomerName" class="form-control" />
+            <span asp-validation-for="CustomerName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StartDate" class="form-label">开始日期</label>
+            <input asp-for="StartDate" class="form-control" type="date" required />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="EndDate" class="form-label">结束日期</label>
+            <input asp-for="EndDate" class="form-control" type="date" required />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">状态</label>
+            <select asp-for="Status" class="form-select">
+                <option value="Active">活动</option>
+                <option value="Expired">已过期</option>
+                <option value="Terminated">已终止</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Service" asp-controller="ServiceContracts" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

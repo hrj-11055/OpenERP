@@ -1,0 +1,161 @@
+﻿@model OpenERP.BasicData.Models.BasicDataItem
+
+@{
+    ViewData["Title"] = "编辑基础数据选项";
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    var parentLabel = ViewData["ParentLabel"]?.ToString() ?? "上级选项";
+    var parentPlaceholder = ViewData["ParentPlaceholder"]?.ToString() ?? "无";
+    var parentHint = ViewData["ParentHint"]?.ToString();
+    var parentSelectDisabled = ViewData["ParentSelectDisabled"] is bool disabled && disabled;
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">编辑基础数据选项</h1>
+    @if (!isPopup)
+    {
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">控制面板</a></li>
+            <li class="breadcrumb-item"><a asp-area="BasicData" asp-controller="Home" asp-action="Index">基础数据模块</a></li>
+            <li class="breadcrumb-item"><a asp-area="BasicData" asp-controller="Items" asp-action="Index">选项管理</a></li>
+            <li class="breadcrumb-item active">编辑</li>
+        </ol>
+    }
+
+    <div class="card mb-4 col-md-8">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="TypeId" class="form-label"></label>
+                    <select asp-for="TypeId" asp-items="ViewBag.TypeId" class="form-select">
+                        <option value="">请选择类型</option>
+                    </select>
+                    <span asp-validation-for="TypeId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ItemCode" class="form-label"></label>
+                    <input asp-for="ItemCode" class="form-control" />
+                    <span asp-validation-for="ItemCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ItemName" class="form-label"></label>
+                    <input asp-for="ItemName" class="form-control" />
+                    <span asp-validation-for="ItemName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ParentId" class="form-label" id="parentLabel">@parentLabel</label>
+                    <select asp-for="ParentId" asp-items="ViewBag.ParentId" class="form-select" id="ParentId" disabled="@(parentSelectDisabled ? "disabled" : null)">
+                        <option value="">@parentPlaceholder</option>
+                    </select>
+                    <small class="form-text text-muted" id="parentHint">@parentHint</small>
+                    <span asp-validation-for="ParentId" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="SortOrder" class="form-label"></label>
+                        <input asp-for="SortOrder" class="form-control" />
+                        <span asp-validation-for="SortOrder" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Remark" class="form-label"></label>
+                    <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Remark" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <a asp-action="Index" asp-route-typeId="@Model.TypeId" asp-route-popup="@isPopup" class="btn btn-secondary ms-2">返回</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (() => {
+            const typeSelect = document.getElementById('TypeId');
+            const parentSelect = document.getElementById('ParentId');
+            const parentLabel = document.getElementById('parentLabel');
+            const parentHint = document.getElementById('parentHint');
+            const endpoint = '@Url.Action("ParentOptions", "Items", new { area = "BasicData" })';
+            const currentItemId = '@Model.Id';
+
+            if (!typeSelect || !parentSelect) {
+                return;
+            }
+
+            async function refreshParentOptions(keepSelectedValue) {
+                const typeId = typeSelect.value;
+                if (!typeId) {
+                    parentLabel.textContent = '上级选项';
+                    parentHint.textContent = '请先选择类型。';
+                    parentSelect.innerHTML = '<option value="">请先选择类型</option>';
+                    parentSelect.setAttribute('disabled', 'disabled');
+                    return;
+                }
+
+                const currentParentValue = keepSelectedValue ? parentSelect.value : '';
+                const response = await fetch(`${endpoint}?typeId=${encodeURIComponent(typeId)}&excludeId=${encodeURIComponent(currentItemId)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                parentLabel.textContent = data.parentLabel || '上级选项';
+                parentHint.textContent = data.parentHint || '';
+
+                parentSelect.innerHTML = '';
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = data.parentPlaceholder || '无（可选）';
+                parentSelect.appendChild(placeholderOption);
+
+                (data.options || []).forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    parentSelect.appendChild(optionElement);
+                });
+
+                if (data.parentSelectDisabled) {
+                    parentSelect.setAttribute('disabled', 'disabled');
+                } else {
+                    parentSelect.removeAttribute('disabled');
+                }
+
+                if (currentParentValue && [...parentSelect.options].some(x => x.value === currentParentValue)) {
+                    parentSelect.value = currentParentValue;
+                } else {
+                    parentSelect.value = '';
+                }
+            }
+
+            typeSelect.addEventListener('change', () => {
+                refreshParentOptions(false);
+            });
+
+            refreshParentOptions(true);
+        })();
+    </script>
+}

@@ -1,0 +1,32 @@
+@model OpenERP.Sales.Models.Entities.SalesOrder
+@{
+    ViewData["Title"] = "新建销售单";
+}
+<div class="container">
+    <h2 class="mt-4">新建销售单</h2>
+    <form asp-area="Sales" asp-controller="SalesOrders" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="OrderNumber" class="form-label">单号</label>
+            <input asp-for="OrderNumber" class="form-control" placeholder="保存时按当前公司规则自动生成" readonly />
+            <span asp-validation-for="OrderNumber" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="OrderDate" class="form-label"></label>
+            <input asp-for="OrderDate" class="form-control" type="date" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="CustomerId" class="form-label">客户</label>
+            <select asp-for="CustomerId" asp-items="ViewBag.CustomerId" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label"></label>
+            <input asp-for="Status" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="TotalAmount" class="form-label"></label>
+            <input asp-for="TotalAmount" class="form-control" type="number" step="0.01" />
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Sales" asp-controller="SalesOrders" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

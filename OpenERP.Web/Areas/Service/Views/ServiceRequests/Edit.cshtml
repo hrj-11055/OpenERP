@@ -1,0 +1,37 @@
+@model OpenERP.Service.Models.Entities.ServiceRequest
+@{
+    ViewData["Title"] = "编辑服务请求";
+}
+
+<div class="container">
+    <h1 class="mt-4">编辑服务请求</h1>
+    <form asp-area="Service" asp-controller="ServiceRequests" asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">标题</label>
+            <input asp-for="Title" class="form-control" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">描述</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">状态</label>
+            <select asp-for="Status" class="form-select">
+                <option value="Open">开放</option>
+                <option value="InProgress">处理中</option>
+                <option value="Closed">已关闭</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ServiceContractId" class="form-label">服务合同</label>
+            <select asp-for="ServiceContractId" class="form-select" asp-items="ViewBag.ServiceContractId"></select>
+            <span asp-validation-for="ServiceContractId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Service" asp-controller="ServiceRequests" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

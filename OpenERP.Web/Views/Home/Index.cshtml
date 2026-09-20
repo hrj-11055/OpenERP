@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = Localizer["Common_Dashboard"];
+}
+
+<div class="container-fluid erp-card-page">
+    <h1 class="erp-card-page__title">@Localizer["Home_Overview"]</h1>
+    <ol class="breadcrumb erp-card-page__breadcrumb">
+        <li class="breadcrumb-item active">@Localizer["Common_Dashboard"]</li>
+    </ol>
+
+    <div class="row erp-card-page__metrics">
+        <div class="col-xl-3 col-md-6">
+            <div class="erp-metric-card erp-metric-card--blue">
+                <div class="erp-metric-card__label">@Localizer["Home_DepartmentCount"]</div>
+                <div class="erp-metric-card__footer">
+                    <a class="erp-metric-card__link stretched-link" href="#">@Localizer["Common_ViewDetails"]</a>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="erp-metric-card erp-metric-card--amber">
+                <div class="erp-metric-card__label">@Localizer["Home_EmployeeCount"]</div>
+                <div class="erp-metric-card__footer">
+                    <a class="erp-metric-card__link stretched-link" href="#">@Localizer["Common_ViewDetails"]</a>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="erp-metric-card erp-metric-card--green">
+                <div class="erp-metric-card__label">@Localizer["Home_MonthlyOrders"]</div>
+                <div class="erp-metric-card__footer">
+                    <a class="erp-metric-card__link stretched-link" href="#">@Localizer["Common_ViewDetails"]</a>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="erp-metric-card erp-metric-card--red">
+                <div class="erp-metric-card__label">@Localizer["Home_PendingTasks"]</div>
+                <div class="erp-metric-card__footer">
+                    <a class="erp-metric-card__link stretched-link" href="#">@Localizer["Common_ViewDetails"]</a>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row erp-card-page__sections">
+        <div class="col-lg-6">
+            <section class="erp-content-card">
+                <div class="erp-content-card__header">
+                    <i class="bi bi-bar-chart me-1"></i>
+                    @Localizer["Home_PerformanceStatistics"]
+                </div>
+                <div class="erp-content-card__body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
+                <div class="erp-content-card__footer">@Localizer["Home_UpdatedJustNow"]</div>
+            </section>
+        </div>
+        <div class="col-lg-6">
+            <section class="erp-content-card">
+                <div class="erp-content-card__header">
+                    <i class="bi bi-table me-1"></i>
+                    @Localizer["Home_RecentEmployees"]
+                </div>
+                <div class="erp-content-card__body">
+                    <table class="table erp-content-card__table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Common_Name"]</th>
+                                <th>@Localizer["Common_Department"]</th>
+                                <th>@Localizer["Common_Position"]</th>
+                                <th>@Localizer["Common_OnboardingDate"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Localizer["Sample_ZhangSan"]</td>
+                                <td>@Localizer["Sample_TechDepartment"]</td>
+                                <td>@Localizer["Sample_Developer"]</td>
+                                <td>2026-03-01</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Sample_LiSi"]</td>
+                                <td>@Localizer["Sample_MarketingDepartment"]</td>
+                                <td>@Localizer["Sample_AccountManager"]</td>
+                                <td>2026-02-15</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

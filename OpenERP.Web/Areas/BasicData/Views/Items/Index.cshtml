@@ -1,0 +1,148 @@
+﻿@model IEnumerable<OpenERP.BasicData.Models.BasicDataItem>
+
+@{
+    ViewData["Title"] = "基础数据选项";
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+
+    int? currentTypeId = ViewData["CurrentTypeId"] as int?;
+    if (!currentTypeId.HasValue && ViewData["CurrentTypeId"] is int typeId)
+    {
+        currentTypeId = typeId;
+    }
+
+    var currentTypeName = ViewData["CurrentTypeName"]?.ToString();
+    var currentTypeCode = ViewData["CurrentTypeCode"]?.ToString();
+    var updatedTypeCode = TempData["BasicDataUpdatedTypeCode"]?.ToString();
+    var updatedSelectedId = TempData["BasicDataUpdatedSelectedId"]?.ToString();
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">基础数据选项管理</h1>
+    @if (!isPopup)
+    {
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">控制面板</a></li>
+            <li class="breadcrumb-item"><a asp-area="BasicData" asp-controller="Home" asp-action="Index">基础数据模块</a></li>
+            <li class="breadcrumb-item"><a asp-area="BasicData" asp-controller="Types" asp-action="Index">类型管理</a></li>
+            <li class="breadcrumb-item active">选项管理</li>
+        </ol>
+    }
+
+    @if (TempData["BasicDataMessage"] is string message)
+    {
+        <div class="alert alert-warning" role="alert">@message</div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+                <i class="bi bi-database me-1"></i> 基础数据选项
+                @if (!string.IsNullOrWhiteSpace(currentTypeName))
+                {
+                    <small class="text-muted ms-2">(@currentTypeName)</small>
+                }
+            </span>
+            <div class="d-flex gap-2">
+                @if (!isPopup)
+                {
+                    <a asp-area="BasicData" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">模块首页</a>
+                }
+                <a asp-action="Create" asp-route-typeId="@currentTypeId" asp-route-typeCode="@currentTypeCode" asp-route-popup="@isPopup" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i> 新增选项
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-2 mb-3">
+                <div class="col-md-4">
+                    <select name="typeId" asp-items="ViewBag.TypeId" class="form-select">
+                        <option value="">全部类型</option>
+                    </select>
+                    <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-outline-primary">筛选</button>
+                </div>
+            </form>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>编码</th>
+                        <th>名称</th>
+                        <th>上级</th>
+                        <th>排序</th>
+                        <th>启用</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">暂无数据</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.TypeName</td>
+                                <td>@item.ItemCode</td>
+                                <td>@item.ItemName</td>
+                                <td>@item.ParentName</td>
+                                <td>@item.SortOrder</td>
+                                <td>@(item.IsActive ? "是" : "否")</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" asp-route-popup="@isPopup" class="btn btn-info btn-sm">编辑</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" asp-route-popup="@isPopup" class="btn btn-danger btn-sm">删除</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (!string.IsNullOrWhiteSpace(updatedTypeCode))
+    {
+        <script>
+            (() => {
+                const typeCode = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(updatedTypeCode));
+                const selectedId = @Html.Raw(string.IsNullOrWhiteSpace(updatedSelectedId) ? "null" : updatedSelectedId);
+                const sourceKeyMap = {
+                    POSITION: "position",
+                    ETHNICITY: "ethnicity",
+                    PROFESSIONAL_TITLE: "professional-title",
+                    ALLOWANCE_PACKAGE: "allowance-package",
+                    SCHEDULING_GROUP: "scheduling-group",
+                    BANK: "bank"
+                };
+
+                const sourceKey = sourceKeyMap[typeCode];
+                if (!sourceKey) {
+                    return;
+                }
+
+                const message = {
+                    type: "open-erp:custom-options-updated",
+                    sourceKey,
+                    selectedId
+                };
+
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(message, window.location.origin);
+                } else if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(message, window.location.origin);
+                }
+            })();
+        </script>
+    }
+}
+

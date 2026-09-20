@@ -1,0 +1,76 @@
+@model OpenERP.Web.Areas.Logistics.ViewModels.MaterialItems.MaterialItemEditViewModel
+
+<div class="material-grid-panel">
+    <div class="training-experience-toolbar">
+        <div class="training-experience-toolbar__filters">
+            <select class="form-select"><option>全部</option><option>价格类别</option></select>
+            <input type="text" class="form-control" placeholder="请输入关键字查询" />
+            <button type="button" class="employee-detail-toolbar__btn">查询</button>
+            <button type="button" class="employee-detail-toolbar__btn">刷新</button>
+        </div>
+        <div class="training-experience-toolbar__actions">
+            <button id="addPriceLineButton" type="button" class="employee-detail-toolbar__btn">新增</button>
+            <button id="deletePriceLineButton" type="button" class="employee-detail-toolbar__btn">删除</button>
+        </div>
+    </div>
+    <div class="training-experience-table-shell">
+        <table id="materialPriceTable" class="training-experience-table material-edit-table material-price-table">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th class="training-experience-table__checkbox"></th>
+                    <th>价格类别</th>
+                    <th>数量</th>
+                    <th>价格</th>
+                    <th>货币</th>
+                    <th>最后修改人</th>
+                    <th>最后修改时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.PriceLines.Count; i++)
+                {
+                    <tr data-price-row>
+                        <td class="price-sequence training-experience-table__seq">@(i + 1)</td>
+                        <td class="training-experience-table__checkbox"><input type="checkbox" class="price-row-selector" aria-label="选择售价行 @(i + 1)" /></td>
+                        <td>
+                            <input asp-for="PriceLines[i].Id" type="hidden" />
+                            <input asp-for="PriceLines[i].IsDeleted" type="hidden" class="price-delete-flag" />
+                            <input asp-for="PriceLines[i].PriceCategory" class="form-control material-table-input material-table-input--wide" />
+                        </td>
+                        <td><input asp-for="PriceLines[i].Quantity" type="number" step="0.0001" class="form-control material-table-input" /></td>
+                        <td><input asp-for="PriceLines[i].Price" type="number" step="0.0001" class="form-control material-table-input" /></td>
+                        <td>
+                            <select asp-for="PriceLines[i].Currency" class="form-select material-table-input">
+                                <option value="RMB">RMB</option>
+                                <option value="HKD">HKD</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </td>
+                        <td>Admin</td>
+                        <td>@DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                        <td><button type="button" class="training-experience-archive-btn material-row-action" data-remove-price>删除</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <template id="materialPriceRowTemplate">
+        <tr data-price-row>
+            <td class="price-sequence training-experience-table__seq"></td>
+            <td class="training-experience-table__checkbox"><input type="checkbox" class="price-row-selector" aria-label="选择售价行" /></td>
+            <td>
+                <input name="PriceLines[__index__].Id" type="hidden" />
+                <input name="PriceLines[__index__].IsDeleted" type="hidden" value="false" class="price-delete-flag" />
+                <input name="PriceLines[__index__].PriceCategory" class="form-control material-table-input material-table-input--wide" />
+            </td>
+            <td><input name="PriceLines[__index__].Quantity" value="1" type="number" step="0.0001" class="form-control material-table-input" /></td>
+            <td><input name="PriceLines[__index__].Price" type="number" step="0.0001" class="form-control material-table-input" /></td>
+            <td><select name="PriceLines[__index__].Currency" class="form-select material-table-input"><option value="RMB">RMB</option><option value="HKD">HKD</option><option value="USD">USD</option></select></td>
+            <td>Admin</td>
+            <td></td>
+            <td><button type="button" class="training-experience-archive-btn material-row-action" data-remove-price>删除</button></td>
+        </tr>
+    </template>
+</div>

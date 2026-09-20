@@ -1,0 +1,284 @@
+@model OpenERP.Web.Areas.Sales.ViewModels.SalesQuotations.SalesQuotationIndexViewModel
+@{
+    ViewData["Title"] = "销售报价";
+    var indexUrl = Url.Action("Index", "SalesQuotations", new { area = "Sales" }) ?? "#";
+    var createUrl = Url.Action("Create", "SalesQuotations", new { area = "Sales", popup = true }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sales-quotations.css" asp-append-version="true" />
+}
+
+<form id="quotationArchiveTokenForm" hidden>
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="company-org-page sales-quotation-page">
+    @* ===== 上方：报价单主表 ===== *@
+    <section class="company-org-panel sales-quotation-panel sales-quotation-panel--master">
+        <form class="company-org-toolbar sales-quotation-toolbar" method="get"
+              asp-area="Sales" asp-controller="SalesQuotations" asp-action="Index">
+            <div class="company-org-searchbar">
+                <select name="statusFilter" class="company-org-select" aria-label="状态过滤">
+                    @foreach (var opt in new[] { "全部", "正常", "作废", "失效" })
+                    {
+                        <option value="@opt" selected="@(Model.StatusFilter == opt)">@opt</option>
+                    }
+                </select>
+                <select name="scope" class="company-org-select" aria-label="查询范围">
+                    @foreach (var opt in new[] { "全部", "报价单号", "客户编号", "客户名称", "联系人", "电话", "电邮", "备注" })
+                    {
+                        <option value="@opt" selected="@(Model.Scope == opt)">@opt</option>
+                    }
+                </select>
+                <input name="keyword" class="company-org-input" value="@Model.Keyword" placeholder="请输入关键字查询" />
+                <button type="submit" class="company-org-btn company-org-btn--primary">查询</button>
+                <button type="button" id="quotationAdvancedButton" class="company-org-btn company-org-btn--ghost">高级查询</button>
+            </div>
+            <div class="company-org-actions">
+                <a href="@indexUrl" class="company-org-icon-btn" title="刷新">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </a>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationAddButton"
+                        data-popup-url="@createUrl" data-popup-title="新增销售报价">新增</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationEditButton">修改</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationDeleteButton">删除</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationCopyButton">复制</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationPrintButton">打印</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationExportButton">导出</button>
+                <button type="button" class="company-org-btn company-org-btn--action" id="quotationGenerateOrderButton">生成销售订单</button>
+            </div>
+        </form>
+
+        <div class="company-org-meta">
+            <div class="company-org-meta__left">
+                <span>共 @Model.Quotations.Count 条记录</span>
+            </div>
+            <div class="company-org-meta__right" id="quotationSelectedText">
+                已选择 @(Model.SelectedQuotationId.HasValue ? 1 : 0) 条
+            </div>
+        </div>
+
+        <div class="company-org-table-wrap sales-quotation-table-wrap sales-quotation-table-wrap--master">
+            <table id="quotationTable" class="company-org-table sales-quotation-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>报价单号</th>
+                        <th>报价日期</th>
+                        <th>客户编号</th>
+                        <th>客户名称</th>
+                        <th>状态</th>
+                        <th>档案</th>
+                        <th>有效截止日期</th>
+                        <th>账单联系人</th>
+                        <th>电话</th>
+                        <th>电邮</th>
+                        <th>备注</th>
+                        <th>最后修改人</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Quotations.Any())
+                    {
+                        <tr>
+                            <td colspan="14" class="company-org-table__empty">暂无报价记录</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Quotations)
+                        {
+                            var selected = item.Id == Model.SelectedQuotationId;
+                            var activateUrl = Url.Action("Index", "SalesQuotations", new
+                            {
+                                area = "Sales",
+                                scope = Model.Scope,
+                                keyword = Model.Keyword,
+                                statusFilter = Model.StatusFilter,
+                                selectedQuotationId = item.Id,
+                                activeTab = Model.ActiveTab
+                            });
+                            var detailUrl = Url.Action("Details", "SalesQuotations", new { area = "Sales", id = item.Id, popup = true }) ?? "#";
+                            var editUrl = Url.Action("Edit", "SalesQuotations", new { area = "Sales", id = item.Id, popup = true }) ?? "#";
+                            var copyUrl = Url.Action("Copy", "SalesQuotations", new { area = "Sales", id = item.Id, popup = true }) ?? "#";
+                            <tr class="company-org-record-row @(selected ? "is-active is-selected" : string.Empty)"
+                                data-quotation-row
+                                data-id="@item.Id"
+                                data-activate-url="@activateUrl"
+                                data-detail-url="@detailUrl"
+                                data-edit-url="@editUrl"
+                                data-copy-url="@copyUrl">
+                                <td>@item.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    <input class="quotation-selector" type="checkbox" name="selectedQuotations"
+                                           value="@item.Id" checked="@selected"
+                                           aria-label="选择报价单 @item.QuotationNumber" />
+                                </td>
+                                <td class="company-org-code">
+                                    <a class="company-org-code-link"
+                                       href="@detailUrl"
+                                       data-popup-url="@detailUrl"
+                                       data-popup-title="查看销售报价">@item.QuotationNumber</a>
+                                </td>
+                                <td>@item.QuotationDate</td>
+                                <td>@item.CustomerCode</td>
+                                <td class="company-org-name">@item.CustomerName</td>
+                                <td>
+                                    <span class="company-org-status @GetStatusClass(item.Status)">@item.Status</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="company-org-archive" title="打开档案管理">档案</button>
+                                </td>
+                                <td>@item.ValidUntil</td>
+                                <td>@item.BillingContact</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Email</td>
+                                <td>@item.Remarks</td>
+                                <td><span class="company-org-modifier">@item.LastModifiedBy</span></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span>第 1 / 1 页</span>
+            <div class="company-org-pagination">
+                <button type="button" class="company-org-pagebtn company-org-pagebtn--active">1</button>
+                <span class="company-org-pagesize">10条/页</span>
+            </div>
+        </div>
+    </section>
+
+    @* ===== 下方：页签区域（货品清单 / 下款内容 / 任务跟进 / 关联单据） ===== *@
+    <section class="company-org-panel sales-quotation-panel sales-quotation-panel--detail">
+        <div class="sales-quotation-tabs">
+            <button type="button" class="sales-quotation-tab @(Model.ActiveTab == "items" ? "is-active" : "")"
+                    data-quotation-tab="items">货品清单</button>
+            <button type="button" class="sales-quotation-tab @(Model.ActiveTab == "payment" ? "is-active" : "")"
+                    data-quotation-tab="payment">下款内容</button>
+            <button type="button" class="sales-quotation-tab @(Model.ActiveTab == "tasks" ? "is-active" : "")"
+                    data-quotation-tab="tasks">任务跟进</button>
+            <button type="button" class="sales-quotation-tab @(Model.ActiveTab == "documents" ? "is-active" : "")"
+                    data-quotation-tab="documents">关联单据</button>
+        </div>
+
+        @* --- 货品清单页签 --- *@
+        <div class="sales-quotation-tabpanel @(Model.ActiveTab == "items" ? "is-active" : "")"
+             data-quotation-panel="items">
+            <div class="sales-quotation-detail-toolbar">
+                <div class="company-org-searchbar sales-quotation-detail-searchbar">
+                    <input class="company-org-input" placeholder="请输入关键字查询" id="quotationItemKeyword" />
+                    <button type="button" class="company-org-btn company-org-btn--primary">查询</button>
+                </div>
+                <div class="company-org-actions">
+                    <button type="button" class="company-org-btn company-org-btn--action">导出</button>
+                </div>
+            </div>
+
+            <div class="company-org-table-wrap sales-quotation-table-wrap sales-quotation-table-wrap--items">
+                <table class="company-org-table sales-quotation-table sales-quotation-item-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>货品编号</th>
+                            <th>货品名称</th>
+                            <th>数量</th>
+                            <th>单位</th>
+                            <th>单价</th>
+                            <th>折扣(%)</th>
+                            <th>金额</th>
+                            <th>货币</th>
+                            <th>汇率</th>
+                            <th>附注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Items.Any())
+                        {
+                            <tr>
+                                <td colspan="11" class="company-org-table__empty">暂无货品记录</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.SequenceNo</td>
+                                    <td class="company-org-code">@item.ProductCode</td>
+                                    <td class="company-org-name">@item.ProductName</td>
+                                    <td>@item.Quantity.ToString("N0")</td>
+                                    <td>@item.Unit</td>
+                                    <td>@item.UnitPrice.ToString("N2")</td>
+                                    <td>@item.DiscountPercent.ToString("N2")</td>
+                                    <td>@item.Amount.ToString("N2")</td>
+                                    <td>@item.Currency</td>
+                                    <td>@item.ExchangeRate.ToString("N4")</td>
+                                    <td>@item.Notes</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* --- 下款内容页签 --- *@
+        <div class="sales-quotation-tabpanel @(Model.ActiveTab == "payment" ? "is-active" : "")"
+             data-quotation-panel="payment">
+            <div class="sales-quotation-placeholder">
+                <p>下款内容功能后续可继续扩展。</p>
+                <p class="text-muted mb-0">用于维护报价单的付款条件、付款阶段和分期金额。</p>
+            </div>
+        </div>
+
+        @* --- 任务跟进页签 --- *@
+        <div class="sales-quotation-tabpanel @(Model.ActiveTab == "tasks" ? "is-active" : "")"
+             data-quotation-panel="tasks">
+            <div class="sales-quotation-placeholder">
+                <p>任务跟进功能后续可继续扩展。</p>
+                <p class="text-muted mb-0">用于追踪报价单相关的跟进任务、沟通记录和内部协作。</p>
+            </div>
+        </div>
+
+        @* --- 关联单据页签 --- *@
+        <div class="sales-quotation-tabpanel @(Model.ActiveTab == "documents" ? "is-active" : "")"
+             data-quotation-panel="documents">
+            <div class="sales-quotation-placeholder">
+                <p>关联单据功能后续可继续扩展。</p>
+                <p class="text-muted mb-0">用于展示与报价单关联的销售订单、送货单、发票等衍生单据。</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<form id="quotationDeleteForm" method="post"
+      asp-area="Sales" asp-controller="SalesQuotations" asp-action="Delete" hidden>
+    @Html.AntiForgeryToken()
+    <div id="quotationDeleteIds"></div>
+</form>
+
+@section Scripts {
+    <script src="~/js/sales-quotations.js" asp-append-version="true"></script>
+}
+
+@functions {
+    /// <summary>
+    /// 根据报价单状态返回对应的 CSS 类名。
+    /// </summary>
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "正常" => "company-org-status--active",
+            "作废" => "company-org-status--void",
+            "失效" => "company-org-status--expired",
+            _ => ""
+        };
+    }
+}

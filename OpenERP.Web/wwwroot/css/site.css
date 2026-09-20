@@ -1,0 +1,841 @@
+html {
+  font-size: 14px;
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 整体框架：左右分栏，精确填满视口 */
+.layout-shell {
+  display: flex;
+  height: 100vh;
+}
+
+.layout-shell__sidebar {
+  /* 左侧主导航容器：改为纵向布局，便于底部承载当前用户信息区 */
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  height: 100vh;
+  overflow: visible;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+
+.layout-shell__sidebar-nav {
+  /* 功能导航区：单独承担滚动，避免底部用户区跟随滚动离开视口 */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.layout-shell__sidebar-user {
+  /* 当前操作用户信息区：固定在左侧导航底部 */
+  padding: 1rem 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+.layout-shell__sidebar-user-label {
+  margin-bottom: 0.45rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.75rem;
+  line-height: 1;
+  display: none;
+}
+
+.layout-shell__sidebar-company-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: 100%;
+  margin-bottom: 0.8rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.layout-shell__sidebar-company-trigger:hover,
+.layout-shell__sidebar-company-trigger[aria-expanded="true"] {
+  background: transparent;
+  color: #f8fbff;
+}
+
+.layout-shell__sidebar-company-trigger span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layout-shell__sidebar-user {
+  position: relative;
+}
+
+.layout-shell__sidebar-user-trigger {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.layout-shell__sidebar-user-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.layout-shell__sidebar-user-name i {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.05rem;
+}
+
+.layout-shell__sidebar-user-trigger:hover .layout-shell__sidebar-user-name,
+.layout-shell__sidebar-user-trigger[aria-expanded="true"] .layout-shell__sidebar-user-name {
+  color: #f8fbff;
+}
+
+.layout-shell__sidebar-user-menu {
+  position: absolute;
+  left: calc(100% + 12px);
+  bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 132px;
+  padding: 0.4rem;
+  border-radius: 10px;
+  background: rgba(79, 79, 79, 0.96);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
+.layout-shell__sidebar-user-menu[hidden] {
+  display: none;
+}
+
+.layout-shell__sidebar-user-menu-form {
+  margin: 0;
+}
+
+.layout-shell__sidebar-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.72rem 0.8rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.layout-shell__sidebar-user-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.layout-shell__sidebar-user-menu-item i {
+  font-size: 1rem;
+}
+
+.company-switch-dialog {
+  width: min(920px, 100%);
+  height: auto;
+}
+
+.company-switch-dialog__header {
+  background: linear-gradient(180deg, #fefefe 0%, #e9f3fb 100%);
+}
+
+.company-switch-dialog__body {
+  padding: 0.95rem 1rem 1rem;
+}
+
+.company-switch-form__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.company-switch-table-shell {
+  border: 1px solid #cfddea;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.company-switch-table {
+  --bs-table-bg: #fff;
+  --bs-table-striped-bg: #f8fbff;
+  vertical-align: middle;
+}
+
+.company-switch-table thead th {
+  background: #f4f8fc;
+  color: #163454;
+  font-weight: 800;
+}
+
+.company-switch-table__permission {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-right: 0.65rem;
+  color: #4d657e;
+  font-size: 0.875rem;
+}
+
+.layout-shell__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+}
+
+.layout-shell__navbar {
+  flex-shrink: 0;
+}
+
+.layout-shell__header-tools {
+  /* 顶部快捷功能组：承载快速查单、查看信息、设置入口 */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  order: 2;
+}
+
+.layout-shell__quick-search {
+  display: inline-flex;
+  align-items: center;
+  min-width: 218px;
+  padding: 0.15rem 0.15rem 0.15rem 0.75rem;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.layout-shell__quick-search-input {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: #17314d;
+  font-size: 0.875rem;
+}
+
+.layout-shell__quick-search-input:focus {
+  box-shadow: none;
+  background: transparent;
+}
+
+.layout-shell__quick-search-input::placeholder {
+  color: #8a9bb0;
+}
+
+.layout-shell__quick-search-button,
+.layout-shell__icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1b1b1b;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.layout-shell__quick-search-button {
+  color: #17314d;
+}
+
+.layout-shell__quick-search-button:hover,
+.layout-shell__icon-action:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.layout-shell__quick-search-button:hover {
+  background: #e9f2fb;
+}
+
+.layout-shell__quick-search-button:focus,
+.layout-shell__icon-action:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.layout-shell__logout-form {
+  order: 3;
+}
+
+.layout-shell__logout-action {
+  padding: 0;
+}
+
+.layout-shell__tabs {
+  flex-shrink: 0;
+}
+
+.layout-shell__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.layout-shell__content > main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 通用卡片页面：用于控制板、概览页和轻量统计页面，后续卡片页统一复用此风格。 */
+.erp-card-page {
+  flex: 1;
+  min-height: 0;
+  padding: 2rem 2.25rem;
+  color: #142b46;
+  background: #ffffff;
+}
+
+.erp-card-page__title {
+  margin: 0 0 0.35rem;
+  color: #142b46;
+  font-size: 2.35rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.erp-card-page__breadcrumb {
+  margin-bottom: 1.7rem;
+  color: #63748a;
+  background: transparent;
+}
+
+.erp-card-page__metrics,
+.erp-card-page__sections {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1.5rem;
+}
+
+.erp-card-page__sections {
+  margin-top: 1.5rem;
+}
+
+.erp-metric-card,
+.erp-content-card {
+  border: 1px solid #cbd7e4;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(17, 40, 78, 0.08);
+}
+
+.erp-metric-card {
+  position: relative;
+  display: flex;
+  min-height: 96px;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #ffffff;
+}
+
+.erp-metric-card__label {
+  padding: 1.15rem 1.1rem 0.9rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.erp-metric-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  background: rgba(11, 31, 55, 0.18);
+}
+
+.erp-metric-card__link {
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.erp-metric-card__link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.erp-metric-card--blue {
+  background: linear-gradient(180deg, #1f7fe5 0%, #1265c2 100%);
+}
+
+.erp-metric-card--amber {
+  background: linear-gradient(180deg, #f4bc24 0%, #d49a08 100%);
+}
+
+.erp-metric-card--green {
+  background: linear-gradient(180deg, #1b874d 0%, #146d3d 100%);
+}
+
+.erp-metric-card--red {
+  background: linear-gradient(180deg, #dc344d 0%, #bb253b 100%);
+}
+
+.erp-content-card {
+  display: flex;
+  min-height: 216px;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.erp-content-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  padding: 0.72rem 1rem;
+  border-bottom: 1px solid #d8e1ea;
+  background: linear-gradient(180deg, #fdfefe 0%, #eef4f9 100%);
+  color: #163454;
+  font-weight: 800;
+}
+
+.erp-content-card__body {
+  flex: 1;
+  min-height: 0;
+  padding: 1rem;
+}
+
+.erp-content-card__footer {
+  padding: 0.72rem 1rem;
+  border-top: 1px solid #e1e8f0;
+  background: #fbfdff;
+  color: #6b7d91;
+  font-size: 0.86rem;
+}
+
+.erp-content-card__table {
+  margin-bottom: 0;
+  border-color: #dbe5ef;
+}
+
+.erp-content-card__table thead th {
+  border-bottom: 1px solid #d8e1ea;
+  background: #f4f8fc;
+  color: #163454;
+  font-weight: 800;
+}
+
+.erp-content-card__table tbody td {
+  border-color: #e4ebf3;
+}
+
+.layout-shell__footer {
+  flex-shrink: 0;
+}
+
+.page-tabs-shell {
+  padding: 0.75rem 1rem 0;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef3f8 100%);
+  border-bottom: 1px solid #d8e3ee;
+}
+
+.page-tabs-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+
+.page-tab-card {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  border: 1px solid #c9d6e4;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #eff6fc 0%, #dae6f3 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.page-tab-card.is-active {
+  background: linear-gradient(180deg, #338fe5 0%, #2a75c6 100%);
+  border-color: #2a75c6;
+}
+
+.page-tab-card__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.7rem 0.5rem 0.8rem;
+  color: #163454;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.page-tab-card.is-active .page-tab-card__link {
+  color: #fff;
+}
+
+.page-tab-card__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 0.2rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #5c7188;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.page-tab-card.is-active .page-tab-card__close {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.page-tab-card__close:hover {
+  background: rgba(22, 52, 84, 0.1);
+}
+
+.page-tab-card.is-active .page-tab-card__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.page-popup-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(16, 30, 48, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.page-popup-lock-open {
+  overflow: hidden;
+}
+
+.page-popup-lock--modal {
+  padding: 1.25rem;
+}
+
+.page-popup-lock__panel {
+  width: min(420px, 100%);
+  padding: 1.25rem 1.25rem 1rem;
+  border: 1px solid #cbd7e4;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(15, 36, 64, 0.2);
+}
+
+.page-popup-lock__title {
+  color: #163454;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.page-popup-lock__message {
+  margin-top: 0.75rem;
+  color: #5a7088;
+  line-height: 1.7;
+}
+
+.page-popup-lock__button {
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(180deg, #4ea2ef 0%, #2d7fd0 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.page-popup-lock__dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(1240px, 100%);
+  height: min(920px, calc(100vh - 2.5rem));
+  border: 1px solid #cbd7e4;
+  border-radius: 18px;
+  background: #f7fbff;
+  box-shadow: 0 24px 60px rgba(15, 36, 64, 0.24);
+  overflow: hidden;
+}
+
+.page-popup-lock__dialog--sales-quote {
+  width: min(1320px, calc(100vw - 2.5rem));
+}
+
+.page-popup-lock__dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #d7e2ee;
+  background: linear-gradient(180deg, #fefefe 0%, #eef5fb 100%);
+}
+
+.page-popup-lock__dialog-title {
+  color: #163454;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.page-popup-lock__dialog-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #6f7e8f 0%, #576677 100%);
+  color: #fff;
+}
+
+.page-popup-lock__dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: linear-gradient(180deg, #f4f8fd 0%, #ffffff 100%);
+}
+
+.page-popup-lock__iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.popup-layout-body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #f4f8fd 0%, #ffffff 100%);
+}
+
+.popup-layout-shell {
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.language-switcher-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  order: 1;
+}
+
+.language-switcher-label {
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.language-switcher-select {
+  min-width: 10rem;
+}
+
+.company-print-chrome {
+  display: none;
+}
+
+.company-print-chrome__header,
+.company-print-chrome__footer {
+  color: #1f2937;
+  font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+}
+
+.company-print-chrome__header-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12mm;
+}
+
+.company-print-chrome__logo-wrap {
+  flex: 0 0 auto;
+}
+
+.company-print-chrome__logo {
+  max-width: 40mm;
+  max-height: 18mm;
+  object-fit: contain;
+}
+
+.company-print-chrome__organization-name {
+  margin-bottom: 2mm;
+  font-size: 14pt;
+  font-weight: 800;
+}
+
+.company-print-chrome__line {
+  line-height: 1.5;
+}
+
+@media (max-width: 991.98px) {
+  .layout-shell__header-tools {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .layout-shell__quick-search {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .language-switcher-form {
+    padding-top: 0.5rem;
+  }
+
+  .page-tabs-shell {
+    padding: 0.65rem 0.75rem 0;
+  }
+
+  .erp-card-page {
+    padding: 1.25rem;
+  }
+
+  .erp-card-page__title {
+    font-size: 1.85rem;
+  }
+
+  .page-popup-lock--modal {
+    padding: 0.75rem;
+  }
+
+  .page-popup-lock__dialog {
+    height: calc(100vh - 1.5rem);
+    border-radius: 14px;
+  }
+
+  .page-popup-lock__dialog-header {
+    padding: 0.75rem 0.9rem;
+  }
+
+  .popup-layout-shell {
+    padding: 16px;
+  }
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+@media print {
+  @page {
+    margin: 18mm 12mm 18mm;
+  }
+
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .layout-shell__sidebar,
+  .layout-shell__navbar,
+  .layout-shell__tabs,
+  .layout-shell__header-tools,
+  .language-switcher-form,
+  .layout-shell__logout-form,
+  .page-popup-lock {
+    display: none !important;
+  }
+
+  .layout-shell,
+  .layout-shell__main,
+  .layout-shell__content,
+  .popup-layout-body,
+  .popup-layout-shell {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+  }
+
+  .company-print-page {
+    padding-top: 34mm !important;
+    padding-bottom: 20mm !important;
+  }
+
+  .company-print-chrome {
+    display: block !important;
+  }
+
+  .company-print-chrome__header,
+  .company-print-chrome__footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    padding-left: 12mm;
+    padding-right: 12mm;
+    background: #fff;
+    z-index: 9999;
+  }
+
+  .company-print-chrome__header {
+    top: 0;
+    padding-top: 10mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid #d1d5db;
+  }
+
+  .company-print-chrome__footer {
+    bottom: 0;
+    padding-top: 3mm;
+    padding-bottom: 8mm;
+    border-top: 1px solid #d1d5db;
+    font-size: 9pt;
+  }
+}

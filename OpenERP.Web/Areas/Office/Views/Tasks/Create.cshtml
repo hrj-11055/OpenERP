@@ -1,0 +1,41 @@
+@model OpenERP.Office.Models.Entities.Task
+@{
+    ViewData["Title"] = "新增任务";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增任务</h1>
+    <form asp-area="Office" asp-controller="Tasks" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">标题</label>
+            <input asp-for="Title" class="form-control" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">描述</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DueDate" class="form-label">截止日期</label>
+            <input asp-for="DueDate" class="form-control" type="date" />
+            <span asp-validation-for="DueDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">状态</label>
+            <select asp-for="Status" class="form-select">
+                <option value="Pending">待处理</option>
+                <option value="InProgress">进行中</option>
+                <option value="Completed">已完成</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="AssignedTo" class="form-label">指派给</label>
+            <input asp-for="AssignedTo" class="form-control" />
+            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Office" asp-controller="Tasks" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

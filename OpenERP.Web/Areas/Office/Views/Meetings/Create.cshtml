@@ -1,0 +1,37 @@
+@model OpenERP.Office.Models.Entities.Meeting
+@{
+    ViewData["Title"] = "新增会议";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增会议</h1>
+    <form asp-area="Office" asp-controller="Meetings" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">标题</label>
+            <input asp-for="Title" class="form-control" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StartTime" class="form-label">开始时间</label>
+            <input asp-for="StartTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="EndTime" class="form-label">结束时间</label>
+            <input asp-for="EndTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="EndTime" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Location" class="form-label">地点</label>
+            <input asp-for="Location" class="form-control" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Agenda" class="form-label">议程</label>
+            <textarea asp-for="Agenda" class="form-control"></textarea>
+            <span asp-validation-for="Agenda" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Office" asp-controller="Meetings" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

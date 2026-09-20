@@ -1,0 +1,201 @@
+@model OpenERP.Web.Models.CustomOptions.CustomOptionManagementPageViewModel
+@{
+    ViewData["Title"] = Model.Title;
+
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+
+    var updatedSource = TempData["CustomOptionUpdatedSource"]?.ToString();
+    var updatedSelectedId = TempData["CustomOptionUpdatedSelectedId"]?.ToString();
+    var columnCount = 3 + (Model.SupportsCode ? 1 : 0) + (Model.SupportsSortOrder ? 1 : 0) + (Model.SupportsIsActive ? 1 : 0);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/custom-options.css" asp-append-version="true" />
+}
+
+<div class="custom-option-page">
+    <div class="custom-option-page__header">
+        <div>
+            <h1 class="custom-option-page__title">@Model.Title</h1>
+            <p class="custom-option-page__subtitle">可在此新增、修改、删除 @Model.SourceName 选项。</p>
+        </div>
+        <div class="custom-option-page__actions">
+            <a asp-action="Index" asp-route-source="@Model.SourceKey" asp-route-popup="@isPopup" class="btn btn-outline-secondary btn-sm">新增</a>
+            @if (isPopup)
+            {
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.closeEmployeeDetailPage(false)">关闭</button>
+            }
+        </div>
+    </div>
+
+    @if (TempData["CustomOptionMessage"] is string message)
+    {
+        <div class="alert alert-info custom-option-page__message" role="alert">@message</div>
+    }
+
+    <div class="custom-option-page__content">
+        <section class="custom-option-card custom-option-card--list">
+            <div class="custom-option-card__header">已维护选项</div>
+            <div class="custom-option-card__body">
+                <table class="table table-sm align-middle custom-option-table">
+                    <thead>
+                        <tr>
+                            @if (Model.SupportsCode)
+                            {
+                                <th>编码</th>
+                            }
+                            <th>名称</th>
+                            @if (Model.SupportsSortOrder)
+                            {
+                                <th>排序</th>
+                            }
+                            @if (Model.SupportsIsActive)
+                            {
+                                <th>启用</th>
+                            }
+                            <th>@Model.DescriptionLabel</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Items.Any())
+                        {
+                            <tr>
+                                <td colspan="@columnCount" class="text-center text-muted">
+                                    暂无数据
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr class="@(Model.Editor.Id == item.Id ? "table-primary" : string.Empty)">
+                                    @if (Model.SupportsCode)
+                                    {
+                                        <td>@item.Code</td>
+                                    }
+                                    <td>@item.Name</td>
+                                    @if (Model.SupportsSortOrder)
+                                    {
+                                        <td>@item.SortOrder</td>
+                                    }
+                                    @if (Model.SupportsIsActive)
+                                    {
+                                        <td>@(item.IsActive == true ? "是" : "否")</td>
+                                    }
+                                    <td>@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                                    <td class="text-end">
+                                        <div class="custom-option-table__actions">
+                                            <a asp-action="Index"
+                                               asp-route-source="@Model.SourceKey"
+                                               asp-route-editId="@item.Id"
+                                               asp-route-popup="@isPopup"
+                                               class="btn btn-outline-primary btn-sm">编辑</a>
+                                            <form asp-action="Delete" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="source" value="@Model.SourceKey" />
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        onclick="return confirm('确定删除该@Model.SourceName 选项吗？');">删除</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="custom-option-card custom-option-card--editor">
+            <div class="custom-option-card__header">@(Model.Editor.Id > 0 ? $"编辑{Model.SourceName}" : $"新增{Model.SourceName}")</div>
+            <div class="custom-option-card__body">
+                <form asp-action="Save" method="post" class="custom-option-form">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Editor.Id" type="hidden" />
+                    <input asp-for="Editor.SourceKey" type="hidden" />
+                    <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    @if (Model.SupportsCode)
+                    {
+                        <div class="mb-3">
+                            <label asp-for="Editor.Code" class="form-label">编码</label>
+                            <input asp-for="Editor.Code" class="form-control" />
+                            <span asp-validation-for="Editor.Code" class="text-danger"></span>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Editor.Name" class="form-label">名称</label>
+                        <input asp-for="Editor.Name" class="form-control" />
+                        <span asp-validation-for="Editor.Name" class="text-danger"></span>
+                    </div>
+
+                    @if (Model.SupportsSortOrder || Model.SupportsIsActive)
+                    {
+                        <div class="custom-option-form__row">
+                            @if (Model.SupportsSortOrder)
+                            {
+                                <div class="mb-3">
+                                    <label asp-for="Editor.SortOrder" class="form-label">排序</label>
+                                    <input asp-for="Editor.SortOrder" class="form-control" />
+                                    <span asp-validation-for="Editor.SortOrder" class="text-danger"></span>
+                                </div>
+                            }
+
+                            @if (Model.SupportsIsActive)
+                            {
+                                <div class="mb-3 custom-option-form__check">
+                                    <div class="form-check mt-4">
+                                        <input asp-for="Editor.IsActive" class="form-check-input" />
+                                        <label asp-for="Editor.IsActive" class="form-check-label">启用</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Editor.Description" class="form-label">@Model.DescriptionLabel</label>
+                        <textarea asp-for="Editor.Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Editor.Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="custom-option-form__actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <a asp-action="Index" asp-route-source="@Model.SourceKey" asp-route-popup="@isPopup" class="btn btn-outline-secondary">重置</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @if (!string.IsNullOrWhiteSpace(updatedSource))
+    {
+        <script>
+            (() => {
+                const message = {
+                    type: "open-erp:custom-options-updated",
+                    sourceKey: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(updatedSource)),
+                    selectedId: @Html.Raw(string.IsNullOrWhiteSpace(updatedSelectedId) ? "null" : updatedSelectedId)
+                };
+
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(message, window.location.origin);
+                } else if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(message, window.location.origin);
+                }
+            })();
+        </script>
+    }
+}

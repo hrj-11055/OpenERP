@@ -1,0 +1,42 @@
+@model OpenERP.Asset.Models.Entities.Asset
+@{
+    ViewData["Title"] = "编辑资产";
+}
+
+<div class="container">
+    <h1 class="mt-4">编辑资产</h1>
+    <form asp-area="Asset" asp-controller="Assets" asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">名称</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="AssetTag" class="form-label">资产标签</label>
+            <input asp-for="AssetTag" class="form-control" />
+            <span asp-validation-for="AssetTag" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">状态</label>
+            <select asp-for="Status" class="form-select">
+                <option value="In-Use">使用中</option>
+                <option value="In-Stock">库存中</option>
+                <option value="Retired">已报废</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="PurchaseDate" class="form-label">购买日期</label>
+            <input asp-for="PurchaseDate" class="form-control" type="date" />
+            <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="PurchaseCost" class="form-label">购买成本</label>
+            <input asp-for="PurchaseCost" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Asset" asp-controller="Assets" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

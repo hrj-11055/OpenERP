@@ -1,0 +1,260 @@
+@model OpenERP.Web.Areas.Logistics.ViewModels.MaterialItems.MaterialItemIndexViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    var createUrl = Url.Action("Create", "MaterialManagement", new { area = "Logistics", category = Model.Category, popup = true }) ?? "#";
+    var exportUrl = Url.Action("Export", "MaterialManagement", new { area = "Logistics", category = Model.Category, scope = Model.Scope, keyword = Model.Keyword }) ?? "#";
+    var indexAction = Model.Category switch
+    {
+        "材料" => "Materials",
+        "辅料" => "AuxiliaryMaterials",
+        _ => "Products"
+    };
+    var indexUrl = Url.Action(indexAction, "MaterialManagement", new { area = "Logistics" }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/material-management.css" asp-append-version="true" />
+}
+
+<form id="materialArchiveTokenForm" hidden>
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="company-org-page material-page">
+    <section class="company-org-panel material-panel">
+        <form class="company-org-toolbar material-toolbar" method="get" asp-area="Logistics" asp-controller="MaterialManagement" asp-action="@indexAction">
+            <div class="company-org-searchbar">
+                <select name="scope" class="company-org-select" aria-label="查询范围">
+                    @foreach (var option in new[] { "全部", "产品编号", "产品名称", "品牌", "类型", "备注" })
+                    {
+                        if (string.Equals(Model.Scope, option, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@option" selected>@option</option>
+                        }
+                        else
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    }
+                </select>
+                <input name="keyword" class="company-org-input" value="@Model.Keyword" placeholder="请输入关键字查询" />
+                <button type="submit" class="company-org-btn company-org-btn--primary">查询</button>
+                <button id="materialAdvancedButton" type="button" class="company-org-btn company-org-btn--ghost">高级查询</button>
+            </div>
+            <div class="company-org-actions">
+                <a href="@indexUrl" class="company-org-icon-btn" title="刷新">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </a>
+                <a href="@createUrl"
+                   data-popup-url="@createUrl"
+                   data-popup-title="新增@Model.PageTitle"
+                   class="company-org-btn company-org-btn--action">新增</a>
+                <button id="materialEditButton" type="button" class="company-org-btn company-org-btn--action">修改</button>
+                <button id="materialDeleteButton" type="button" class="company-org-btn company-org-btn--action">删除</button>
+                <button id="materialCopyButton" type="button" class="company-org-btn company-org-btn--action">复制</button>
+                <button id="materialImportButton" type="button" class="company-org-btn company-org-btn--action">导入</button>
+                <a href="@exportUrl" class="company-org-btn company-org-btn--action">导出</a>
+            </div>
+        </form>
+
+        <div class="company-org-meta">
+            <div class="company-org-meta__left">
+                <span>共 @Model.Items.Count 条记录</span>
+            </div>
+            <div class="company-org-meta__right" id="materialSelectedText">
+                已选择 @(Model.SelectedItemId.HasValue ? 1 : 0) 条
+            </div>
+        </div>
+
+        <div class="company-org-table-wrap material-table-wrap material-table-wrap--master">
+            <table id="materialTable" class="company-org-table material-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>产品编号</th>
+                        <th>产品名称</th>
+                        <th>状态</th>
+                        <th>档案</th>
+                        <th>产品描述</th>
+                        <th>类型</th>
+                        <th>品牌</th>
+                        <th>规格/型号</th>
+                        <th>产地</th>
+                        <th>单位</th>
+                        <th>库存</th>
+                        <th>备注</th>
+                        <th>最后修改人</th>
+                        <th>最后修改时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="16" class="company-org-table__empty">暂无@Model.PageTitle</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Items)
+                        {
+                            var detailUrl = Url.Action("Details", "MaterialManagement", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var editUrl = Url.Action("Edit", "MaterialManagement", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var copyUrl = Url.Action("Copy", "MaterialManagement", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var selected = item.Id == Model.SelectedItemId;
+                            <tr class="company-org-record-row @(selected ? "is-active is-selected" : string.Empty)"
+                                data-material-row
+                                data-id="@item.Id"
+                                data-detail-url="@detailUrl"
+                                data-edit-url="@editUrl"
+                                data-copy-url="@copyUrl"
+                                data-related-url="@Url.Action(indexAction, "MaterialManagement", new { area = "Logistics", scope = Model.Scope, keyword = Model.Keyword, selectedItemId = item.Id })">
+                                <td>@item.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    <input class="material-selector" type="checkbox" name="selectedItems" value="@item.Id" checked="@selected" aria-label="选择产品 @item.ItemCode" />
+                                </td>
+                                <td class="company-org-code">
+                                    <a class="company-org-code-link"
+                                       href="@detailUrl"
+                                       data-popup-url="@detailUrl"
+                                       data-popup-title="查看@Model.PageTitle">@item.ItemCode</a>
+                                </td>
+                                <td class="company-org-name">@item.ItemName</td>
+                                <td><span class="company-org-status">@item.Status</span></td>
+                                <td>
+                                    <button type="button"
+                                            class="company-org-archive"
+                                            data-material-archive
+                                            data-material-id="@item.Id"
+                                            data-material-name="@item.ItemName"
+                                            title="打开产品档案管理">
+                                        @item.ArchiveLabel
+                                    </button>
+                                </td>
+                                <td>@item.Description</td>
+                                <td>@item.ItemType</td>
+                                <td>@item.Brand</td>
+                                <td>@item.SpecificationModel</td>
+                                <td>@item.Origin</td>
+                                <td>@item.Unit</td>
+                                <td class="material-number-cell">@item.Inventory</td>
+                                <td>@item.Remarks</td>
+                                <td><span class="company-org-modifier">@item.LastModifiedBy</span></td>
+                                <td>@item.LastModifiedAt</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span>共 @Model.Items.Count 条　　第 1 / 1 页</span>
+            <div class="company-org-pagination">
+                <button type="button" class="company-org-pagebtn company-org-pagebtn--active">1</button>
+                <span class="company-org-pagesize">10条/页</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="company-org-panel material-panel material-panel--related">
+        <nav class="material-related-tabs" aria-label="产品关联记录">
+            @foreach (var tab in new[] { "销售订单", "销售送货", "销售发票", "销售报价", "销售退换", "采购订单", "采购发票", "采购询价", "采购退换", "入库记录", "出库记录", "维修记录" })
+            {
+                <button type="button" class="material-related-tabs__item @(tab == "采购订单" ? "is-active" : string.Empty)">@tab</button>
+            }
+            <button type="button" class="material-related-tabs__settings" title="设置">
+                <i class="bi bi-gear"></i>
+            </button>
+        </nav>
+
+        <div class="company-org-toolbar material-sub-toolbar">
+            <div class="company-org-searchbar">
+                <select class="company-org-select" aria-label="关联记录查询范围">
+                    <option>全部</option>
+                    <option>单号</option>
+                    <option>往来单位</option>
+                    <option>备注</option>
+                </select>
+                <input class="company-org-input" placeholder="请输入关键字查询" />
+                <button type="button" class="company-org-btn company-org-btn--primary">查询</button>
+                <button type="button" class="company-org-icon-btn" title="刷新">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="company-org-btn company-org-btn--action">导出</button>
+            </div>
+            <div class="company-org-meta__right">@Model.SelectedItemName</div>
+        </div>
+
+        <div class="company-org-table-wrap material-table-wrap material-table-wrap--related">
+            <table class="company-org-table material-related-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>采购订单号</th>
+                        <th>档案</th>
+                        <th>订单日期</th>
+                        <th>状态</th>
+                        <th>供应商编号</th>
+                        <th>供应商名称</th>
+                        <th>数量</th>
+                        <th>单位</th>
+                        <th>单价</th>
+                        <th>金额</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.RelatedRecords.Any())
+                    {
+                        <tr>
+                            <td colspan="12" class="company-org-table__empty">请选择产品后查看关联记录</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var record in Model.RelatedRecords)
+                        {
+                            <tr>
+                                <td>@record.SequenceNo</td>
+                                <td class="company-org-code"><a class="company-org-code-link" href="#">@record.DocumentNumber</a></td>
+                                <td><button type="button" class="material-archive-chip">@record.ArchiveLabel</button></td>
+                                <td>@record.DocumentDate</td>
+                                <td><span class="company-org-status">@record.Status</span></td>
+                                <td class="company-org-code"><a class="company-org-code-link" href="#">@record.PartnerCode</a></td>
+                                <td>@record.PartnerName</td>
+                                <td class="material-number-cell">@record.Quantity</td>
+                                <td>@record.Unit</td>
+                                <td class="material-number-cell">@record.UnitPrice</td>
+                                <td class="material-number-cell">@record.Amount</td>
+                                <td>@record.Remarks</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span>共 @Model.RelatedRecords.Count 条　　第 1 / 1 页</span>
+            <div class="company-org-pagination">
+                <button type="button" class="company-org-pagebtn company-org-pagebtn--active">1</button>
+                <span class="company-org-pagesize">10条/页</span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<form id="materialDeleteForm" method="post" asp-area="Logistics" asp-controller="MaterialManagement" asp-action="Delete" hidden>
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="category" value="@Model.Category" />
+    <div id="materialDeleteIds"></div>
+</form>
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script src="~/js/material-management.js" asp-append-version="true"></script>
+}

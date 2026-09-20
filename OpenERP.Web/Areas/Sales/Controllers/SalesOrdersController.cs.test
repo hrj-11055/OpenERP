@@ -1,0 +1,92 @@
+/*
+ * File: OpenERP.Web/Areas/Sales/Controllers/SalesOrdersController.cs
+ * Description: Controller that handles HTTP actions for SalesOrdersController.
+ */
+
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using OpenERP.Sales.Data;
+using OpenERP.Sales.Models.Entities;
+using OpenERP.Web.Data.HR;
+
+namespace OpenERP.Web.Areas.Sales.Controllers
+{
+    [Authorize]
+    [Area("Sales")]
+    public class SalesOrdersController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        /// <summary>
+        /// 人资仓储（用于按当前登录公司解析组织并生成销售订单单号）�?        /// </summary>
+        private readonly IHrRepository _hrRepository;
+
+        /// <summary>
+        /// 销售订单单号规则编码（对应公司组织单号规则表中的单据功能编码）�?        /// </summary>
+        private const string SalesOrderDocumentTypeCode = "SALES_ORDER";
+
+        public SalesOrdersController(ApplicationDbContext context, IHrRepository hrRepository)
+        {
+            _context = context;
+            _hrRepository = hrRepository;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var list = await _context.SalesOrders.Include(p => p.Customer).ToListAsync();
+            return View(list);
+        }
+
+        public IActionResult Create()
+        {
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name");
+            return View(new SalesOrder());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("OrderNumber,OrderDate,CustomerId,Status,TotalAmount")] SalesOrder so)
+        {
+            ModelState.Remove(nameof(SalesOrder.OrderNumber));
+            var generatedOrderNumber = await TryGenerateOrderNumberAsync(so.OrderDate);
+            if (generatedOrderNumber is null)
+            {
+                ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name", so.CustomerId);
+                return View(so);
+            }
+
+            so.OrderNumber = generatedOrderNumber;
+            if (ModelState.IsValid)
+            {
+                _context.Add(so);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name", so.CustomerId);
+            return View(so);
+        }
+
+        /// <summary>
+        /// 按当前登录公司生成销售订单单号（未选择公司或公司无效时给出页面提示）�?        /// </summary>
+        private async Task<string?> TryGenerateOrderNumberAsync(DateTime orderDate)
+        {
+            var companyCode = User.FindFirst("erp:company")?.Value;
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                ModelState.AddModelError(nameof(SalesOrder.OrderNumber), "当前未选择所属公司，无法自动生成销售订单单号�?);
+                return null;
+            }
+
+            var organization = await _hrRepository.GetCompanyOrganizationByCodeAsync(companyCode);
+            if (organization is null)
+            {
+                ModelState.AddModelError(nameof(SalesOrder.OrderNumber), "当前所属公司无效，无法自动生成销售订单单号�?);
+                return null;
+            }
+
+            return await _hrRepository.GenerateDocumentNumberAsync(organization.Id, SalesOrderDocumentTypeCode, orderDate);
+        }
+    }
+}

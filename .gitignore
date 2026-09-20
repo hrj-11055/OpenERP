@@ -1,0 +1,56 @@
+# ==== 构建输出 ====
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+[Ll]og/
+
+# ==== IDE 缓存与用户文件 ====
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# ==== 本仓库的构建/临时输出目录 ====
+artifacts/
+artifacts_obj/
+output/
+
+# ==== Node / Vue 前端 ====
+node_modules/
+OpenERP.Frontend/dist/
+OpenERP.Web/wwwroot/vue-login/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==== 工具缓存目录（仓库根目录） ====
+.dotnet/
+.npm-cache/
+.playwright-cli/
+.tmp_decompiled/
+.tmp_dotnet_home/
+.tmp_dotnethome/
+
+# ==== 敏感信息 / 本地私有配置 ====
+.mcp.json
+.claude/
+appsettings.*.user.json
+
+# ==== 日志 ====
+*.log
+
+# ==== 测试结果 ====
+*.trx
+TestResults/
+
+# ==== 操作系统 ====
+Thumbs.db
+.DS_Store

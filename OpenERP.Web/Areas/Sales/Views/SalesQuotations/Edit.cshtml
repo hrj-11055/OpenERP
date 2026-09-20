@@ -1,0 +1,449 @@
+@model OpenERP.Web.Areas.Sales.ViewModels.SalesQuotations.SalesQuotationEditViewModel
+@{
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    var isEdit = Model.Id.HasValue;
+    var isReadOnly = ViewBag.IsReadOnly as bool? == true;
+    ViewData["Title"] = "销售报价";
+    var formAction = isEdit ? "Edit" : "Create";
+    var taskFollowUpFeatureCode = "SALES_QUOTATION";
+    var taskFollowUpDocumentFeatureCode = "SALES_TASK_FOLLOW_UP";
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    var createUrl = Url.Action("Create", "SalesQuotations", new { area = "Sales", popup = isPopup }) ?? "#";
+    var editUrl = isEdit ? Url.Action("Edit", "SalesQuotations", new { area = "Sales", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+    var copyUrl = isEdit ? Url.Action("Copy", "SalesQuotations", new { area = "Sales", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/employee-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sales-quotations.css" asp-append-version="true" />
+}
+
+<div class="sales-quote-window">
+    <form id="quotationDetailForm"
+          method="post"
+          asp-area="Sales"
+          asp-controller="SalesQuotations"
+          asp-action="@formAction"
+          asp-route-id="@Model.Id"
+          data-quotation-id="@(Model.Id ?? 0)"
+          data-read-only="@isReadOnly.ToString().ToLowerInvariant()"
+          class="sales-quote-form @(isReadOnly ? "is-readonly" : "")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        <input asp-for="Id" type="hidden" />
+
+        <header class="sales-quote-titlebar">
+            <strong>销售报价</strong>
+            <button type="button" class="sales-quote-titlebar__close" data-readonly-toolbar onclick="window.closeQuotationDetailPage()" aria-label="关闭">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </header>
+
+        <div class="sales-quote-toolbar">
+            <a href="@createUrl" class="sales-quote-tool">
+                <i class="bi bi-plus-lg"></i>
+                <span>新增</span>
+            </a>
+            @if (isReadOnly)
+            {
+                <a href="@editUrl" class="sales-quote-tool" data-readonly-toolbar>
+                    <i class="bi bi-pencil-square"></i>
+                    <span>编辑</span>
+                </a>
+            }
+            else
+            {
+                <button type="submit" class="sales-quote-tool">
+                    <i class="bi bi-save2"></i>
+                    <span>保存</span>
+                </button>
+            }
+            @if (isEdit)
+            {
+                <a href="@copyUrl" class="sales-quote-tool">
+                    <i class="bi bi-copy"></i>
+                    <span>复制</span>
+                </a>
+            }
+            <button type="button" class="sales-quote-tool" data-quotation-tool="void">
+                <i class="bi bi-slash-circle"></i>
+                <span>作废</span>
+            </button>
+            <button type="button" class="sales-quote-tool" data-quotation-tool="print">
+                <i class="bi bi-printer"></i>
+                <span>打印</span>
+            </button>
+            <button type="button" class="sales-quote-tool" data-quotation-tool="mail">
+                <i class="bi bi-envelope"></i>
+                <span>邮件</span>
+            </button>
+            <button type="button" class="sales-quote-tool" data-quotation-tool="info">
+                <i class="bi bi-info-circle"></i>
+                <span>信息</span>
+            </button>
+            <button type="button" class="sales-quote-tool" data-readonly-toolbar onclick="window.closeQuotationDetailPage()">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>关闭</span>
+            </button>
+            <span class="sales-quote-toolbar__spacer"></span>
+            <button type="button" class="sales-quote-icon-tool" data-quotation-tool="info" aria-label="更多信息">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <button type="button" class="sales-quote-icon-tool" data-quotation-tool="calendar" aria-label="日历">
+                <i class="bi bi-calendar3"></i>
+            </button>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="sales-quote-validation"></div>
+
+        <section class="sales-quote-summary">
+            <div class="sales-quote-summary__grid">
+                <div class="sales-quote-field sales-quote-field--required">
+                    <label asp-for="QuotationNumber">报价单号</label>
+                    <div class="sales-quote-number">
+                        <input asp-for="QuotationNumber" class="form-control" placeholder="自动流水号" />
+                        <span>+ 0 -</span>
+                    </div>
+                    <span asp-validation-for="QuotationNumber" class="text-danger"></span>
+                </div>
+                <div class="sales-quote-field sales-quote-field--required">
+                    <label asp-for="QuotationDate">报价日期</label>
+                    <input asp-for="QuotationDate" type="date" class="form-control" />
+                    <span asp-validation-for="QuotationDate" class="text-danger"></span>
+                </div>
+                <div class="sales-quote-field sales-quote-field--required">
+                    <label asp-for="Status">状态</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="进行中">进行中</option>
+                        <option value="正常">正常</option>
+                        <option value="已确认">已确认</option>
+                        <option value="已作废">已作废</option>
+                        <option value="已失效">已失效</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="sales-quote-field sales-quote-field--required">
+                    <label asp-for="ValidUntil">有效截止日期</label>
+                    <input asp-for="ValidUntil" type="date" class="form-control" />
+                    <span asp-validation-for="ValidUntil" class="text-danger"></span>
+                </div>
+                <div class="sales-quote-field sales-quote-field--required">
+                    <label asp-for="CustomerCode">客户编号</label>
+                    <select asp-for="CustomerCode" class="form-select">
+                        <option value="">请选择</option>
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerCode))
+                        {
+                            <option value="@Model.CustomerCode" selected>@Model.CustomerCode</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CustomerCode" class="text-danger"></span>
+                </div>
+                <div class="sales-quote-field sales-quote-field--wide">
+                    <label asp-for="CustomerName">客户简称</label>
+                    <input asp-for="CustomerName" class="form-control" placeholder="自动显示客户名称" />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="sales-quote-tabs">
+            <button type="button" class="sales-quote-tabs__item is-active" data-quotation-tab="basic">上款信息</button>
+            <button type="button" class="sales-quote-tabs__item" data-quotation-tab="items">货品清单</button>
+            <button type="button" class="sales-quote-tabs__item" data-quotation-tab="payment">下款内容</button>
+            <button type="button" class="sales-quote-tabs__item" data-quotation-tab="tasks">任务跟进</button>
+        </nav>
+
+        <section class="sales-quote-panel is-active" data-quotation-panel="basic">
+            <div class="sales-quote-main-frame">
+                <div class="sales-quote-left">
+                    <div class="sales-quote-inline-row">
+                        <div class="sales-quote-field sales-quote-field--required sales-quote-field--contact">
+                            <label asp-for="BillingContact">账单联系人</label>
+                            <select asp-for="BillingContact" class="form-select">
+                                <option value="">请选择</option>
+                                @if (!string.IsNullOrWhiteSpace(Model.BillingContact))
+                                {
+                                    <option value="@Model.BillingContact" selected>@Model.BillingContact</option>
+                                }
+                            </select>
+                            <span asp-validation-for="BillingContact" class="text-danger"></span>
+                        </div>
+                        <div class="sales-quote-field sales-quote-field--salutation">
+                            <label>称呼</label>
+                            <input class="form-control" value="称呼" readonly />
+                        </div>
+                        <div class="sales-quote-field">
+                            <label asp-for="Phone">电话</label>
+                            <input asp-for="Phone" class="form-control" placeholder="请输入" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        <div class="sales-quote-field">
+                            <label>传真</label>
+                            <input class="form-control" value="@Model.Phone" placeholder="请输入" />
+                        </div>
+                    </div>
+
+                    <div class="sales-quote-field sales-quote-field--full">
+                        <label asp-for="Email">电邮</label>
+                        <input asp-for="Email" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="sales-quote-address-row">
+                        <div class="sales-quote-field">
+                            <label>国家/地区</label>
+                            <select class="form-select">
+                                <option>中国-华南</option>
+                                <option>中国-华东</option>
+                                <option>中国-华北</option>
+                            </select>
+                        </div>
+                        <div class="sales-quote-field">
+                            <label>城市</label>
+                            <select class="form-select">
+                                <option>广州市</option>
+                                <option>深圳市</option>
+                                <option>佛山市</option>
+                            </select>
+                        </div>
+                        <div class="sales-quote-field">
+                            <label>县/区</label>
+                            <select class="form-select">
+                                <option>天河区</option>
+                                <option>越秀区</option>
+                                <option>海珠区</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sales-quote-field sales-quote-field--full sales-quote-textarea-field">
+                        <label>收货地址</label>
+                        <textarea class="form-control" rows="3" placeholder="第一行&#10;第二行&#10;第三行"></textarea>
+                    </div>
+
+                    <div class="sales-quote-field sales-quote-field--full sales-quote-textarea-field sales-quote-textarea-field--remarks">
+                        <label asp-for="Remarks">备注</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="10" placeholder="第一行&#10;第二行&#10;第三行"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+
+                    <div class="sales-quote-footer-row">
+                        <div class="sales-quote-field">
+                            <label>销售人</label>
+                            <select class="form-select">
+                                <option>小李</option>
+                                <option>小黄</option>
+                                <option>当前用户</option>
+                            </select>
+                        </div>
+                        <div class="sales-quote-field">
+                            <label>信贷期限</label>
+                            <div class="sales-quote-field__with-action">
+                                <select class="form-select">
+                                    <option>COD</option>
+                                    <option>月结30天</option>
+                                    <option>月结60天</option>
+                                </select>
+                                <button type="button" class="sales-quote-mini-btn" data-quotation-tool="creditTerm">...</button>
+                            </div>
+                        </div>
+                        <button type="button" class="sales-quote-archive-btn" data-quotation-tool="archive">档案管理</button>
+                    </div>
+                </div>
+
+                <aside class="sales-quote-right">
+                    <div class="sales-quote-field">
+                        <label>所属部门</label>
+                        <select class="form-select">
+                            <option>销售部</option>
+                            <option>业务部</option>
+                        </select>
+                    </div>
+                    <div class="sales-quote-field">
+                        <label>所属组别</label>
+                        <select class="form-select">
+                            <option>A组</option>
+                            <option>B组</option>
+                        </select>
+                    </div>
+                    <div class="sales-quote-field">
+                        <label>项目编号</label>
+                        <input class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="sales-quote-field">
+                        <label>对方参考</label>
+                        <input class="form-control" placeholder="请输入" />
+                    </div>
+                    @for (var i = 1; i <= 10; i++)
+                    {
+                        <div class="sales-quote-field sales-quote-custom-field">
+                            <label>自定义名称@i</label>
+                            @if (i == 2)
+                            {
+                                <div class="sales-quote-field__with-action">
+                                    <select class="form-select">
+                                        <option>用户定义下拉或文本或日期时间</option>
+                                    </select>
+                                    <button type="button" class="sales-quote-mini-btn" data-quotation-tool="customField">...</button>
+                                </div>
+                            }
+                            else if (i == 3)
+                            {
+                                <input class="form-control" type="date" />
+                            }
+                            else
+                            {
+                                <input class="form-control" placeholder="用户定义下拉或文本或日期时间" />
+                            }
+                        </div>
+                    }
+                </aside>
+            </div>
+        </section>
+
+        <section class="sales-quote-panel" data-quotation-panel="items">
+            <div class="sales-quote-item-panel">
+                <div class="sales-quote-item-toolbar">
+                    <div class="sales-quote-item-toolbar__filters">
+                        <input id="quotationItemKeyword" type="text" class="form-control" placeholder="请输入关键字查询" />
+                        <button type="button" class="sales-quote-tool sales-quote-tool--compact" data-quotation-tool="filterItems">
+                            <i class="bi bi-search"></i>
+                            <span>查询</span>
+                        </button>
+                        <button type="button" class="sales-quote-tool sales-quote-tool--compact" data-quotation-tool="resetItems">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            <span>刷新</span>
+                        </button>
+                    </div>
+                    <div class="sales-quote-item-toolbar__actions">
+                        <button id="addQuotationItemButton" type="button" class="sales-quote-tool sales-quote-tool--compact">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>新增</span>
+                        </button>
+                        <button id="deleteQuotationItemButton" type="button" class="sales-quote-tool sales-quote-tool--compact">
+                            <i class="bi bi-trash"></i>
+                            <span>删除</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sales-quote-table-shell">
+                    <table id="quotationItemEditTable" class="sales-quote-edit-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th></th>
+                                <th>货品编号</th>
+                                <th>货品名称</th>
+                                <th>数量</th>
+                                <th>单位</th>
+                                <th>单价</th>
+                                <th>折扣(%)</th>
+                                <th>金额</th>
+                                <th>货币</th>
+                                <th>汇率</th>
+                                <th>附注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                <tr data-item-row>
+                                    <td class="item-sequence">@(i + 1)</td>
+                                    <td>
+                                        <input type="checkbox" class="item-row-selector" aria-label="选择货品 @(i + 1)" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="Items[i].Id" type="hidden" />
+                                        <input asp-for="Items[i].IsDeleted" type="hidden" class="item-delete-flag" />
+                                        <input asp-for="Items[i].ProductCode" class="form-control sales-quote-table-input" />
+                                        <span asp-validation-for="Items[i].ProductCode" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="Items[i].ProductName" class="form-control sales-quote-table-input" />
+                                        <span asp-validation-for="Items[i].ProductName" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="Items[i].Quantity" class="form-control sales-quote-table-input sales-quote-table-input--number" data-item-quantity />
+                                        <span asp-validation-for="Items[i].Quantity" class="text-danger"></span>
+                                    </td>
+                                    <td><input asp-for="Items[i].Unit" class="form-control sales-quote-table-input" /></td>
+                                    <td>
+                                        <input asp-for="Items[i].UnitPrice" class="form-control sales-quote-table-input sales-quote-table-input--number" data-item-unit-price />
+                                        <span asp-validation-for="Items[i].UnitPrice" class="text-danger"></span>
+                                    </td>
+                                    <td><input asp-for="Items[i].DiscountPercent" class="form-control sales-quote-table-input sales-quote-table-input--number" data-item-discount /></td>
+                                    <td><input asp-for="Items[i].Amount" class="form-control sales-quote-table-input sales-quote-table-input--number" data-item-amount /></td>
+                                    <td>
+                                        <select asp-for="Items[i].Currency" class="form-select sales-quote-table-input">
+                                            <option value="RMB">RMB</option>
+                                            <option value="USD">USD</option>
+                                            <option value="HKD">HKD</option>
+                                            <option value="EUR">EUR</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Items[i].ExchangeRate" class="form-control sales-quote-table-input sales-quote-table-input--number" data-item-exchange-rate /></td>
+                                    <td><input asp-for="Items[i].Notes" class="form-control sales-quote-table-input sales-quote-table-input--notes" /></td>
+                                    <td><button type="button" class="sales-quote-row-action" data-remove-item>删除</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <template id="quotationItemRowTemplate">
+                    <tr data-item-row>
+                        <td class="item-sequence"></td>
+                        <td><input type="checkbox" class="item-row-selector" aria-label="选择货品" /></td>
+                        <td>
+                            <input name="Items[__index__].Id" type="hidden" />
+                            <input name="Items[__index__].IsDeleted" type="hidden" value="false" class="item-delete-flag" />
+                            <input name="Items[__index__].ProductCode" class="form-control sales-quote-table-input" data-item-product-code />
+                        </td>
+                        <td><input name="Items[__index__].ProductName" class="form-control sales-quote-table-input" data-item-product-name /></td>
+                        <td><input name="Items[__index__].Quantity" class="form-control sales-quote-table-input sales-quote-table-input--number" value="1" data-item-quantity /></td>
+                        <td><input name="Items[__index__].Unit" class="form-control sales-quote-table-input" /></td>
+                        <td><input name="Items[__index__].UnitPrice" class="form-control sales-quote-table-input sales-quote-table-input--number" value="0" data-item-unit-price /></td>
+                        <td><input name="Items[__index__].DiscountPercent" class="form-control sales-quote-table-input sales-quote-table-input--number" value="100" data-item-discount /></td>
+                        <td><input name="Items[__index__].Amount" class="form-control sales-quote-table-input sales-quote-table-input--number" value="0" data-item-amount /></td>
+                        <td>
+                            <select name="Items[__index__].Currency" class="form-select sales-quote-table-input">
+                                <option value="RMB">RMB</option>
+                                <option value="USD">USD</option>
+                                <option value="HKD">HKD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </td>
+                        <td><input name="Items[__index__].ExchangeRate" class="form-control sales-quote-table-input sales-quote-table-input--number" value="1.0000" data-item-exchange-rate /></td>
+                        <td><input name="Items[__index__].Notes" class="form-control sales-quote-table-input sales-quote-table-input--notes" /></td>
+                        <td><button type="button" class="sales-quote-row-action" data-remove-item>删除</button></td>
+                    </tr>
+                </template>
+            </div>
+        </section>
+
+        <section class="sales-quote-panel" data-quotation-panel="payment">
+            <div class="sales-quote-placeholder">
+                <strong>下款内容</strong>
+                <p>用于维护报价单的付款条件、付款阶段和分期金额。</p>
+            </div>
+        </section>
+
+        <section class="sales-quote-panel" data-quotation-panel="tasks">
+            @{
+                ViewData["TaskFollowUpEntityId"] = Model.Id ?? 0;
+                ViewData["TaskFollowUpFeatureCode"] = taskFollowUpFeatureCode;
+                ViewData["TaskFollowUpDocumentFeatureCode"] = taskFollowUpDocumentFeatureCode;
+                ViewData["TaskFollowUpEmptyMessage"] = "请先保存报价单，再新增任务跟进记录。";
+            }
+            <partial name="_TaskFollowUpPanel" />
+        </section>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/task-follow-up.js" asp-append-version="true"></script>
+    <script src="~/js/sales-quotation-detail.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

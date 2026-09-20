@@ -1,0 +1,230 @@
+@model OpenERP.Web.Areas.CRM.ViewModels.Customers.CustomerIndexViewModel
+@{
+    ViewData["Title"] = "客户/友商资料";
+    var createUrl = Url.Action("Create", "Customers", new { area = "CRM", popup = true }) ?? "#";
+    var exportUrl = Url.Action("Export", "Customers", new { area = "CRM", scope = Model.Scope, keyword = Model.Keyword }) ?? "#";
+    var indexUrl = Url.Action("Index", "Customers", new { area = "CRM" }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/crm-customers.css" asp-append-version="true" />
+}
+
+<form id="customerArchiveTokenForm" hidden>
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="company-org-page crm-customer-page">
+    <section class="company-org-panel crm-customer-panel">
+        <form class="company-org-toolbar crm-customer-toolbar" method="get" asp-area="CRM" asp-controller="Customers" asp-action="Index">
+            <div class="company-org-searchbar">
+                <select name="scope" class="company-org-select" aria-label="查询范围">
+                    @foreach (var option in new[] { "全部", "客户编号", "客户名称", "联系人", "电话", "电邮", "备注" })
+                    {
+                        if (string.Equals(Model.Scope, option, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@option" selected>@option</option>
+                        }
+                        else
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    }
+                </select>
+                <input name="keyword" class="company-org-input" value="@Model.Keyword" placeholder="请输入关键字查询" />
+                <button type="submit" class="company-org-btn company-org-btn--primary">查询</button>
+                <button id="customerAdvancedButton" type="button" class="company-org-btn company-org-btn--ghost">高级查询</button>
+            </div>
+            <div class="company-org-actions">
+                <a href="@indexUrl" class="company-org-icon-btn" title="刷新">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </a>
+                <a href="@createUrl"
+                   data-popup-url="@createUrl"
+                   data-popup-title="新增客户/友商资料"
+                   class="company-org-btn company-org-btn--action">新增</a>
+                <button id="customerEditButton" type="button" class="company-org-btn company-org-btn--action">修改</button>
+                <button id="customerDeleteButton" type="button" class="company-org-btn company-org-btn--action">删除</button>
+                <button id="customerCopyButton" type="button" class="company-org-btn company-org-btn--action">复制</button>
+                <button id="customerImportButton" type="button" class="company-org-btn company-org-btn--action">导入</button>
+                <a href="@exportUrl" class="company-org-btn company-org-btn--action">导出</a>
+            </div>
+        </form>
+
+        <div class="company-org-meta">
+            <div class="company-org-meta__left">
+                <span>共 @Model.Customers.Count 条记录</span>
+            </div>
+            <div class="company-org-meta__right" id="customerSelectedText">
+                已选择 @(Model.SelectedCustomerId.HasValue ? 1 : 0) 条
+            </div>
+        </div>
+
+        <div class="company-org-table-wrap crm-customer-table-wrap crm-customer-table-wrap--master">
+            <table id="customerTable" class="company-org-table crm-customer-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>客户编号</th>
+                        <th>客户名称</th>
+                        <th>状态</th>
+                        <th>档案</th>
+                        <th>别名或简称</th>
+                        <th>性质</th>
+                        <th>企业类型</th>
+                        <th>地区</th>
+                        <th>联系人</th>
+                        <th>电话</th>
+                        <th>传真</th>
+                        <th>电邮</th>
+                        <th>备注</th>
+                        <th>最后修改人</th>
+                        <th>最后修改时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Customers.Any())
+                    {
+                        <tr>
+                            <td colspan="17" class="company-org-table__empty">暂无客户资料</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Customers)
+                        {
+                            var detailUrl = Url.Action("Details", "Customers", new { area = "CRM", id = item.Id, popup = true }) ?? "#";
+                            var editUrl = Url.Action("Edit", "Customers", new { area = "CRM", id = item.Id, popup = true }) ?? "#";
+                            var copyUrl = Url.Action("Copy", "Customers", new { area = "CRM", id = item.Id, popup = true }) ?? "#";
+                            var selected = item.Id == Model.SelectedCustomerId;
+                            <tr class="company-org-record-row @(selected ? "is-active is-selected" : string.Empty)"
+                                data-customer-row
+                                data-id="@item.Id"
+                                data-detail-url="@detailUrl"
+                                data-edit-url="@editUrl"
+                                data-copy-url="@copyUrl"
+                                data-contacts-url="@Url.Action("Index", "Customers", new { area = "CRM", scope = Model.Scope, keyword = Model.Keyword, selectedCustomerId = item.Id })">
+                                <td>@item.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    <input class="customer-selector" type="checkbox" name="selectedCustomers" value="@item.Id" checked="@selected" aria-label="选择客户 @item.CustomerCode" />
+                                </td>
+                                <td class="company-org-code">
+                                    <a class="company-org-code-link"
+                                       href="@detailUrl"
+                                       data-popup-url="@detailUrl"
+                                       data-popup-title="查看客户/友商资料">@item.CustomerCode</a>
+                                </td>
+                                <td class="company-org-name">@item.CustomerName</td>
+                                <td><span class="company-org-status">@item.Status</span></td>
+                                <td>
+                                    <button type="button"
+                                            class="company-org-archive"
+                                            data-customer-archive
+                                            data-customer-id="@item.Id"
+                                            data-customer-name="@item.CustomerName"
+                                            title="打开客户档案管理">
+                                        @item.ArchiveLabel
+                                    </button>
+                                </td>
+                                <td>@item.AliasName</td>
+                                <td>@item.CustomerNature</td>
+                                <td>@item.EnterpriseType</td>
+                                <td>@item.Region</td>
+                                <td>@item.ContactName</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Fax</td>
+                                <td>@item.Email</td>
+                                <td>@item.Remarks</td>
+                                <td><span class="company-org-modifier">@item.LastModifiedBy</span></td>
+                                <td>@item.LastModifiedAt</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span>第 1 / 1 页</span>
+            <div class="company-org-pagination">
+                <button type="button" class="company-org-pagebtn company-org-pagebtn--active">1</button>
+                <span class="company-org-pagesize">10条/页</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="company-org-panel crm-customer-panel crm-customer-panel--contacts">
+        <div class="company-org-meta crm-customer-subtitle">
+            <div class="company-org-meta__left">
+                <span>联系人信息</span>
+            </div>
+            <div class="company-org-meta__right">@Model.SelectedCustomerName</div>
+        </div>
+
+        <div class="company-org-table-wrap crm-customer-table-wrap crm-customer-table-wrap--contacts">
+            <table class="company-org-table crm-customer-table crm-customer-contact-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>姓名</th>
+                        <th>名片</th>
+                        <th>称呼</th>
+                        <th>状态</th>
+                        <th>类型</th>
+                        <th>职位</th>
+                        <th>手机</th>
+                        <th>电话</th>
+                        <th>传真</th>
+                        <th>电邮</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Contacts.Any())
+                    {
+                        <tr>
+                            <td colspan="13" class="company-org-table__empty">暂无联络人资料</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var contact in Model.Contacts)
+                        {
+                            <tr>
+                                <td>@contact.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    <input type="checkbox" aria-label="选择联络人 @contact.Name" />
+                                </td>
+                                <td class="company-org-name">@contact.Name</td>
+                                <td><button type="button" class="crm-customer-card-link">@contact.BusinessCardText</button></td>
+                                <td>@contact.Salutation</td>
+                                <td><span class="company-org-status">@contact.Status</span></td>
+                                <td>@contact.ContactType</td>
+                                <td>@contact.Position</td>
+                                <td>@contact.Mobile</td>
+                                <td>@contact.Phone</td>
+                                <td>@contact.Fax</td>
+                                <td>@contact.Email</td>
+                                <td>@contact.Remarks</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<form id="customerDeleteForm" method="post" asp-area="CRM" asp-controller="Customers" asp-action="Delete" hidden>
+    @Html.AntiForgeryToken()
+    <div id="customerDeleteIds"></div>
+</form>
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script src="~/js/crm-customers.js" asp-append-version="true"></script>
+}

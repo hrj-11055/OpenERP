@@ -1,0 +1,38 @@
+﻿@model OpenERP.BasicData.Models.BasicDataItem
+
+@{
+    ViewData["Title"] = "鍒犻櫎鍩虹鏁版嵁閫夐」";
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4 text-danger">鍒犻櫎鍩虹鏁版嵁閫夐」</h1>
+
+    <div class="card mb-4 col-md-8">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">鎵€灞炵被鍨?/dt>
+                <dd class="col-sm-9">@Model.TypeName</dd>
+
+                <dt class="col-sm-3">閫夐」缂栫爜</dt>
+                <dd class="col-sm-9">@Model.ItemCode</dd>
+
+                <dt class="col-sm-3">閫夐」鍚嶇О</dt>
+                <dd class="col-sm-9">@Model.ItemName</dd>
+
+                <dt class="col-sm-3">澶囨敞</dt>
+                <dd class="col-sm-9">@Model.Remark</dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+                <button type="submit" class="btn btn-danger">纭鍒犻櫎</button>
+                <a asp-action="Index" asp-route-typeId="@Model.TypeId" asp-route-popup="@isPopup" class="btn btn-secondary ms-2">鍙栨秷</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+

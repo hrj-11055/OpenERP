@@ -1,0 +1,211 @@
+@model OpenERP.Web.Areas.Logistics.ViewModels.WorkshopWarehouses.WorkshopWarehouseIndexViewModel
+@{
+    ViewData["Title"] = "车间仓库资料";
+    var createUrl = Url.Action("Create", "WorkshopWarehouses", new { area = "Logistics", popup = true }) ?? "#";
+    var exportUrl = Url.Action("Export", "WorkshopWarehouses", new { area = "Logistics", scope = Model.Scope, keyword = Model.Keyword }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/company-organizations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/workshop-warehouses.css" asp-append-version="true" />
+}
+
+<div class="company-org-page workshop-warehouse-page">
+    <section class="company-org-panel workshop-warehouse-panel">
+        <form class="company-org-toolbar workshop-warehouse-toolbar" method="get" asp-area="Logistics" asp-controller="WorkshopWarehouses" asp-action="Index">
+            <div class="company-org-searchbar">
+                <select name="scope" class="company-org-select" aria-label="查询范围">
+                    @foreach (var option in new[] { "全部", "仓库编号", "仓库名称", "负责人", "备注" })
+                    {
+                        if (string.Equals(Model.Scope, option, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@option" selected>@option</option>
+                        }
+                        else
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    }
+                </select>
+                <input name="keyword" class="company-org-input" value="@Model.Keyword" placeholder="请输入关键字查询" />
+                <button type="submit" class="company-org-btn company-org-btn--primary">查询</button>
+                <a href="@Url.Action("Index", "WorkshopWarehouses", new { area = "Logistics" })" class="company-org-icon-btn" title="刷新">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="company-org-actions">
+                <a href="@createUrl"
+                   data-popup-url="@createUrl"
+                   data-popup-title="新增车间仓库"
+                   class="company-org-btn company-org-btn--action">新增</a>
+                <button id="warehouseEditButton" type="button" class="company-org-btn company-org-btn--action">修改</button>
+                <button id="warehouseDeleteButton" type="button" class="company-org-btn company-org-btn--action">删除</button>
+                <button id="warehouseCopyButton" type="button" class="company-org-btn company-org-btn--action">复制</button>
+                <a href="@exportUrl" class="company-org-btn company-org-btn--action">导出</a>
+            </div>
+        </form>
+
+        <div class="company-org-meta">
+            <div class="company-org-meta__left">
+                <span>共 @Model.Warehouses.Count 条记录</span>
+            </div>
+            <div class="company-org-meta__right" id="warehouseSelectedText">
+                已选择 @(Model.SelectedWarehouseId.HasValue ? 1 : 0) 条
+            </div>
+        </div>
+
+        <div class="company-org-table-wrap workshop-warehouse-table-wrap workshop-warehouse-table-wrap--master">
+            <table id="warehouseTable" class="company-org-table workshop-warehouse-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>仓库编号</th>
+                        <th>仓库名称</th>
+                        <th>状态</th>
+                        <th>类型</th>
+                        <th>负责人</th>
+                        <th>地区</th>
+                        <th>地址</th>
+                        <th>电话</th>
+                        <th>传真</th>
+                        <th>电邮</th>
+                        <th>备注</th>
+                        <th>最后修改人</th>
+                        <th>最后修改时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Warehouses.Any())
+                    {
+                        <tr>
+                            <td colspan="15" class="company-org-table__empty">暂无仓库资料</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Warehouses)
+                        {
+                            var detailUrl = Url.Action("Details", "WorkshopWarehouses", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var editUrl = Url.Action("Edit", "WorkshopWarehouses", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var copyUrl = Url.Action("Copy", "WorkshopWarehouses", new { area = "Logistics", id = item.Id, popup = true }) ?? "#";
+                            var selected = item.Id == Model.SelectedWarehouseId;
+                            <tr class="company-org-record-row @(selected ? "is-active is-selected" : string.Empty)"
+                                data-warehouse-row
+                                data-id="@item.Id"
+                                data-detail-url="@detailUrl"
+                                data-edit-url="@editUrl"
+                                data-copy-url="@copyUrl"
+                                data-locations-url="@Url.Action("Index", "WorkshopWarehouses", new { area = "Logistics", scope = Model.Scope, keyword = Model.Keyword, selectedWarehouseId = item.Id })">
+                                <td>@item.SequenceNo</td>
+                                <td class="company-org-table__checkbox">
+                                    @if (selected)
+                                    {
+                                        <input class="warehouse-selector" type="checkbox" name="selectedWarehouses" value="@item.Id" checked aria-label="选择仓库 @item.WarehouseCode" />
+                                    }
+                                    else
+                                    {
+                                        <input class="warehouse-selector" type="checkbox" name="selectedWarehouses" value="@item.Id" aria-label="选择仓库 @item.WarehouseCode" />
+                                    }
+                                </td>
+                                <td class="company-org-code">
+                                    <a class="company-org-code-link"
+                                       href="@detailUrl"
+                                       data-popup-url="@detailUrl"
+                                       data-popup-title="查看车间仓库">@item.WarehouseCode</a>
+                                </td>
+                                <td class="company-org-name">@item.WarehouseName</td>
+                                <td><span class="company-org-status">@item.Status</span></td>
+                                <td>@item.WarehouseType</td>
+                                <td>@item.Manager</td>
+                                <td>@item.Region</td>
+                                <td>@item.Address</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Fax</td>
+                                <td>@item.Email</td>
+                                <td>@item.Remarks</td>
+                                <td><span class="company-org-modifier">@item.LastModifiedBy</span></td>
+                                <td>@item.LastModifiedAt</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="company-org-footer">
+            <span>第 1 / 1 页</span>
+            <div class="company-org-pagination">
+                <button type="button" class="company-org-pagebtn company-org-pagebtn--active">1</button>
+                <span class="company-org-pagesize">10条/页</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="company-org-panel workshop-warehouse-panel workshop-warehouse-panel--detail">
+        <div class="company-org-meta workshop-warehouse-subtitle">
+            <div class="company-org-meta__left">
+                <span>库位记录</span>
+            </div>
+            <div class="company-org-meta__right">@Model.SelectedWarehouseName</div>
+        </div>
+
+        <div class="company-org-table-wrap workshop-warehouse-table-wrap workshop-warehouse-table-wrap--locations">
+            <table class="company-org-table workshop-warehouse-table workshop-warehouse-location-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="company-org-table__checkbox"></th>
+                        <th>库位编号</th>
+                        <th>库位名称</th>
+                        <th>状态</th>
+                        <th>库位级别</th>
+                        <th>库区</th>
+                        <th>存储环境</th>
+                        <th>用途</th>
+                        <th>最大装载重量(KG)</th>
+                        <th>最大装载空间(CBM)</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Locations.Any())
+                    {
+                        <tr>
+                            <td colspan="12" class="company-org-table__empty">暂无库位记录</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var location in Model.Locations)
+                        {
+                            <tr>
+                                <td>@location.SequenceNo</td>
+                                <td class="company-org-table__checkbox"><input type="checkbox" aria-label="选择库位 @location.LocationCode" /></td>
+                                <td class="company-org-code">@location.LocationCode</td>
+                                <td>@location.LocationName</td>
+                                <td><span class="company-org-status">@location.Status</span></td>
+                                <td>@location.LocationLevel</td>
+                                <td>@location.Zone</td>
+                                <td>@location.StorageEnvironment</td>
+                                <td>@location.Usage</td>
+                                <td>@location.MaxLoadKg.ToString("N2")</td>
+                                <td>@location.MaxVolumeCbm.ToString("N3")</td>
+                                <td>@location.Remarks</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<form id="warehouseDeleteForm" method="post" asp-area="Logistics" asp-controller="WorkshopWarehouses" asp-action="Delete" hidden>
+    @Html.AntiForgeryToken()
+    <div id="warehouseDeleteIds"></div>
+</form>
+
+@section Scripts {
+    <script src="~/js/workshop-warehouses.js" asp-append-version="true"></script>
+}

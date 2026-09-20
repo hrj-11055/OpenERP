@@ -1,0 +1,44 @@
+@model OpenERP.HR.Models.Entities.Department
+
+@{
+    ViewData["Title"] = Localizer["Department_CreateTitle"];
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">@Localizer["Department_CreateTitle"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Common_Dashboard"]</a></li>
+        <li class="breadcrumb-item"><a asp-area="HR" asp-action="Index">@Localizer["Layout_DepartmentManagement"]</a></li>
+        <li class="breadcrumb-item active">@Localizer["Department_CreateTitle"]</li>
+    </ol>
+
+    <div class="card mb-4 col-md-6">
+        <div class="card-header">
+            <i class="bi bi-plus-circle me-1"></i>
+            @Localizer["Department_FormTitle"]
+        </div>
+        <div class="card-body">
+            <form asp-area="HR" asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">@Localizer["Department_Name"]</label>
+                    <input asp-for="Name" class="form-control" placeholder="@Localizer["Department_NamePlaceholder"]" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">@Localizer["Common_Description"]</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="@Localizer["Department_DescriptionPlaceholder"]"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">@Localizer["Common_Save"]</button>
+                    <a asp-area="HR" asp-action="Index" class="btn btn-secondary ms-2">@Localizer["Common_BackToList"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,52 @@
+﻿@model OpenERP.BasicData.Models.BasicDataType
+
+@{
+    ViewData["Title"] = "缂栬緫鍩虹鏁版嵁绫诲瀷";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">缂栬緫鍩虹鏁版嵁绫诲瀷</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">鎺у埗闈㈡澘</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index">鍩虹鏁版嵁绫诲瀷</a></li>
+        <li class="breadcrumb-item active">缂栬緫</li>
+    </ol>
+
+    <div class="card mb-4 col-md-8">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="TypeCode" class="form-label"></label>
+                    <input asp-for="TypeCode" class="form-control" />
+                    <span asp-validation-for="TypeCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TypeName" class="form-label"></label>
+                    <input asp-for="TypeName" class="form-control" />
+                    <span asp-validation-for="TypeName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-primary">淇濆瓨</button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2">杩斿洖</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+
+

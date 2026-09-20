@@ -1,0 +1,27 @@
+@{
+    var featureName = ViewData["FeatureName"]?.ToString() ?? "任务中心";
+    var featureDescription = ViewData["FeatureDescription"]?.ToString() ?? "用于维护任务中心相关业务资料。";
+}
+
+<div class="container-fluid erp-card-page">
+    <h1 class="erp-card-page__title">@featureName</h1>
+    <ol class="breadcrumb erp-card-page__breadcrumb">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">首页</a></li>
+        <li class="breadcrumb-item">任务中心</li>
+        <li class="breadcrumb-item active">@featureName</li>
+    </ol>
+
+    <div class="row erp-card-page__sections">
+        <div class="col-xl-8">
+            <section class="erp-content-card">
+                <div class="erp-content-card__header">
+                    <span><i class="bi bi-kanban me-2"></i>@featureName</span>
+                </div>
+                <div class="erp-content-card__body">
+                    <p class="mb-2">@featureDescription</p>
+                    <p class="text-muted mb-0">当前已完成任务菜单入口，后续可在此扩展待办列表、任务分派、流程跟进、提醒、消息和处理记录。</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

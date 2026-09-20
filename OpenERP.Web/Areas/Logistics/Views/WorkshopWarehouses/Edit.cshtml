@@ -1,0 +1,285 @@
+@model OpenERP.Web.Areas.Logistics.ViewModels.WorkshopWarehouses.WorkshopWarehouseEditViewModel
+@{
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    var isEdit = Model.Id.HasValue;
+    var isReadOnly = ViewBag.IsReadOnly as bool? == true;
+    var ro = isReadOnly ? "readonly" : null;
+    var dis = isReadOnly ? "disabled" : null;
+    ViewData["Title"] = "车间仓库资料";
+    var formAction = isEdit ? "Edit" : "Create";
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    var createUrl = Url.Action("Create", "WorkshopWarehouses", new { area = "Logistics", popup = isPopup }) ?? "#";
+    var editUrl = isEdit ? Url.Action("Edit", "WorkshopWarehouses", new { area = "Logistics", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+    var copyUrl = isEdit ? Url.Action("Copy", "WorkshopWarehouses", new { area = "Logistics", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/employee-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/workshop-warehouses.css" asp-append-version="true" />
+}
+
+<div class="employee-detail-page workshop-warehouse-detail">
+    <form method="post"
+          asp-area="Logistics"
+          asp-controller="WorkshopWarehouses"
+          asp-action="@formAction"
+          asp-route-id="@Model.Id"
+          class="employee-detail-shell workshop-warehouse-detail__form @(isReadOnly ? "is-readonly" : "")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        <input asp-for="Id" type="hidden" />
+
+        <div class="employee-detail-toolbar workshop-warehouse-detail__topbar">
+            @if (isReadOnly)
+            {
+                <a href="@createUrl" class="employee-detail-toolbar__btn">新增</a>
+                <a href="@editUrl" class="employee-detail-toolbar__btn">编辑</a>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn">复制</a>
+                }
+            }
+            else
+            {
+                <button type="submit" class="employee-detail-toolbar__btn">保存</button>
+                <a href="@createUrl" class="employee-detail-toolbar__btn">新增</a>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn">复制</a>
+                }
+            }
+            <button type="button" class="employee-detail-toolbar__btn" onclick="window.closeWorkshopWarehouseDetailPage()">关闭</button>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="employee-detail-validation workshop-warehouse-validation"></div>
+
+        <section class="employee-detail-hero">
+            <div class="employee-detail-hero__grid workshop-warehouse-hero__grid">
+                <div class="employee-detail-field workshop-warehouse-field--required">
+                    <label asp-for="WarehouseCode">仓库编号</label>
+                    <input asp-for="WarehouseCode" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="WarehouseCode" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field">
+                    <label asp-for="WarehouseType">类型</label>
+                    <select asp-for="WarehouseType" class="form-select" disabled="@dis">
+                        <option value="原料仓库">原料仓库</option>
+                        <option value="冷库">冷库</option>
+                        <option value="成品仓库">成品仓库</option>
+                        <option value="半成品仓库">半成品仓库</option>
+                        <option value="辅料仓库">辅料仓库</option>
+                    </select>
+                    <span asp-validation-for="WarehouseType" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field workshop-warehouse-field--required">
+                    <label asp-for="Status">状态</label>
+                    <select asp-for="Status" class="form-select" disabled="@dis">
+                        <option value="正常">正常</option>
+                        <option value="停用">停用</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field employee-detail-field--full workshop-warehouse-field--required">
+                    <label asp-for="WarehouseName">仓库名称</label>
+                    <input asp-for="WarehouseName" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="WarehouseName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="employee-detail-tabs">
+            <button type="button" class="employee-detail-tabs__item is-active" data-workshop-tab="basic">基本信息</button>
+            <button type="button" class="employee-detail-tabs__item" data-workshop-tab="locations">库位记录</button>
+        </nav>
+
+        <section class="employee-detail-body employee-detail-body--single workshop-warehouse-tabpanel is-active" data-workshop-panel="basic">
+            <div class="employee-detail-main">
+                <div class="employee-detail-grid workshop-warehouse-detail-grid">
+                    <div class="employee-detail-field">
+                        <label asp-for="CountryRegion">国家/地区</label>
+                        <select asp-for="CountryRegion" class="form-select" disabled="@dis">
+                            <option value="中国华南">中国华南</option>
+                            <option value="中国华东">中国华东</option>
+                            <option value="中国华北">中国华北</option>
+                        </select>
+                        <span asp-validation-for="CountryRegion" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="City">城市</label>
+                        <select asp-for="City" class="form-select" disabled="@dis">
+                            <option value="广州市">广州市</option>
+                            <option value="深圳市">深圳市</option>
+                            <option value="佛山市">佛山市</option>
+                        </select>
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="District">县/区</label>
+                        <select asp-for="District" class="form-select" disabled="@dis">
+                            <option value="天河区">天河区</option>
+                            <option value="越秀区">越秀区</option>
+                            <option value="南山区">南山区</option>
+                        </select>
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Address">地址</label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="请输入详细地址" readonly="@ro"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Manager">负责人</label>
+                        <input asp-for="Manager" class="form-control" placeholder="请输入" readonly="@ro" />
+                        <span asp-validation-for="Manager" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Phone">电话</label>
+                        <input asp-for="Phone" class="form-control" placeholder="请输入" readonly="@ro" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Fax">传真</label>
+                        <input asp-for="Fax" class="form-control" placeholder="请输入" readonly="@ro" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Email">电邮</label>
+                        <input asp-for="Email" class="form-control" placeholder="请输入" readonly="@ro" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="Remarks">备注</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="10" placeholder="请输入备注" readonly="@ro"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single workshop-warehouse-tabpanel" data-workshop-panel="locations">
+            <div class="training-experience-panel workshop-warehouse-location-panel">
+                <div class="training-experience-toolbar">
+                    <div class="training-experience-toolbar__filters">
+                        <button id="addWarehouseLocationButton" type="button" class="employee-detail-toolbar__btn" @(isReadOnly ? "style=display:none" : "")>新增库位</button>
+                    </div>
+                </div>
+
+                <div class="training-experience-table-shell workshop-warehouse-location-editor">
+                    <table id="warehouseLocationEditTable" class="training-experience-table workshop-warehouse-edit-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>库位编号</th>
+                                <th>库位名称</th>
+                                <th>状态</th>
+                                <th>库位级别</th>
+                                <th>库区</th>
+                                <th>存储环境</th>
+                                <th>用途</th>
+                                <th>最大装载重量(KG)</th>
+                                <th>最大装载空间(CBM)</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Locations.Count; i++)
+                            {
+                                <tr data-location-row>
+                                    <td class="location-sequence training-experience-table__seq">@(i + 1)</td>
+                                    <td>
+                                        <input asp-for="Locations[i].Id" type="hidden" />
+                                        <input asp-for="Locations[i].IsDeleted" type="hidden" class="location-delete-flag" />
+                                        <input asp-for="Locations[i].LocationCode" class="form-control workshop-warehouse-table-input" readonly="@ro" />
+                                        <span asp-validation-for="Locations[i].LocationCode" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="Locations[i].LocationName" class="form-control workshop-warehouse-table-input" readonly="@ro" />
+                                        <span asp-validation-for="Locations[i].LocationName" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <select asp-for="Locations[i].Status" class="form-select workshop-warehouse-table-input" disabled="@dis">
+                                            <option value="正常">正常</option>
+                                            <option value="停用">停用</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Locations[i].LocationLevel" class="form-control workshop-warehouse-table-input" readonly="@ro" /></td>
+                                    <td><input asp-for="Locations[i].Zone" class="form-control workshop-warehouse-table-input" readonly="@ro" /></td>
+                                    <td>
+                                        <select asp-for="Locations[i].StorageEnvironment" class="form-select workshop-warehouse-table-input" disabled="@dis">
+                                            <option value="">请选择</option>
+                                            <option value="常温">常温</option>
+                                            <option value="冷库">冷库</option>
+                                            <option value="恒温">恒温</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select asp-for="Locations[i].Usage" class="form-select workshop-warehouse-table-input" disabled="@dis">
+                                            <option value="">请选择</option>
+                                            <option value="暂收区">暂收区</option>
+                                            <option value="存储区">存储区</option>
+                                            <option value="发货区">发货区</option>
+                                            <option value="退货区">退货区</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Locations[i].MaxLoadKg" class="form-control workshop-warehouse-table-input" type="number" step="0.01" min="0" readonly="@ro" /></td>
+                                    <td><input asp-for="Locations[i].MaxVolumeCbm" class="form-control workshop-warehouse-table-input" type="number" step="0.001" min="0" readonly="@ro" /></td>
+                                    <td><input asp-for="Locations[i].Remarks" class="form-control workshop-warehouse-table-input workshop-warehouse-table-input--remarks" readonly="@ro" /></td>
+                                    <td>
+                                        <button type="button" class="training-experience-archive-btn workshop-warehouse-row-action" data-remove-location @(isReadOnly ? "style=display:none" : "")>删除</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <template id="warehouseLocationRowTemplate">
+                    <tr data-location-row>
+                        <td class="location-sequence training-experience-table__seq"></td>
+                        <td>
+                            <input name="Locations[__index__].Id" type="hidden" />
+                            <input name="Locations[__index__].IsDeleted" type="hidden" value="false" class="location-delete-flag" />
+                            <input name="Locations[__index__].LocationCode" class="form-control workshop-warehouse-table-input" required />
+                        </td>
+                        <td><input name="Locations[__index__].LocationName" class="form-control workshop-warehouse-table-input" required /></td>
+                        <td>
+                            <select name="Locations[__index__].Status" class="form-select workshop-warehouse-table-input">
+                                <option value="正常">正常</option>
+                                <option value="停用">停用</option>
+                            </select>
+                        </td>
+                        <td><input name="Locations[__index__].LocationLevel" class="form-control workshop-warehouse-table-input" /></td>
+                        <td><input name="Locations[__index__].Zone" class="form-control workshop-warehouse-table-input" /></td>
+                        <td>
+                            <select name="Locations[__index__].StorageEnvironment" class="form-select workshop-warehouse-table-input">
+                                <option value="">请选择</option>
+                                <option value="常温">常温</option>
+                                <option value="冷库">冷库</option>
+                                <option value="恒温">恒温</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="Locations[__index__].Usage" class="form-select workshop-warehouse-table-input">
+                                <option value="">请选择</option>
+                                <option value="暂收区">暂收区</option>
+                                <option value="存储区">存储区</option>
+                                <option value="发货区">发货区</option>
+                                <option value="退货区">退货区</option>
+                            </select>
+                        </td>
+                        <td><input name="Locations[__index__].MaxLoadKg" class="form-control workshop-warehouse-table-input" type="number" step="0.01" min="0" value="0" /></td>
+                        <td><input name="Locations[__index__].MaxVolumeCbm" class="form-control workshop-warehouse-table-input" type="number" step="0.001" min="0" value="0" /></td>
+                        <td><input name="Locations[__index__].Remarks" class="form-control workshop-warehouse-table-input workshop-warehouse-table-input--remarks" /></td>
+                        <td><button type="button" class="training-experience-archive-btn workshop-warehouse-row-action" data-remove-location>删除</button></td>
+                    </tr>
+                </template>
+            </div>
+        </section>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/workshop-warehouses.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

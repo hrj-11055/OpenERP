@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap');
+
+:root {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #0d0e3d;
+}
+
+.login-scene {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 36px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.lang-select {
+  width: 110px;
+}
+
+.lang-select .el-input__wrapper {
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1200px 700px at 0% 100%, rgba(172, 240, 238, 0.75), transparent 55%),
+    radial-gradient(980px 620px at 100% 82%, rgba(66, 214, 255, 0.48), transparent 52%),
+    radial-gradient(780px 500px at 90% 0%, rgba(255, 118, 220, 0.32), transparent 54%),
+    linear-gradient(120deg, #a7ade8 0%, #3f57c3 33%, #2f1cb4 62%, #0e2f9f 100%);
+}
+
+.blob {
+  position: absolute;
+  filter: blur(6px);
+  opacity: 0.85;
+}
+
+.blob.b1 {
+  width: 520px;
+  height: 340px;
+  left: -120px;
+  top: 120px;
+  border-radius: 52% 48% 60% 40% / 57% 43% 55% 45%;
+  background: linear-gradient(135deg, rgba(172, 255, 228, 0.7), rgba(164, 199, 255, 0.36));
+  transform: rotate(-14deg);
+}
+
+.blob.b2 {
+  width: 680px;
+  height: 420px;
+  right: -110px;
+  top: 30px;
+  border-radius: 64% 36% 54% 46% / 56% 44% 56% 44%;
+  background: linear-gradient(135deg, rgba(156, 75, 255, 0.56), rgba(26, 48, 205, 0.22));
+}
+
+.blob.b3 {
+  width: 680px;
+  height: 290px;
+  right: -40px;
+  bottom: -60px;
+  border-radius: 55% 45% 40% 60% / 47% 53% 47% 53%;
+  background: linear-gradient(135deg, rgba(83, 192, 255, 0.58), rgba(83, 132, 255, 0.12));
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.42) 0.6px, transparent 0.6px);
+  background-size: 10px 10px;
+  mix-blend-mode: soft-light;
+}
+
+.login-shell {
+  position: relative;
+  z-index: 2;
+  width: min(1020px, 100%);
+  min-height: 470px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1.06fr;
+  box-shadow:
+    0 18px 58px rgba(12, 24, 98, 0.4),
+    0 8px 20px rgba(16, 24, 90, 0.26);
+}
+
+.brand-side {
+  background: rgba(118, 129, 188, 0.92);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.brand-side h1 {
+  margin: 2px 0 26px;
+  color: #ffffff;
+  font-size: clamp(34px, 3.1vw, 48px);
+  line-height: 1;
+  letter-spacing: 0.5px;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+
+.brand-logo {
+  margin-top: 10px;
+  width: min(78%, 320px);
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #2f8bff 0%, #2278df 90%);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.2);
+}
+
+.brand-logo span {
+  font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC', sans-serif;
+  color: #7e92c8;
+  font-size: clamp(150px, 12vw, 220px);
+  line-height: 1;
+  transform: translateY(2px);
+  font-weight: 400;
+}
+
+.form-side {
+  background: rgba(246, 247, 251, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 48px;
+}
+
+.login-form {
+  width: min(360px, 100%);
+}
+
+.login-form .el-form-item {
+  margin-bottom: 18px;
+}
+
+.field .el-input__wrapper,
+.field .el-select__wrapper {
+  height: 42px;
+  border-radius: 16px;
+  background: #f8f8fc;
+  box-shadow: 0 0 0 1px rgba(175, 178, 193, 0.75) inset;
+  transition: all 0.25s ease;
+}
+
+.field .el-input__wrapper.is-focus,
+.field .el-select__wrapper.is-focused,
+.field .el-input__wrapper:hover,
+.field .el-select__wrapper:hover {
+  box-shadow: 0 0 0 1px rgba(72, 131, 220, 0.9) inset;
+  background: #ffffff;
+}
+
+.field .el-input__prefix-inner,
+.field .el-select__prefix {
+  color: #656d84;
+  font-size: 14px;
+}
+
+.submit-btn.el-button {
+  width: 100%;
+  height: 42px;
+  border-radius: 11px;
+  border: 1px solid #f5ad56;
+  background: linear-gradient(90deg, #4f96de 0%, #5a8fd5 52%, #4e90db 100%);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  text-indent: 10px;
+  box-shadow: 0 8px 16px rgba(69, 123, 210, 0.24);
+}
+
+.forgot-link {
+  margin: 18px auto 0;
+  display: table;
+  color: #2a70cc;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 960px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+    min-height: initial;
+  }
+
+  .brand-side {
+    padding: 24px 20px;
+  }
+
+  .brand-side h1 {
+    font-size: 34px;
+    margin-bottom: 14px;
+  }
+
+  .brand-logo {
+    width: 220px;
+  }
+
+  .brand-logo span {
+    font-size: 145px;
+  }
+
+  .form-side {
+    padding: 24px 20px 30px;
+  }
+}

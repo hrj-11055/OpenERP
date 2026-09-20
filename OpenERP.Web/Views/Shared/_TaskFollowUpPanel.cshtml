@@ -1,0 +1,152 @@
+@{
+    var entityId = ViewData["TaskFollowUpEntityId"]?.ToString() ?? "0";
+    var featureCode = ViewData["TaskFollowUpFeatureCode"]?.ToString() ?? string.Empty;
+    var documentFeatureCode = ViewData["TaskFollowUpDocumentFeatureCode"]?.ToString() ?? "SYS_TASK_FOLLOW_UP";
+    var emptyMessage = ViewData["TaskFollowUpEmptyMessage"]?.ToString() ?? "请先保存当前资料，再新增任务跟进记录。";
+    var apiBaseUrl = Url.Content("~/api/taskfollowup");
+}
+
+<div class="task-follow-up-panel"
+     id="taskFollowUpPanel"
+     data-entity-id="@entityId"
+     data-feature-code="@featureCode"
+     data-document-feature-code="@documentFeatureCode"
+     data-api-base-url="@apiBaseUrl"
+     data-empty-message="@emptyMessage">
+    <div class="task-follow-up-toolbar">
+        <div class="task-follow-up-toolbar__filters">
+            <select id="taskFollowUpStatusFilter" class="form-select">
+                <option value="">全部</option>
+            </select>
+            <input id="taskFollowUpKeyword" type="text" class="form-control" placeholder="请输入关键字查询" />
+            <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpSearchButton">查询</button>
+            <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpRefreshButton">刷新</button>
+        </div>
+
+        <div class="task-follow-up-toolbar__actions">
+            <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpAddButton">新增</button>
+            <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpDeleteButton">删除</button>
+        </div>
+    </div>
+
+    <section class="task-follow-up-editor" id="taskFollowUpEditor" hidden>
+        <div class="task-follow-up-editor__header">
+            <h3 class="task-follow-up-editor__title">任务跟进编辑</h3>
+            <div class="task-follow-up-editor__actions">
+                <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpSaveButton">保存任务</button>
+                <button type="button" class="employee-detail-toolbar__btn" id="taskFollowUpCancelButton">取消</button>
+            </div>
+        </div>
+
+        <input type="hidden" id="taskFollowUpId" />
+        <input type="hidden" id="taskFollowUpTaskCode" />
+        <div class="task-follow-up-editor__grid">
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpPlannedDate">计划日期</label>
+                <input id="taskFollowUpPlannedDate" type="date" class="form-control" />
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpTaskTypeCode">类型</label>
+                <select id="taskFollowUpTaskTypeCode" class="form-select"></select>
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpExecutorName">执行人</label>
+                <input id="taskFollowUpExecutorName" type="text" class="form-control" placeholder="请输入执行人" />
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpStatusCode">状态</label>
+                <select id="taskFollowUpStatusCode" class="form-select"></select>
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpPriorityCode">优先级别</label>
+                <select id="taskFollowUpPriorityCode" class="form-select"></select>
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpProgressPercent">执行进程(%)</label>
+                <input id="taskFollowUpProgressPercent" type="number" min="0" max="100" class="form-control" value="0" />
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpCompletedDate">完成日期</label>
+                <input id="taskFollowUpCompletedDate" type="date" class="form-control" />
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpProjectCode">项目编号</label>
+                <input id="taskFollowUpProjectCode" type="text" class="form-control" placeholder="请输入项目编号" />
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpInitiatorName">发起人</label>
+                <input id="taskFollowUpInitiatorName" type="text" class="form-control" placeholder="请输入发起人" />
+            </div>
+
+            <div class="task-follow-up-field task-follow-up-field--full">
+                <label for="taskFollowUpDescription">任务描述</label>
+                <textarea id="taskFollowUpDescription" class="form-control" rows="3" placeholder="请输入任务描述"></textarea>
+            </div>
+
+            <div class="task-follow-up-field">
+                <label for="taskFollowUpArchiveButton">档案管理</label>
+                <button id="taskFollowUpArchiveButton"
+                        type="button"
+                        class="task-follow-up-document-btn"
+                        data-action="manageTaskFollowUpArchive"
+                        disabled>
+                    <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                    <span>打开档案管理</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="task-follow-up-table-shell">
+        <table class="task-follow-up-table" id="taskFollowUpTable">
+            <thead>
+                <tr>
+                    <th class="task-follow-up-table__seq">序号</th>
+                    <th class="task-follow-up-table__checkbox">
+                        <input id="taskFollowUpSelectAll" type="checkbox" aria-label="全选任务跟进记录" />
+                    </th>
+                    <th>任务编号</th>
+                    <th>档案</th>
+                    <th>状态</th>
+                    <th>计划日期</th>
+                    <th>类型</th>
+                    <th>执行人</th>
+                    <th>任务描述</th>
+                    <th>优先级别</th>
+                    <th>执行进程(%)</th>
+                    <th>完成日期</th>
+                    <th>项目编号</th>
+                    <th>发起人</th>
+                    <th>创建日期</th>
+                </tr>
+            </thead>
+            <tbody id="taskFollowUpTableBody">
+                <tr>
+                    <td colspan="15" class="task-follow-up-table__empty">加载中...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="task-follow-up-footer">
+        <div class="task-follow-up-footer__summary" id="taskFollowUpSummary">共 0 条</div>
+        <div class="task-follow-up-footer__pager">
+            <button type="button" class="task-follow-up-pagebtn" id="taskFollowUpPrevPage">&lsaquo;</button>
+            <div class="task-follow-up-pagenums" id="taskFollowUpPageNumbers"></div>
+            <button type="button" class="task-follow-up-pagebtn" id="taskFollowUpNextPage">&rsaquo;</button>
+            <select id="taskFollowUpPageSize" class="form-select task-follow-up-pagesize">
+                <option value="10" selected>10条/页</option>
+                <option value="20">20条/页</option>
+                <option value="50">50条/页</option>
+            </select>
+        </div>
+    </div>
+</div>

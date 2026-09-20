@@ -1,0 +1,42 @@
+@model OpenERP.CRM.Models.Entities.Lead
+@{
+    ViewData["Title"] = "新增销售线索";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增销售线索</h1>
+    <form asp-area="CRM" asp-controller="Leads" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">名称</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Company" class="form-label">公司</label>
+            <input asp-for="Company" class="form-control" />
+            <span asp-validation-for="Company" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">邮箱</label>
+            <input asp-for="Email" class="form-control" type="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label">电话</label>
+            <input asp-for="Phone" class="form-control" type="tel" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">状态</label>
+            <select asp-for="Status" class="form-select">
+                <option value="New">新建</option>
+                <option value="Contacted">已联系</option>
+                <option value="Qualified">已合格</option>
+                <option value="Lost">已丢失</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="CRM" asp-controller="Leads" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

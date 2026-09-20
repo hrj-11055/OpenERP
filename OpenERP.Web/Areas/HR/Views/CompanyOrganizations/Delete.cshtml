@@ -1,0 +1,121 @@
+@model OpenERP.HR.Models.Entities.CompanyOrganization
+@{
+    ViewData["Title"] = "删除确认";
+
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="company-org-delete-page">
+    <form asp-area="HR" asp-controller="CompanyOrganizations" asp-action="Delete" method="post" class="company-org-delete-shell">
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        <input type="hidden" asp-for="Id" />
+
+        <div class="company-org-delete-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <h4 class="company-org-delete-title">确认删除公司组织</h4>
+
+        <div class="company-org-delete-info">
+            <span class="company-org-delete-label">组织编号：</span>
+            <span class="company-org-delete-value">@Model.OrganizationCode</span>
+        </div>
+        <div class="company-org-delete-info">
+            <span class="company-org-delete-label">组织名称：</span>
+            <span class="company-org-delete-value">@Model.OrganizationName</span>
+        </div>
+
+        <p class="company-org-delete-warning">
+            删除后该公司组织将被标记为已删除状态，是否确认删除？
+        </p>
+
+        <div class="company-org-delete-actions">
+            <button type="submit" class="company-org-delete-actions__btn company-org-delete-actions__btn--danger">确认删除</button>
+            <button type="button" class="company-org-delete-actions__btn" onclick="window.closeCompanyOrganizationDetailPage()">取消</button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+        .company-org-delete-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 48px);
+        }
+
+        .company-org-delete-shell {
+            width: 100%;
+            max-width: 440px;
+            padding: 2rem 1.5rem;
+            border: 1px solid #b9c7d6;
+            background: #fff;
+            box-shadow: 0 14px 32px rgba(40, 60, 84, 0.12);
+            text-align: center;
+        }
+
+        .company-org-delete-icon {
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            color: #d97706;
+        }
+
+        .company-org-delete-title {
+            margin: 0 0 1rem;
+            color: #1f2b39;
+            font-size: 1.1rem;
+        }
+
+        .company-org-delete-info {
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 0.35rem;
+            font-size: 0.9rem;
+        }
+
+        .company-org-delete-label {
+            color: #6b7280;
+        }
+
+        .company-org-delete-value {
+            color: #1f2b39;
+            font-weight: 600;
+        }
+
+        .company-org-delete-warning {
+            margin: 1.2rem 0 1.5rem;
+            color: #dc2626;
+            font-size: 0.88rem;
+        }
+
+        .company-org-delete-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .company-org-delete-actions__btn {
+            min-width: 100px;
+            border: 1px solid #b9c7d6;
+            border-radius: 4px;
+            padding: 0.4rem 1.2rem;
+            background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+            color: #111827;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .company-org-delete-actions__btn--danger {
+            border-color: #dc2626;
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+        }
+
+        .company-org-delete-actions__btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+}

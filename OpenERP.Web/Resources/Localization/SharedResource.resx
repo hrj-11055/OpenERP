@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppName" xml:space="preserve">
+    <value>Open ERP</value>
+  </data>
+  <data name="Common_Action" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Common_Admin" xml:space="preserve">
+    <value>管理员</value>
+  </data>
+  <data name="Common_AdvancedSearch" xml:space="preserve">
+    <value>高级查询</value>
+  </data>
+  <data name="Common_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Common_BackToList" xml:space="preserve">
+    <value>返回列表</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Common_CreatedAt" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="Common_Create" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Common_Dashboard" xml:space="preserve">
+    <value>控制面板</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Common_Department" xml:space="preserve">
+    <value>部门</value>
+  </data>
+  <data name="Common_Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Common_Email" xml:space="preserve">
+    <value>邮箱</value>
+  </data>
+  <data name="Common_Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Common_Fax" xml:space="preserve">
+    <value>传真</value>
+  </data>
+  <data name="Common_Home" xml:space="preserve">
+    <value>首页</value>
+  </data>
+  <data name="Common_Import" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="Common_LastModifiedBy" xml:space="preserve">
+    <value>最后修改人</value>
+  </data>
+  <data name="Common_LastModifiedAt" xml:space="preserve">
+    <value>最后修改时间</value>
+  </data>
+  <data name="Common_Name" xml:space="preserve">
+    <value>姓名</value>
+  </data>
+  <data name="Common_Normal" xml:space="preserve">
+    <value>正常</value>
+  </data>
+  <data name="Common_NotAssigned" xml:space="preserve">
+    <value>未指派</value>
+  </data>
+  <data name="Common_NotConfigured" xml:space="preserve">
+    <value>未配置</value>
+  </data>
+  <data name="Common_OnboardingDate" xml:space="preserve">
+    <value>入职日期</value>
+  </data>
+  <data name="Common_Phone" xml:space="preserve">
+    <value>电话</value>
+  </data>
+  <data name="Common_Position" xml:space="preserve">
+    <value>职位</value>
+  </data>
+  <data name="Common_Principal" xml:space="preserve">
+    <value>负责人</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="Common_Region" xml:space="preserve">
+    <value>地域</value>
+  </data>
+  <data name="Common_Remarks" xml:space="preserve">
+    <value>备注</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Common_Search" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="Common_SequenceNo" xml:space="preserve">
+    <value>序号</value>
+  </data>
+  <data name="Common_Status" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="Common_Type" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Common_ViewDetails" xml:space="preserve">
+    <value>查看详情</value>
+  </data>
+  <data name="CompanyOrganization_Archive" xml:space="preserve">
+    <value>档案</value>
+  </data>
+  <data name="CompanyOrganization_ArchiveText" xml:space="preserve">
+    <value>档案</value>
+  </data>
+  <data name="CompanyOrganization_CompanyName" xml:space="preserve">
+    <value>公司名称</value>
+  </data>
+  <data name="CompanyOrganization_FilteredCount" xml:space="preserve">
+    <value>共 {0} 条记录</value>
+  </data>
+  <data name="CompanyOrganization_KeywordPlaceholder" xml:space="preserve">
+    <value>请输入关键字查询</value>
+  </data>
+  <data name="CompanyOrganization_NoRecords" xml:space="preserve">
+    <value>暂无公司组织记录</value>
+  </data>
+  <data name="CompanyOrganization_OrganizationCode" xml:space="preserve">
+    <value>组织编号</value>
+  </data>
+  <data name="CompanyOrganization_OrganizationName" xml:space="preserve">
+    <value>组织名称</value>
+  </data>
+  <data name="CompanyOrganization_PageIndicator" xml:space="preserve">
+    <value>第 {0} / {1} 页</value>
+  </data>
+  <data name="CompanyOrganization_PageSize" xml:space="preserve">
+    <value>每页 {0} 条</value>
+  </data>
+  <data name="CompanyOrganization_SelectedCount" xml:space="preserve">
+    <value>已选择 {0} 条</value>
+  </data>
+  <data name="CompanyOrganization_SelectedCountPattern" xml:space="preserve">
+    <value>已选择 {0} 条</value>
+  </data>
+  <data name="CompanyOrganization_TotalCount" xml:space="preserve">
+    <value>总计 {0} 条</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeCardTitle" xml:space="preserve">
+    <value>组织右侧人员卡片</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeCardHint" xml:space="preserve">
+    <value>点击左侧公司组织记录，可在这里切换该组织的员工信息。</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeCardEmpty" xml:space="preserve">
+    <value>当前筛选结果下暂无公司组织，右侧人员管理卡片暂时无法展示。</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeCountLabel" xml:space="preserve">
+    <value>员工总数</value>
+  </data>
+  <data name="CompanyOrganization_ActiveEmployeeCountLabel" xml:space="preserve">
+    <value>在职人数</value>
+  </data>
+  <data name="CompanyOrganization_DepartmentCountLabel" xml:space="preserve">
+    <value>涉及部门</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeListEmpty" xml:space="preserve">
+    <value>当前组织还没有员工资料，可以稍后到“人员管理”页新增。</value>
+  </data>
+  <data name="CompanyOrganization_EmployeeEditPopupMessage" xml:space="preserve">
+    <value>员工编辑页面已打开，请先完成或关闭该页面后再继续操作当前组织页面。</value>
+  </data>
+  <data name="CompanyOrganization_UnsetJobTitle" xml:space="preserve">
+    <value>未设置职务</value>
+  </data>
+  <data name="CompanyOrganization_UnassignedDepartment" xml:space="preserve">
+    <value>未分配部门</value>
+  </data>
+  <data name="Department_CreateTitle" xml:space="preserve">
+    <value>新增部门</value>
+  </data>
+  <data name="Department_DescriptionPlaceholder" xml:space="preserve">
+    <value>请输入部门描述</value>
+  </data>
+  <data name="Department_FormTitle" xml:space="preserve">
+    <value>填写部门信息</value>
+  </data>
+  <data name="Department_List" xml:space="preserve">
+    <value>部门列表</value>
+  </data>
+  <data name="Department_Name" xml:space="preserve">
+    <value>部门名称</value>
+  </data>
+  <data name="Department_NamePlaceholder" xml:space="preserve">
+    <value>请输入部门名称</value>
+  </data>
+  <data name="Department_NoRecords" xml:space="preserve">
+    <value>暂无部门数据</value>
+  </data>
+  <data name="Department_NameRequired" xml:space="preserve">
+    <value>请输入部门名称</value>
+  </data>
+  <data name="Department_NameMaxLength" xml:space="preserve">
+    <value>部门名称长度不能超过100个字符。</value>
+  </data>
+  <data name="Error_DevelopmentMode" xml:space="preserve">
+    <value>开发模式</value>
+  </data>
+  <data name="Error_DevelopmentModeDescription" xml:space="preserve">
+    <value>切换到 Development 环境后，会显示更详细的异常信息。</value>
+  </data>
+  <data name="Error_DevelopmentModeInstruction" xml:space="preserve">
+    <value>如需本地调试，请将 ASPNETCORE_ENVIRONMENT 环境变量设置为 Development，然后重新启动应用。</value>
+  </data>
+  <data name="Error_DevelopmentModeWarning" xml:space="preserve">
+    <value>已部署环境不应启用 Development。</value>
+  </data>
+  <data name="Error_Heading" xml:space="preserve">
+    <value>发生错误。</value>
+  </data>
+  <data name="Error_Message" xml:space="preserve">
+    <value>处理请求时发生异常。</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>请求 ID：</value>
+  </data>
+  <data name="Error_Title" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Home_DepartmentCount" xml:space="preserve">
+    <value>部门总数</value>
+  </data>
+  <data name="Home_EmployeeCount" xml:space="preserve">
+    <value>员工总数</value>
+  </data>
+  <data name="Home_MonthlyOrders" xml:space="preserve">
+    <value>本月订单</value>
+  </data>
+  <data name="Home_Overview" xml:space="preserve">
+    <value>ERP 系统概览</value>
+  </data>
+  <data name="Home_PendingTasks" xml:space="preserve">
+    <value>待办任务</value>
+  </data>
+  <data name="Home_PerformanceStatistics" xml:space="preserve">
+    <value>业绩统计</value>
+  </data>
+  <data name="Home_RecentEmployees" xml:space="preserve">
+    <value>最近员工入职</value>
+  </data>
+  <data name="Home_UpdatedJustNow" xml:space="preserve">
+    <value>刚刚更新</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Language_SimplifiedChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Language_TraditionalChinese" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="Layout_AssetManagement" xml:space="preserve">
+    <value>资产管理</value>
+  </data>
+  <data name="Layout_BasicData" xml:space="preserve">
+    <value>基础资料</value>
+  </data>
+  <data name="Layout_CompanyOrganization" xml:space="preserve">
+    <value>公司组织</value>
+  </data>
+  <data name="Layout_CrmManagement" xml:space="preserve">
+    <value>CRM 管理</value>
+  </data>
+  <data name="Layout_DepartmentManagement" xml:space="preserve">
+    <value>部门管理</value>
+  </data>
+  <data name="Layout_EmployeeManagement" xml:space="preserve">
+    <value>人员管理</value>
+  </data>
+  <data name="Layout_Finance" xml:space="preserve">
+    <value>财务管理</value>
+  </data>
+  <data name="Layout_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Layout_Logistics" xml:space="preserve">
+    <value>仓务管理</value>
+  </data>
+  <data name="Layout_OfficeManagement" xml:space="preserve">
+    <value>办公管理</value>
+  </data>
+  <data name="Layout_OrganizationManagement" xml:space="preserve">
+    <value>组织管理</value>
+  </data>
+  <data name="Layout_PrivacyPolicy" xml:space="preserve">
+    <value>隐私政策</value>
+  </data>
+  <data name="Layout_Production" xml:space="preserve">
+    <value>生产管理</value>
+  </data>
+  <data name="Layout_Purchasing" xml:space="preserve">
+    <value>供应链管理</value>
+  </data>
+  <data name="Layout_Sales" xml:space="preserve">
+    <value>销售管理</value>
+  </data>
+  <data name="Layout_ServiceManagement" xml:space="preserve">
+    <value>服务管理</value>
+  </data>
+  <data name="Layout_SystemSettings" xml:space="preserve">
+    <value>系统管理</value>
+  </data>
+  <data name="Layout_ToggleMenu" xml:space="preserve">
+    <value>切换菜单</value>
+  </data>
+  <data name="Layout_TransportManagement" xml:space="preserve">
+    <value>运输管理</value>
+  </data>
+  <data name="Layout_WelcomeAdmin" xml:space="preserve">
+    <value>欢迎，管理员</value>
+  </data>
+  <data name="Privacy_Description" xml:space="preserve">
+    <value>此页面用于展示系统的隐私政策说明。</value>
+  </data>
+  <data name="Privacy_Title" xml:space="preserve">
+    <value>隐私政策</value>
+  </data>
+  <data name="Sample_AccountManager" xml:space="preserve">
+    <value>客户经理</value>
+  </data>
+  <data name="Sample_Developer" xml:space="preserve">
+    <value>开发工程师</value>
+  </data>
+  <data name="Sample_LiSi" xml:space="preserve">
+    <value>李四</value>
+  </data>
+  <data name="Sample_MarketingDepartment" xml:space="preserve">
+    <value>市场部</value>
+  </data>
+  <data name="Sample_TechDepartment" xml:space="preserve">
+    <value>技术部</value>
+  </data>
+  <data name="Sample_ZhangSan" xml:space="preserve">
+    <value>张三</value>
+  </data>
+  <data name="Employee_JobTitle_Director" xml:space="preserve">
+    <value>总监</value>
+  </data>
+  <data name="Employee_MaritalStatus_Single" xml:space="preserve">
+    <value>未婚</value>
+  </data>
+  <data name="Employee_AdvancedSearchHint" xml:space="preserve">
+    <value>高级查询可继续扩展为部门、组别、入职日期等多条件组合检索。</value>
+  </data>
+  <data name="Employee_StatusFilterAria" xml:space="preserve">
+    <value>员工状态筛选</value>
+  </data>
+  <data name="Employee_Status_Active" xml:space="preserve">
+    <value>在职</value>
+  </data>
+  <data name="Employee_NoRecords" xml:space="preserve">
+    <value>暂无员工记录，点击右上角“新增”开始录入。</value>
+  </data>
+  <data name="Login_DemoAdminDisplayName" xml:space="preserve">
+    <value>系统管理员</value>
+  </data>
+  <data name="Login_Company_SH" xml:space="preserve">
+    <value>上海分公司</value>
+  </data>
+  <data name="Login_ForgotPassword" xml:space="preserve">
+    <value>忘记密码</value>
+  </data>
+  <data name="Employee_DefaultRemark" xml:space="preserve">
+    <value>随意填写备注</value>
+  </data>
+  <data name="Employee_County_Tianhe" xml:space="preserve">
+    <value>天河区</value>
+  </data>
+  <data name="Employee_JobTitle" xml:space="preserve">
+    <value>职务</value>
+  </data>
+  <data name="Employee_Group_Business" xml:space="preserve">
+    <value>华南业务组</value>
+  </data>
+  <data name="Employee_Status_Disabled" xml:space="preserve">
+    <value>已停用</value>
+  </data>
+  <data name="Employee_DefaultOrganizationName" xml:space="preserve">
+    <value>宏易科技</value>
+  </data>
+  <data name="Login_FiscalYearOption" xml:space="preserve">
+    <value>{0} 年度</value>
+  </data>
+  <data name="Employee_City_Shenzhen" xml:space="preserve">
+    <value>深圳市</value>
+  </data>
+  <data name="Login_Company_BJ" xml:space="preserve">
+    <value>北京分公司</value>
+  </data>
+  <data name="Login_Account" xml:space="preserve">
+    <value>账号</value>
+  </data>
+  <data name="Employee_CreatePopupMessage" xml:space="preserve">
+    <value>员工新增页面已打开，请先完成或关闭该页面后再继续操作当前列表。</value>
+  </data>
+  <data name="Employee_City_Foshan" xml:space="preserve">
+    <value>佛山市</value>
+  </data>
+  <data name="Employee_Group_Rnd" xml:space="preserve">
+    <value>研发项目组</value>
+  </data>
+  <data name="Login_Company_HQ" xml:space="preserve">
+    <value>总公司</value>
+  </data>
+  <data name="Login_InvalidCredentials" xml:space="preserve">
+    <value>账号或密码错误，请重新输入。</value>
+  </data>
+  <data name="Employee_PageTitle" xml:space="preserve">
+    <value>人员管理</value>
+  </data>
+  <data name="Employee_ExportFileName" xml:space="preserve">
+    <value>员工记录导出.csv</value>
+  </data>
+  <data name="Employee_Status_Left" xml:space="preserve">
+    <value>离职</value>
+  </data>
+  <data name="Login_PasswordRequired" xml:space="preserve">
+    <value>请输入密码</value>
+  </data>
+  <data name="Employee_SelectRowAria" xml:space="preserve">
+    <value>选择员工 {0}</value>
+  </data>
+  <data name="Employee_SelectedCount" xml:space="preserve">
+    <value>已选择 {0} 条</value>
+  </data>
+  <data name="Login_AccountMaxLength" xml:space="preserve">
+    <value>账号长度不能超过50个字符。</value>
+  </data>
+  <data name="Employee_Ethnicity_Manchu" xml:space="preserve">
+    <value>满族</value>
+  </data>
+  <data name="Common_Processing" xml:space="preserve">
+    <value>处理中</value>
+  </data>
+  <data name="Employee_PageIndicator" xml:space="preserve">
+    <value>第 {0} / {1} 页</value>
+  </data>
+  <data name="Employee_County_Nanshan" xml:space="preserve">
+    <value>南山区</value>
+  </data>
+  <data name="Employee_Group_Standard" xml:space="preserve">
+    <value>红旗标准组</value>
+  </data>
+  <data name="Login_AccountRequired" xml:space="preserve">
+    <value>请输入账号</value>
+  </data>
+  <data name="Employee_JobTitle_Manager" xml:space="preserve">
+    <value>经理</value>
+  </data>
+  <data name="Employee_PageSizeAria" xml:space="preserve">
+    <value>每页显示数量</value>
+  </data>
+  <data name="Login_CompanyRequired" xml:space="preserve">
+    <value>请选择公司</value>
+  </data>
+  <data name="Login_Watermark" xml:space="preserve">
+    <value>Open ERP</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_Engineer" xml:space="preserve">
+    <value>工程师</value>
+  </data>
+  <data name="Employee_Education_Bachelor" xml:space="preserve">
+    <value>本科</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_AssistantEngineer" xml:space="preserve">
+    <value>助理工程师</value>
+  </data>
+  <data name="Login_Company_GZ" xml:space="preserve">
+    <value>广州分公司</value>
+  </data>
+  <data name="Employee_Ethnicity_Zhuang" xml:space="preserve">
+    <value>壮族</value>
+  </data>
+  <data name="Employee_FilteredCount" xml:space="preserve">
+    <value>共 {0} 条记录</value>
+  </data>
+  <data name="Login_Submit" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="Login_Company" xml:space="preserve">
+    <value>公司</value>
+  </data>
+  <data name="Employee_ArchiveText" xml:space="preserve">
+    <value>档案</value>
+  </data>
+  <data name="Employee_EditPopupTitle" xml:space="preserve">
+    <value>编辑员工</value>
+  </data>
+  <data name="Login_Company_SZ" xml:space="preserve">
+    <value>深圳分公司</value>
+  </data>
+  <data name="Employee_SelectForDeletePrompt" xml:space="preserve">
+    <value>请先选择一条员工记录再进行删除。</value>
+  </data>
+  <data name="Employee_Region_EastChina" xml:space="preserve">
+    <value>中国华东</value>
+  </data>
+  <data name="Employee_Gender" xml:space="preserve">
+    <value>性别</value>
+  </data>
+  <data name="Employee_NoResult" xml:space="preserve">
+    <value>未找到符合条件的员工记录。</value>
+  </data>
+  <data name="Employee_Code" xml:space="preserve">
+    <value>员工编号</value>
+  </data>
+  <data name="Login_CompanyName" xml:space="preserve">
+    <value>宏易科技有限公司</value>
+  </data>
+  <data name="Employee_Group" xml:space="preserve">
+    <value>组别</value>
+  </data>
+  <data name="Employee_CardNumber" xml:space="preserve">
+    <value>员工卡号</value>
+  </data>
+  <data name="Employee_NotNamed" xml:space="preserve">
+    <value>未命名员工</value>
+  </data>
+  <data name="Employee_SelectForEditPrompt" xml:space="preserve">
+    <value>请先选择一条员工记录再进行修改。</value>
+  </data>
+  <data name="Employee_TotalCount" xml:space="preserve">
+    <value>总计 {0} 条</value>
+  </data>
+  <data name="Employee_Education_HighSchool" xml:space="preserve">
+    <value>高中</value>
+  </data>
+  <data name="Employee_MaritalStatus_Married" xml:space="preserve">
+    <value>已婚</value>
+  </data>
+  <data name="Login_RememberMe" xml:space="preserve">
+    <value>记住我</value>
+  </data>
+  <data name="Employee_Education_Master" xml:space="preserve">
+    <value>硕士</value>
+  </data>
+  <data name="Employee_EditPopupMessage" xml:space="preserve">
+    <value>员工编辑页面已打开，请先完成或关闭该页面后再继续操作当前列表。</value>
+  </data>
+  <data name="Employee_GroupPattern" xml:space="preserve">
+    <value>组别{0}</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_TechnicalManager" xml:space="preserve">
+    <value>技术经理</value>
+  </data>
+  <data name="Employee_Organization" xml:space="preserve">
+    <value>所属组织</value>
+  </data>
+  <data name="Login_PasswordMaxLength" xml:space="preserve">
+    <value>密码长度不能超过100个字符。</value>
+  </data>
+  <data name="Employee_CopyNameSuffix" xml:space="preserve">
+    <value>（副本）</value>
+  </data>
+  <data name="Employee_Education_College" xml:space="preserve">
+    <value>大专</value>
+  </data>
+  <data name="Employee_Gender_Male" xml:space="preserve">
+    <value>男</value>
+  </data>
+  <data name="Employee_SelectAllAria" xml:space="preserve">
+    <value>全选员工记录</value>
+  </data>
+  <data name="Employee_County_Yuexiu" xml:space="preserve">
+    <value>越秀区</value>
+  </data>
+  <data name="Employee_PageSize" xml:space="preserve">
+    <value>{0}条/页</value>
+  </data>
+  <data name="Employee_DefaultGroup" xml:space="preserve">
+    <value>华南</value>
+  </data>
+  <data name="Employee_JobTitle_Accountant" xml:space="preserve">
+    <value>会计</value>
+  </data>
+  <data name="Employee_Name" xml:space="preserve">
+    <value>员工姓名</value>
+  </data>
+  <data name="Employee_Region_SouthChina" xml:space="preserve">
+    <value>中国华南</value>
+  </data>
+  <data name="Employee_Region_NorthChina" xml:space="preserve">
+    <value>中国华北</value>
+  </data>
+  <data name="Employee_Group_Admin" xml:space="preserve">
+    <value>总部行政组</value>
+  </data>
+  <data name="Employee_DefaultDepartment" xml:space="preserve">
+    <value>IT</value>
+  </data>
+  <data name="Employee_Gender_Female" xml:space="preserve">
+    <value>女</value>
+  </data>
+  <data name="Login_PageAria" xml:space="preserve">
+    <value>Open ERP 登录</value>
+  </data>
+  <data name="Login_FiscalYear" xml:space="preserve">
+    <value>财务年度</value>
+  </data>
+  <data name="Login_Title" xml:space="preserve">
+    <value>登录 - Open ERP</value>
+  </data>
+  <data name="Login_Password" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_SeniorEngineer" xml:space="preserve">
+    <value>高级工程师</value>
+  </data>
+  <data name="Employee_Education_Doctor" xml:space="preserve">
+    <value>博士</value>
+  </data>
+  <data name="Employee_Ethnicity_Han" xml:space="preserve">
+    <value>汉族</value>
+  </data>
+  <data name="Employee_City_Guangzhou" xml:space="preserve">
+    <value>广州市</value>
+  </data>
+  <data name="Employee_Ethnicity_Hui" xml:space="preserve">
+    <value>回族</value>
+  </data>
+  <data name="Login_PasswordPlaceholder" xml:space="preserve">
+    <value>请输入密码</value>
+  </data>
+  <data name="Login_FiscalYearRequired" xml:space="preserve">
+    <value>请选择财务年度</value>
+  </data>
+  <data name="Employee_CopySuffix" xml:space="preserve">
+    <value>-COPY</value>
+  </data>
+  <data name="Employee_KeywordPlaceholder" xml:space="preserve">
+    <value>请输入关键字查询</value>
+  </data>
+  <data name="Employee_CreatePopupTitle" xml:space="preserve">
+    <value>新增员工</value>
+  </data>
+  <data name="Login_AccountPlaceholder" xml:space="preserve">
+    <value>请输入账号</value>
+  </data>
+  <data name="Employee_SelectForCopyPrompt" xml:space="preserve">
+    <value>请先选择一条员工记录再进行复制。</value>
+  </data>
+  <data name="Employee_SelectOnlyOnePrompt" xml:space="preserve">
+    <value>只能选择一条员工记录，请取消多余的选择。</value>
+  </data>
+  <data name="Delete_PageTitle" xml:space="preserve">
+    <value>删除确认</value>
+  </data>
+  <data name="Delete_ConfirmTitle" xml:space="preserve">
+    <value>确认删除员工</value>
+  </data>
+  <data name="Delete_EmployeeCode" xml:space="preserve">
+    <value>员工编号</value>
+  </data>
+  <data name="Delete_EmployeeName" xml:space="preserve">
+    <value>员工姓名</value>
+  </data>
+  <data name="Delete_Unnamed" xml:space="preserve">
+    <value>未命名员工</value>
+  </data>
+  <data name="Delete_WarningText" xml:space="preserve">
+    <value>删除后该员工将被标记为已停用状态，是否确认删除？</value>
+  </data>
+  <data name="Delete_ConfirmButton" xml:space="preserve">
+    <value>确认删除</value>
+  </data>
+  <data name="Delete_CancelButton" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Common_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Employee_CurrentStatus" xml:space="preserve">
+    <value>当前状态</value>
+  </data>
+  <data name="Employee_Label_HireDate" xml:space="preserve">
+    <value>入职日期</value>
+  </data>
+  <data name="Employee_Label_LeaveDate" xml:space="preserve">
+    <value>离职日期</value>
+  </data>
+  <data name="Employee_LookupEmployeeCodeAria" xml:space="preserve">
+    <value>查找员工编号</value>
+  </data>
+  <data name="Employee_SearchItem_Employee" xml:space="preserve">
+    <value>员工</value>
+  </data>
+  <data name="Employee_Tab_AccountPermission" xml:space="preserve">
+    <value>账号及权限</value>
+  </data>
+  <data name="Employee_Tab_AttendanceSalary" xml:space="preserve">
+    <value>考勤及工资</value>
+  </data>
+  <data name="Employee_Tab_BasicInfo" xml:space="preserve">
+    <value>基本信息</value>
+  </data>
+</root>

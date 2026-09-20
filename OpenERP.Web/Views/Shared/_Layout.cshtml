@@ -1,0 +1,2556 @@
+@using System.Globalization
+@using System.Security.Claims
+@inject OpenERP.Web.Data.HR.IHrRepository HrRepository
+@inject OpenERP.Web.Printing.ICompanyPrintTemplateService CompanyPrintTemplateService
+@{
+    var currentCulture = CultureInfo.CurrentUICulture.Name;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var currentPageTitle = ViewData["Title"]?.ToString() ?? Localizer["AppName"].Value;
+    var homeUrl = Url.Action("Index", "Home", new { area = "" }) ?? "/";
+    var currentAccount = User.FindFirst("erp:account")?.Value;
+    var currentCompanyValue = User.FindFirst("erp:company")?.Value ?? "HQ";
+    var shouldRestrictCompanyOptions = !string.IsNullOrWhiteSpace(currentAccount)
+        && !string.Equals(currentAccount, "admin", StringComparison.OrdinalIgnoreCase);
+    var currentEmployee = default(OpenERP.HR.Models.Entities.Employee);
+    var allowedCompanyCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var effectivePermissionCodes = new HashSet<string>(
+        User.FindAll("erp:permission")
+            .Select(claim => claim.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value)),
+        StringComparer.OrdinalIgnoreCase);
+    if (shouldRestrictCompanyOptions)
+    {
+        currentEmployee = await HrRepository.GetEmployeeByLoginAccountAsync(currentAccount!);
+        if (currentEmployee is not null)
+        {
+            foreach (var code in await HrRepository.GetUserCompanyCodesAsync(currentEmployee.Id))
+            {
+                if (!string.IsNullOrWhiteSpace(code))
+                {
+                    allowedCompanyCodes.Add(code);
+                }
+            }
+
+            // 数据库有效权限（用于合并登录后新增或调整的菜单权限，避免旧 Cookie 漏显示新功能）。
+            foreach (var permissionCode in await HrRepository.GetEffectivePermissionCodesAsync(currentEmployee.Id))
+            {
+                if (!string.IsNullOrWhiteSpace(permissionCode))
+                {
+                    effectivePermissionCodes.Add(permissionCode);
+                }
+            }
+        }
+    }
+    bool HasPermission(params string[] permissionCodes)
+        => !shouldRestrictCompanyOptions || permissionCodes.Any(code => effectivePermissionCodes.Contains(code));
+    var canViewDashboard = HasPermission("DASHBOARD");
+    // 供应商/厂商资料权限（用于显示供应链管理下的供应商/厂商资料菜单）。
+    var canViewPurchasingSuppliers = HasPermission("PURCHASING", "PURCHASING_SUPPLIERS");
+    // 合约管理权限（用于显示供应链管理下的合约管理菜单）。
+    var canViewPurchasingContracts = HasPermission("PURCHASING", "PURCHASING_CONTRACTS");
+    // 采购询价权限（用于显示供应链管理下的采购询价菜单）。
+    var canViewPurchasingInquiries = HasPermission("PURCHASING", "PURCHASING_INQUIRIES");
+    // 采购订单权限（用于显示供应链管理下的采购订单菜单）。
+    var canViewPurchasingPurchaseOrders = HasPermission("PURCHASING", "PURCHASING_PURCHASE_ORDERS");
+    // 采购发票权限（用于显示供应链管理下的采购发票菜单）。
+    var canViewPurchasingInvoices = HasPermission("PURCHASING", "PURCHASING_INVOICES");
+    // 采购付款权限（用于显示供应链管理下的采购付款菜单）。
+    var canViewPurchasingPayments = HasPermission("PURCHASING", "PURCHASING_PAYMENTS");
+    // 预付款权限（用于显示供应链管理下的预付款菜单）。
+    var canViewPurchasingPrepayments = HasPermission("PURCHASING", "PURCHASING_PREPAYMENTS");
+    // 采购退换权限（用于显示供应链管理下的采购退换菜单）。
+    var canViewPurchasingReturns = HasPermission("PURCHASING", "PURCHASING_RETURNS");
+    // 供应链管理父级菜单权限（用于承载采购相关子功能）。
+    var canViewPurchasing = canViewPurchasingSuppliers
+        || canViewPurchasingContracts
+        || canViewPurchasingInquiries
+        || canViewPurchasingPurchaseOrders
+        || canViewPurchasingInvoices
+        || canViewPurchasingPayments
+        || canViewPurchasingPrepayments
+        || canViewPurchasingReturns;
+    // 供应链管理菜单展开状态（进入采购区域时自动展开子功能）。
+    var isPurchasingMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Purchasing", StringComparison.OrdinalIgnoreCase);
+    // 销售报价权限（用于显示销售管理下的销售报价菜单）。
+    var canViewSalesQuotations = HasPermission("SALES", "SALES_QUOTATIONS");
+    // 销售订单权限（用于显示销售管理下的销售订单菜单）。
+    var canViewSalesOrders = HasPermission("SALES", "SALES_SALES_ORDERS");
+    // 销售送货权限（用于显示销售管理下的销售送货菜单）。
+    var canViewSalesDeliveries = HasPermission("SALES", "SALES_DELIVERIES");
+    // 销售发票权限（用于显示销售管理下的销售发票菜单）。
+    var canViewSalesInvoices = HasPermission("SALES", "SALES_INVOICES");
+    // 销售收款权限（用于显示销售管理下的销售收款菜单）。
+    var canViewSalesReceipts = HasPermission("SALES", "SALES_RECEIPTS");
+    // 预收款权限（用于显示销售管理下的预收款菜单）。
+    var canViewSalesAdvanceReceipts = HasPermission("SALES", "SALES_ADVANCE_RECEIPTS");
+    // 销售退换权限（用于显示销售管理下的销售退换菜单）。
+    var canViewSalesReturns = HasPermission("SALES", "SALES_RETURNS");
+    // 定期发票权限（用于显示销售管理下的定期发票菜单）。
+    var canViewSalesRecurringInvoices = HasPermission("SALES", "SALES_RECURRING_INVOICES");
+    // 销售管理父级菜单权限（用于承载销售相关子功能）。
+    var canViewSales = canViewSalesQuotations
+        || canViewSalesOrders
+        || canViewSalesDeliveries
+        || canViewSalesInvoices
+        || canViewSalesReceipts
+        || canViewSalesAdvanceReceipts
+        || canViewSalesReturns
+        || canViewSalesRecurringInvoices;
+    // 销售管理菜单展开状态（进入销售区域时自动展开子功能）。
+    var isSalesMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Sales", StringComparison.OrdinalIgnoreCase);
+    // 车间仓库子功能权限（用于显示仓务管理下的车间仓库菜单）。
+    var canViewWorkshopWarehouses = HasPermission("LOGISTICS", "LOGISTICS_WORKSHOP_WAREHOUSES");
+    // 产品资料子功能权限（用于显示物料管理下的产品菜单）。
+    var canViewLogisticsProducts = HasPermission("LOGISTICS", "LOGISTICS_MATERIAL_MANAGEMENT", "LOGISTICS_PRODUCTS");
+    // 材料资料子功能权限（用于显示物料管理下的材料菜单）。
+    var canViewLogisticsMaterials = HasPermission("LOGISTICS", "LOGISTICS_MATERIAL_MANAGEMENT", "LOGISTICS_MATERIALS");
+    // 辅料资料子功能权限（用于显示物料管理下的辅料菜单）。
+    var canViewLogisticsAuxiliaryMaterials = HasPermission("LOGISTICS", "LOGISTICS_MATERIAL_MANAGEMENT", "LOGISTICS_AUXILIARY_MATERIALS");
+    // 物料管理父级菜单权限（用于承载产品、材料、辅料子功能）。
+    var canViewLogisticsMaterialManagement = HasPermission("LOGISTICS", "LOGISTICS_MATERIAL_MANAGEMENT")
+        || canViewLogisticsProducts
+        || canViewLogisticsMaterials
+        || canViewLogisticsAuxiliaryMaterials;
+    // 产品库存权限（用于显示库存查询下的产品库存菜单）。
+    var canViewLogisticsProductInventory = HasPermission("LOGISTICS", "LOGISTICS_INVENTORY_QUERY", "LOGISTICS_PRODUCT_INVENTORY");
+    // 材料库存权限（用于显示库存查询下的材料库存菜单）。
+    var canViewLogisticsMaterialInventory = HasPermission("LOGISTICS", "LOGISTICS_INVENTORY_QUERY", "LOGISTICS_MATERIAL_INVENTORY");
+    // 辅料库存权限（用于显示库存查询下的辅料库存菜单）。
+    var canViewLogisticsAuxiliaryMaterialInventory = HasPermission("LOGISTICS", "LOGISTICS_INVENTORY_QUERY", "LOGISTICS_AUXILIARY_MATERIAL_INVENTORY");
+    // 库存查询权限（用于显示仓务管理下的库存查询折叠菜单）。
+    var canViewLogisticsInventoryQuery = HasPermission("LOGISTICS", "LOGISTICS_INVENTORY_QUERY")
+        || canViewLogisticsProductInventory
+        || canViewLogisticsMaterialInventory
+        || canViewLogisticsAuxiliaryMaterialInventory;
+    // 收货通知权限（用于显示入库管理下的收货通知菜单）。
+    var canViewLogisticsReceivingNotices = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT", "LOGISTICS_RECEIVING_NOTICES");
+    // 入库核实权限（用于显示入库管理下的入库核实菜单）。
+    var canViewLogisticsInboundVerifications = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT", "LOGISTICS_INBOUND_VERIFICATIONS");
+    // 入库IQC权限（用于显示入库管理下的入库IQC菜单）。
+    var canViewLogisticsInboundIqc = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT", "LOGISTICS_INBOUND_IQC");
+    // 入库单权限（用于显示入库管理下的入库单菜单）。
+    var canViewLogisticsInboundOrders = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT", "LOGISTICS_INBOUND_ORDERS");
+    // 入库记录权限（用于显示入库管理下的入库记录菜单）。
+    var canViewLogisticsInboundRecords = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT", "LOGISTICS_INBOUND_RECORDS");
+    // 入库管理权限（用于显示仓务管理下的入库管理折叠菜单）。
+    var canViewLogisticsInboundManagement = HasPermission("LOGISTICS", "LOGISTICS_INBOUND_MANAGEMENT")
+        || canViewLogisticsReceivingNotices
+        || canViewLogisticsInboundVerifications
+        || canViewLogisticsInboundIqc
+        || canViewLogisticsInboundOrders
+        || canViewLogisticsInboundRecords;
+    // 出货通知权限（用于显示出库管理下的出货通知菜单，父级出库管理权限可继承显示）。
+    var canViewLogisticsShippingNotices = HasPermission("LOGISTICS", "LOGISTICS_OUTBOUND_MANAGEMENT", "LOGISTICS_SHIPPING_NOTICES");
+    // 出库核实权限（用于显示出库管理下的出库核实菜单，父级出库管理权限可继承显示）。
+    var canViewLogisticsOutboundVerifications = HasPermission("LOGISTICS", "LOGISTICS_OUTBOUND_MANAGEMENT", "LOGISTICS_OUTBOUND_VERIFICATIONS");
+    // 出库单权限（用于显示出库管理下的出库单菜单，父级出库管理权限可继承显示）。
+    var canViewLogisticsOutboundOrders = HasPermission("LOGISTICS", "LOGISTICS_OUTBOUND_MANAGEMENT", "LOGISTICS_OUTBOUND_ORDERS");
+    // 出库记录权限（用于显示出库管理下的出库记录菜单，父级出库管理权限可继承显示）。
+    var canViewLogisticsOutboundRecords = HasPermission("LOGISTICS", "LOGISTICS_OUTBOUND_MANAGEMENT", "LOGISTICS_OUTBOUND_RECORDS");
+    // 出库管理权限（用于显示仓务管理下的出库管理父级菜单）。
+    var canViewLogisticsOutboundManagement = HasPermission("LOGISTICS", "LOGISTICS_OUTBOUND_MANAGEMENT")
+        || canViewLogisticsShippingNotices
+        || canViewLogisticsOutboundVerifications
+        || canViewLogisticsOutboundOrders
+        || canViewLogisticsOutboundRecords;
+    // 领料单权限（用于显示仓务管理下的领料单菜单）。
+    var canViewLogisticsMaterialRequisitions = HasPermission("LOGISTICS", "LOGISTICS_MATERIAL_REQUISITIONS");
+    // 退货单权限（用于显示仓务管理下的退货单菜单）。
+    var canViewLogisticsReturnOrders = HasPermission("LOGISTICS", "LOGISTICS_RETURN_ORDERS");
+    // 调拨单权限（用于显示仓务管理下的调拨单菜单）。
+    var canViewLogisticsTransferOrders = HasPermission("LOGISTICS", "LOGISTICS_TRANSFER_ORDERS");
+    // 补货单权限（用于显示仓务管理下的补货单菜单）。
+    var canViewLogisticsReplenishmentOrders = HasPermission("LOGISTICS", "LOGISTICS_REPLENISHMENT_ORDERS");
+    // 转位单权限（用于显示仓务管理下的转位单菜单）。
+    var canViewLogisticsRelocationOrders = HasPermission("LOGISTICS", "LOGISTICS_RELOCATION_ORDERS");
+    // 调整单权限（用于显示仓务管理下的调整单菜单）。
+    var canViewLogisticsAdjustmentOrders = HasPermission("LOGISTICS", "LOGISTICS_ADJUSTMENT_ORDERS");
+    // 盘点单权限（用于显示盘点管理下的盘点单菜单，父级盘点管理权限可继承显示）。
+    var canViewLogisticsStocktakeOrders = HasPermission("LOGISTICS", "LOGISTICS_STOCKTAKES", "LOGISTICS_STOCKTAKE_ORDERS");
+    // 周期盘点计划权限（用于显示盘点管理下的周期盘点计划菜单，父级盘点管理权限可继承显示）。
+    var canViewLogisticsCycleCountPlans = HasPermission("LOGISTICS", "LOGISTICS_STOCKTAKES", "LOGISTICS_CYCLE_COUNT_PLANS");
+    // 盘点管理权限（用于显示仓务管理下的盘点管理父级菜单）。
+    var canViewLogisticsStocktakes = HasPermission("LOGISTICS", "LOGISTICS_STOCKTAKES")
+        || canViewLogisticsStocktakeOrders
+        || canViewLogisticsCycleCountPlans;
+    // 批次管理权限（用于显示仓务管理下的批次管理菜单）。
+    var canViewLogisticsBatches = HasPermission("LOGISTICS", "LOGISTICS_BATCHES");
+    // RFID记录权限（用于显示仓务管理下的射频识别记录菜单）。
+    var canViewLogisticsRfidRecords = HasPermission("LOGISTICS", "LOGISTICS_RFID_RECORDS");
+    // 仓务操作菜单权限（用于承载库存、出入库和仓务单据子功能）。
+    var canViewLogisticsWarehouseOperations = canViewLogisticsInventoryQuery
+        || canViewLogisticsInboundManagement
+        || canViewLogisticsOutboundManagement
+        || canViewLogisticsMaterialRequisitions
+        || canViewLogisticsReturnOrders
+        || canViewLogisticsTransferOrders
+        || canViewLogisticsReplenishmentOrders
+        || canViewLogisticsRelocationOrders
+        || canViewLogisticsAdjustmentOrders
+        || canViewLogisticsStocktakes
+        || canViewLogisticsBatches
+        || canViewLogisticsRfidRecords;
+    // 仓务管理父级菜单权限（用于承载仓务相关子功能）。
+    var canViewLogistics = HasPermission("LOGISTICS", "LOGISTICS_CARRIERS")
+        || canViewWorkshopWarehouses
+        || canViewLogisticsMaterialManagement
+        || canViewLogisticsWarehouseOperations;
+    // 仓务管理菜单展开状态（进入仓务管理区域时自动展开子功能）。
+    var isLogisticsMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Logistics", StringComparison.OrdinalIgnoreCase);
+    // 物料管理菜单展开状态（进入产品、材料、辅料页面时自动展开子功能）。
+    var currentLogisticsController = Context.Request.RouteValues["controller"]?.ToString();
+    var currentLogisticsAction = Context.Request.RouteValues["action"]?.ToString();
+    var isLogisticsMaterialManagementMenuOpen = isLogisticsMenuOpen
+        && string.Equals(currentLogisticsController, "MaterialManagement", StringComparison.OrdinalIgnoreCase);
+    // 库存查询菜单展开状态（进入产品库存、材料库存或辅料库存页面时自动展开子功能）。
+    var isLogisticsInventoryQueryMenuOpen = isLogisticsMenuOpen
+        && string.Equals(currentLogisticsController, "WarehouseOperations", StringComparison.OrdinalIgnoreCase)
+        && new[] { "ProductInventory", "MaterialInventory", "AuxiliaryMaterialInventory" }
+            .Contains(currentLogisticsAction, StringComparer.OrdinalIgnoreCase);
+    // 入库管理菜单展开状态（进入收货通知、入库核实、入库IQC、入库单或入库记录页面时自动展开子功能）。
+    var isLogisticsInboundManagementMenuOpen = isLogisticsMenuOpen
+        && string.Equals(currentLogisticsController, "WarehouseOperations", StringComparison.OrdinalIgnoreCase)
+        && new[] { "ReceivingNotices", "InboundVerifications", "InboundIqc", "InboundOrders", "InboundRecords" }
+            .Contains(currentLogisticsAction, StringComparer.OrdinalIgnoreCase);
+    // 出库管理菜单展开状态（进入出货通知、出库核实、出库单或出库记录页面时自动展开子功能）。
+    var isLogisticsOutboundManagementMenuOpen = isLogisticsMenuOpen
+        && string.Equals(currentLogisticsController, "WarehouseOperations", StringComparison.OrdinalIgnoreCase)
+        && new[] { "ShippingNotices", "OutboundVerifications", "OutboundOrders", "OutboundRecords" }
+            .Contains(currentLogisticsAction, StringComparer.OrdinalIgnoreCase);
+    // 盘点管理菜单展开状态（进入盘点单或周期盘点计划页面时自动展开子功能）。
+    var isLogisticsStocktakeManagementMenuOpen = isLogisticsMenuOpen
+        && string.Equals(currentLogisticsController, "WarehouseOperations", StringComparison.OrdinalIgnoreCase)
+        && new[] { "StocktakeOrders", "CycleCountPlans" }
+            .Contains(currentLogisticsAction, StringComparer.OrdinalIgnoreCase);
+    // 生产设备权限（用于显示生产管理下的生产设备菜单）。
+    var canViewProductionEquipment = HasPermission("PRODUCTION", "PRODUCTION_EQUIPMENT");
+    // 工序管理权限（用于显示生产管理下的工序管理菜单）。
+    var canViewProductionProcesses = HasPermission("PRODUCTION", "PRODUCTION_PROCESSES");
+    // 样板工单权限（用于显示生产管理下的样板工单菜单）。
+    var canViewProductionSampleWorkOrders = HasPermission("PRODUCTION", "PRODUCTION_SAMPLE_WORK_ORDERS");
+    // 生产工单权限（用于显示生产管理下的生产工单菜单）。
+    var canViewProductionWorkOrders = HasPermission("PRODUCTION", "PRODUCTION_ORDERS");
+    // 排产计划权限（用于显示生产管理下的排产计划菜单）。
+    var canViewProductionSchedulingPlans = HasPermission("PRODUCTION", "PRODUCTION_SCHEDULING_PLANS");
+    // 工件录入权限（用于显示生产管理下的工件录入菜单）。
+    var canViewProductionWorkpieceEntries = HasPermission("PRODUCTION", "PRODUCTION_WORKPIECE_ENTRIES");
+    // 生产进度权限（用于显示生产管理下的生产进度菜单）。
+    var canViewProductionProgress = HasPermission("PRODUCTION", "PRODUCTION_PROGRESS");
+    // 成品拆解权限（用于显示生产管理下的成品拆解菜单）。
+    var canViewProductionFinishedProductDisassembly = HasPermission("PRODUCTION", "PRODUCTION_FINISHED_PRODUCT_DISASSEMBLY");
+    // 成品组装权限（用于显示生产管理下的成品组装菜单）。
+    var canViewProductionFinishedProductAssembly = HasPermission("PRODUCTION", "PRODUCTION_FINISHED_PRODUCT_ASSEMBLY");
+    // 外发加工权限（用于显示生产管理下的外发加工菜单）。
+    var canViewProductionOutsourcedProcessing = HasPermission("PRODUCTION", "PRODUCTION_OUTSOURCED_PROCESSING");
+    // 生产管理父级菜单权限（用于承载生产相关子功能）。
+    var canViewProduction = canViewProductionEquipment
+        || canViewProductionProcesses
+        || canViewProductionSampleWorkOrders
+        || canViewProductionWorkOrders
+        || canViewProductionSchedulingPlans
+        || canViewProductionWorkpieceEntries
+        || canViewProductionProgress
+        || canViewProductionFinishedProductDisassembly
+        || canViewProductionFinishedProductAssembly
+        || canViewProductionOutsourcedProcessing;
+    // 生产管理菜单展开状态（进入生产区域时自动展开子功能）。
+    var isProductionMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Production", StringComparison.OrdinalIgnoreCase);
+    // 科目资料权限（用于显示财务管理下的科目资料菜单）。
+    var canViewFinanceAccounts = HasPermission("FINANCE", "FINANCE_ACCOUNTS");
+    // 应收账权限（用于显示收款管理下的应收账菜单，父级收款管理权限可继承显示）。
+    var canViewFinanceAccountsReceivable = HasPermission("FINANCE", "FINANCE_RECEIPTS", "FINANCE_ACCOUNTS_RECEIVABLE");
+    // 借记单权限（用于显示收款管理下的借记单菜单，父级收款管理权限可继承显示）。
+    var canViewFinanceDebitNotes = HasPermission("FINANCE", "FINANCE_RECEIPTS", "FINANCE_DEBIT_NOTES");
+    // 预收款权限（用于显示收款管理下的预收款菜单，父级收款管理权限可继承显示）。
+    var canViewFinanceAdvanceReceipts = HasPermission("FINANCE", "FINANCE_RECEIPTS", "FINANCE_ADVANCE_RECEIPTS");
+    // 收款单权限（用于显示收款管理下的收款单菜单，父级收款管理权限可继承显示）。
+    var canViewFinanceReceiptOrders = HasPermission("FINANCE", "FINANCE_RECEIPTS", "FINANCE_RECEIPT_ORDERS");
+    // 其他收款权限（用于显示收款管理下的其他收款菜单，父级收款管理权限可继承显示）。
+    var canViewFinanceOtherReceipts = HasPermission("FINANCE", "FINANCE_RECEIPTS", "FINANCE_OTHER_RECEIPTS");
+    // 收款管理权限（用于显示财务管理下的收款管理父级菜单）。
+    var canViewFinanceReceipts = HasPermission("FINANCE", "FINANCE_RECEIPTS")
+        || canViewFinanceAccountsReceivable
+        || canViewFinanceDebitNotes
+        || canViewFinanceAdvanceReceipts
+        || canViewFinanceReceiptOrders
+        || canViewFinanceOtherReceipts;
+    // 应付账权限（用于显示付款管理下的应付账菜单，父级付款管理权限可继承显示）。
+    var canViewFinanceAccountsPayable = HasPermission("FINANCE", "FINANCE_PAYMENTS", "FINANCE_ACCOUNTS_PAYABLE");
+    // 贷记单权限（用于显示付款管理下的贷记单菜单，父级付款管理权限可继承显示）。
+    var canViewFinanceCreditNotes = HasPermission("FINANCE", "FINANCE_PAYMENTS", "FINANCE_CREDIT_NOTES");
+    // 预付款权限（用于显示付款管理下的预付款菜单，父级付款管理权限可继承显示）。
+    var canViewFinanceAdvancePayments = HasPermission("FINANCE", "FINANCE_PAYMENTS", "FINANCE_ADVANCE_PAYMENTS");
+    // 付款单权限（用于显示付款管理下的付款单菜单，父级付款管理权限可继承显示）。
+    var canViewFinancePaymentOrders = HasPermission("FINANCE", "FINANCE_PAYMENTS", "FINANCE_PAYMENT_ORDERS");
+    // 其他付款权限（用于显示付款管理下的其他付款菜单，父级付款管理权限可继承显示）。
+    var canViewFinanceOtherPayments = HasPermission("FINANCE", "FINANCE_PAYMENTS", "FINANCE_OTHER_PAYMENTS");
+    // 付款管理权限（用于显示财务管理下的付款管理父级菜单）。
+    var canViewFinancePayments = HasPermission("FINANCE", "FINANCE_PAYMENTS")
+        || canViewFinanceAccountsPayable
+        || canViewFinanceCreditNotes
+        || canViewFinanceAdvancePayments
+        || canViewFinancePaymentOrders
+        || canViewFinanceOtherPayments;
+    // 费用报销权限（用于显示财务管理下的费用报销菜单）。
+    var canViewFinanceExpenseReimbursements = HasPermission("FINANCE", "FINANCE_EXPENSE_REIMBURSEMENTS");
+    // 工资记录权限（用于显示财务管理下的工资记录菜单）。
+    var canViewFinancePayrollRecords = HasPermission("FINANCE", "FINANCE_PAYROLL_RECORDS");
+    // 记账凭证权限（用于显示财务管理下的记账凭证菜单）。
+    var canViewFinanceAccountingVouchers = HasPermission("FINANCE", "FINANCE_ACCOUNTING_VOUCHERS");
+    // 批量记账权限（用于显示财务管理下的批量记账菜单）。
+    var canViewFinanceBatchPosting = HasPermission("FINANCE", "FINANCE_BATCH_POSTING");
+    // 凭证审核权限（用于显示财务管理下的凭证审核菜单）。
+    var canViewFinanceVoucherReviews = HasPermission("FINANCE", "FINANCE_VOUCHER_REVIEWS");
+    // 支票兑现权限（用于显示财务管理下的支票兑现菜单）。
+    var canViewFinanceCheckCashings = HasPermission("FINANCE", "FINANCE_CHECK_CASHINGS");
+    // 银行对账权限（用于显示财务管理下的银行对账菜单）。
+    var canViewFinanceBankReconciliations = HasPermission("FINANCE", "FINANCE_BANK_RECONCILIATIONS");
+    // 成本调整权限（用于显示财务管理下的成本调整菜单）。
+    var canViewFinanceCostAdjustments = HasPermission("FINANCE", "FINANCE_COST_ADJUSTMENTS");
+    // 暂估入库权限（用于显示财务管理下的暂估入库菜单）。
+    var canViewFinanceAccruedReceipts = HasPermission("FINANCE", "FINANCE_ACCRUED_RECEIPTS");
+    // 成本转移权限（用于显示财务管理下的成本转移菜单）。
+    var canViewFinanceCostTransfers = HasPermission("FINANCE", "FINANCE_COST_TRANSFERS");
+    // 库存月结权限（用于显示财务管理下的库存月结菜单）。
+    var canViewFinanceInventoryMonthlyClosing = HasPermission("FINANCE", "FINANCE_INVENTORY_MONTHLY_CLOSING");
+    // 月结过账权限（用于显示财务管理下的月结过账菜单）。
+    var canViewFinanceMonthlyPosting = HasPermission("FINANCE", "FINANCE_MONTHLY_POSTING");
+    // 年结过账权限（用于显示财务管理下的年结过账菜单）。
+    var canViewFinanceYearlyPosting = HasPermission("FINANCE", "FINANCE_YEARLY_POSTING");
+    // 年初始账权限（用于显示财务管理下的年初始账菜单）。
+    var canViewFinanceYearOpeningBalances = HasPermission("FINANCE", "FINANCE_YEAR_OPENING_BALANCES");
+    // 科目余额表权限（用于显示财务统计下的科目余额表菜单，父级财务统计权限可继承显示）。
+    var canViewFinanceAccountBalanceReports = HasPermission("FINANCE", "FINANCE_STATISTICS", "FINANCE_ACCOUNT_BALANCE_REPORTS");
+    // 明细账权限（用于显示财务统计下的明细账菜单，父级财务统计权限可继承显示）。
+    var canViewFinanceDetailLedgers = HasPermission("FINANCE", "FINANCE_STATISTICS", "FINANCE_DETAIL_LEDGERS");
+    // 利润表权限（用于显示财务统计下的利润表菜单，父级财务统计权限可继承显示）。
+    var canViewFinanceIncomeStatements = HasPermission("FINANCE", "FINANCE_STATISTICS", "FINANCE_INCOME_STATEMENTS");
+    // 现金流量表权限（用于显示财务统计下的现金流量表菜单，父级财务统计权限可继承显示）。
+    var canViewFinanceCashFlowStatements = HasPermission("FINANCE", "FINANCE_STATISTICS", "FINANCE_CASH_FLOW_STATEMENTS");
+    // 资产负债表权限（用于显示财务统计下的资产负债表菜单，父级财务统计权限可继承显示）。
+    var canViewFinanceBalanceSheets = HasPermission("FINANCE", "FINANCE_STATISTICS", "FINANCE_BALANCE_SHEETS");
+    // 财务统计权限（用于显示财务管理下的财务统计父级菜单）。
+    var canViewFinanceStatistics = HasPermission("FINANCE", "FINANCE_STATISTICS")
+        || canViewFinanceAccountBalanceReports
+        || canViewFinanceDetailLedgers
+        || canViewFinanceIncomeStatements
+        || canViewFinanceCashFlowStatements
+        || canViewFinanceBalanceSheets;
+    // 财务管理父级菜单权限（用于承载财务相关子功能）。
+    var canViewFinance = canViewFinanceAccounts
+        || canViewFinanceReceipts
+        || canViewFinancePayments
+        || canViewFinanceExpenseReimbursements
+        || canViewFinancePayrollRecords
+        || canViewFinanceAccountingVouchers
+        || canViewFinanceBatchPosting
+        || canViewFinanceVoucherReviews
+        || canViewFinanceCheckCashings
+        || canViewFinanceBankReconciliations
+        || canViewFinanceCostAdjustments
+        || canViewFinanceAccruedReceipts
+        || canViewFinanceCostTransfers
+        || canViewFinanceInventoryMonthlyClosing
+        || canViewFinanceMonthlyPosting
+        || canViewFinanceYearlyPosting
+        || canViewFinanceYearOpeningBalances
+        || canViewFinanceStatistics;
+    // 财务管理菜单展开状态（进入财务区域时自动展开子功能）。
+    var isFinanceMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Finance", StringComparison.OrdinalIgnoreCase);
+    var currentFinanceController = Context.Request.RouteValues["controller"]?.ToString();
+    var currentFinanceAction = Context.Request.RouteValues["action"]?.ToString();
+    // 收款管理菜单展开状态（进入应收账、借记单、预收款、收款单或其他收款页面时自动展开子功能）。
+    var isFinanceReceiptsMenuOpen = isFinanceMenuOpen
+        && string.Equals(currentFinanceController, "FinanceManagement", StringComparison.OrdinalIgnoreCase)
+        && new[] { "AccountsReceivable", "DebitNotes", "AdvanceReceipts", "ReceiptOrders", "OtherReceipts" }
+            .Contains(currentFinanceAction, StringComparer.OrdinalIgnoreCase);
+    // 付款管理菜单展开状态（进入应付账、贷记单、预付款、付款单或其他付款页面时自动展开子功能）。
+    var isFinancePaymentsMenuOpen = isFinanceMenuOpen
+        && string.Equals(currentFinanceController, "FinanceManagement", StringComparison.OrdinalIgnoreCase)
+        && new[] { "AccountsPayable", "CreditNotes", "AdvancePayments", "PaymentOrders", "OtherPayments" }
+            .Contains(currentFinanceAction, StringComparer.OrdinalIgnoreCase);
+    // 财务统计菜单展开状态（进入科目余额表、明细账、利润表、现金流量表或资产负债表页面时自动展开子功能）。
+    var isFinanceStatisticsMenuOpen = isFinanceMenuOpen
+        && string.Equals(currentFinanceController, "FinanceManagement", StringComparison.OrdinalIgnoreCase)
+        && new[] { "AccountBalanceReports", "DetailLedgers", "IncomeStatements", "CashFlowStatements", "BalanceSheets" }
+            .Contains(currentFinanceAction, StringComparer.OrdinalIgnoreCase);
+    var canViewEmployees = HasPermission("HR", "HR_EMPLOYEES");
+    var canViewCompanyOrganizations = HasPermission("HR", "HR_COMPANY_ORGANIZATIONS");
+    var canViewDepartments = HasPermission("HR", "HR_DEPARTMENTS");
+    // 员工培训权限（用于显示组织管理下的员工培训菜单）。
+    var canViewEmployeeTraining = HasPermission("HR", "HR_EMPLOYEE_TRAINING");
+    // 人事变更权限（用于显示组织管理下的人事变更菜单）。
+    var canViewPersonnelChanges = HasPermission("HR", "HR_PERSONNEL_CHANGES");
+    // 节日管理权限（用于显示考勤管理下的节日管理菜单）。
+    var canViewHolidayManagement = HasPermission("HR", "HR_HOLIDAY_MANAGEMENT");
+    // 班次设置权限（用于显示考勤管理下的班次设置菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceShiftSettings = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_SHIFT_SETTINGS");
+    // 考勤排班权限（用于显示考勤管理下的考勤排班菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceScheduling = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_SCHEDULING");
+    // 出勤记录权限（用于显示考勤管理下的出勤记录菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceRecords = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_RECORDS");
+    // 请假登记权限（用于显示考勤管理下的请假登记菜单，父级考勤管理权限可继承显示）。
+    var canViewLeaveRegistrations = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_LEAVE_REGISTRATIONS");
+    // 请假审批权限（用于显示考勤管理下的请假审批菜单，父级考勤管理权限可继承显示）。
+    var canViewLeaveApprovals = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_LEAVE_APPROVALS");
+    // 外勤登记权限（用于显示考勤管理下的外勤登记菜单，父级考勤管理权限可继承显示）。
+    var canViewFieldWorkRegistrations = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_FIELD_WORK_REGISTRATIONS");
+    // 考勤机管理权限（用于显示考勤管理下的考勤机管理菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceDevices = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_DEVICES");
+    // 应补应扣权限（用于显示考勤管理下的应补应扣菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceAdjustments = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_ADJUSTMENTS");
+    // 考勤统计权限（用于显示考勤管理下的考勤统计菜单，父级考勤管理权限可继承显示）。
+    var canViewAttendanceStatistics = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT", "HR_ATTENDANCE_STATISTICS");
+    var canViewAttendanceManagement = HasPermission("HR", "HR_ATTENDANCE_MANAGEMENT")
+        || canViewHolidayManagement
+        || canViewAttendanceShiftSettings
+        || canViewAttendanceScheduling
+        || canViewAttendanceRecords
+        || canViewLeaveRegistrations
+        || canViewLeaveApprovals
+        || canViewFieldWorkRegistrations
+        || canViewAttendanceDevices
+        || canViewAttendanceAdjustments
+        || canViewAttendanceStatistics;
+    var currentOrganizationController = Context.Request.RouteValues["controller"]?.ToString();
+    var currentOrganizationAction = Context.Request.RouteValues["action"]?.ToString();
+    // 组织管理菜单展开状态（登录后默认收缩，进入组织管理相关页面时自动展开）。
+    var isOrganizationMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "HR", StringComparison.OrdinalIgnoreCase)
+        && (string.Equals(currentOrganizationController, "Employees", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(currentOrganizationController, "CompanyOrganizations", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(currentOrganizationController, "Departments", StringComparison.OrdinalIgnoreCase)
+            || (string.Equals(currentOrganizationController, "OrganizationManagement", StringComparison.OrdinalIgnoreCase)
+                && new[] { "EmployeeTraining", "PersonnelChanges" }
+                    .Contains(currentOrganizationAction, StringComparer.OrdinalIgnoreCase)));
+    var isAttendanceManagementMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "HR", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentOrganizationController, "OrganizationManagement", StringComparison.OrdinalIgnoreCase)
+        && new[] { "Attendance", "Holidays", "ShiftSettings", "AttendanceScheduling", "AttendanceRecords", "LeaveRegistrations", "LeaveApprovals", "FieldWorkRegistrations", "AttendanceDevices", "AttendanceAdjustments", "AttendanceStatistics" }
+            .Contains(currentOrganizationAction, StringComparer.OrdinalIgnoreCase);
+    var canViewOrganizationMenu = canViewEmployees
+        || canViewCompanyOrganizations
+        || canViewDepartments
+        || canViewEmployeeTraining
+        || canViewPersonnelChanges;
+    // 客户资料权限（用于显示 CRM 管理下的客户资料菜单）。
+    var canViewCrmCustomers = HasPermission("CRM", "CRM_CUSTOMERS");
+    // 友商资料权限（用于显示 CRM 管理下的友商资料菜单）。
+    var canViewCrmBusinessPartners = HasPermission("CRM", "CRM_BUSINESS_PARTNERS");
+    // 合约管理权限（用于显示 CRM 管理下的合约管理菜单）。
+    var canViewCrmContracts = HasPermission("CRM", "CRM_CONTRACTS");
+    // 佣金规则权限（用于显示 CRM 管理下的佣金规则菜单）。
+    var canViewCrmCommissionRules = HasPermission("CRM", "CRM_COMMISSION_RULES");
+    // 客户拜访权限（用于显示 CRM 管理下的客户拜访菜单）。
+    var canViewCrmCustomerVisits = HasPermission("CRM", "CRM_CUSTOMER_VISITS");
+    // 客户培训权限（用于显示 CRM 管理下的客户培训菜单）。
+    var canViewCrmCustomerTraining = HasPermission("CRM", "CRM_CUSTOMER_TRAINING");
+    // 技术讲座权限（用于显示 CRM 管理下的技术讲座菜单）。
+    var canViewCrmTechnicalSeminars = HasPermission("CRM", "CRM_TECHNICAL_SEMINARS");
+    // 宣传群发权限（用于显示 CRM 管理下的宣传群发菜单）。
+    var canViewCrmMassPromotions = HasPermission("CRM", "CRM_MASS_PROMOTIONS");
+    // CRM 线索资料权限。
+    var canViewCrmLeads = HasPermission("CRM", "CRM_LEADS");
+    // CRM 商机资料权限。
+    var canViewCrmOpportunities = HasPermission("CRM", "CRM_OPPORTUNITIES");
+    // CRM 管理父级菜单权限。
+    var canViewCrm = canViewCrmCustomers
+        || canViewCrmBusinessPartners
+        || canViewCrmContracts
+        || canViewCrmCommissionRules
+        || canViewCrmCustomerVisits
+        || canViewCrmCustomerTraining
+        || canViewCrmTechnicalSeminars
+        || canViewCrmMassPromotions
+        || canViewCrmLeads
+        || canViewCrmOpportunities;
+    // CRM 管理菜单展开状态（进入 CRM 区域时自动展开子功能）。
+    var isCrmMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "CRM", StringComparison.OrdinalIgnoreCase);
+    // 服务合同权限（用于显示服务管理下的服务合同菜单）。
+    var canViewServiceContracts = HasPermission("SERVICE", "SERVICE_CONTRACTS");
+    // 服务请求权限（用于显示服务管理下的服务请求菜单）。
+    var canViewServiceRequests = HasPermission("SERVICE", "SERVICE_REQUESTS");
+    // 借出单权限（用于显示服务管理下的借出单菜单）。
+    var canViewServiceLendingOrders = HasPermission("SERVICE", "SERVICE_LENDING_ORDERS");
+    // 归还单权限（用于显示服务管理下的归还单菜单）。
+    var canViewServiceReturnOrders = HasPermission("SERVICE", "SERVICE_RETURN_ORDERS");
+    // 维修保养权限（用于显示服务管理下的维修保养菜单）。
+    var canViewServiceMaintenance = HasPermission("SERVICE", "SERVICE_MAINTENANCE");
+    // 外出服务权限（用于显示服务管理下的外出服务菜单）。
+    var canViewServiceFieldService = HasPermission("SERVICE", "SERVICE_FIELD_SERVICE");
+    // 保养合约权限（用于显示服务管理下的保养合约菜单）。
+    var canViewServiceMaintenanceContracts = HasPermission("SERVICE", "SERVICE_MAINTENANCE_CONTRACTS");
+    // 保养查询权限（用于显示服务管理下的保养查询菜单）。
+    var canViewServiceMaintenanceQueries = HasPermission("SERVICE", "SERVICE_MAINTENANCE_QUERIES");
+    // 服务管理父级菜单权限（用于承载服务相关子功能）。
+    var canViewService = canViewServiceContracts
+        || canViewServiceRequests
+        || canViewServiceLendingOrders
+        || canViewServiceReturnOrders
+        || canViewServiceMaintenance
+        || canViewServiceFieldService
+        || canViewServiceMaintenanceContracts
+        || canViewServiceMaintenanceQueries;
+    // 服务管理菜单展开状态（进入服务区域时自动展开子功能）。
+    var isServiceMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Service", StringComparison.OrdinalIgnoreCase);
+    // 车辆资料权限（用于显示运输管理下的车辆资料菜单）。
+    var canViewTransportVehicles = HasPermission("TRANSPORT", "TRANSPORT_VEHICLES");
+    // 运输申请权限（用于显示运输管理下的运输申请菜单）。
+    var canViewTransportRequests = HasPermission("TRANSPORT", "TRANSPORT_REQUESTS");
+    // 司机资料权限（用于显示运输管理下的司机资料菜单）。
+    var canViewTransportDrivers = HasPermission("TRANSPORT", "TRANSPORT_DRIVERS");
+    // 运输排车权限（用于显示运输管理下的运输排车菜单）。
+    var canViewTransportDispatches = HasPermission("TRANSPORT", "TRANSPORT_DISPATCHES");
+    // 运输费用权限（用于显示运输管理下的运输费用菜单）。
+    var canViewTransportCosts = HasPermission("TRANSPORT", "TRANSPORT_COSTS");
+    // 运输管理父级菜单权限（用于承载运输相关子功能）。
+    var canViewTransport = canViewTransportVehicles
+        || canViewTransportRequests
+        || canViewTransportDrivers
+        || canViewTransportDispatches
+        || canViewTransportCosts;
+    // 运输管理菜单展开状态（进入运输区域时自动展开子功能）。
+    var isTransportMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Transport", StringComparison.OrdinalIgnoreCase);
+    // 资产资料权限（用于显示资产管理下的资产资料菜单）。
+    var canViewAssetAssets = HasPermission("ASSET", "ASSET_ASSETS");
+    // 预借单权限（用于显示资产管理下的预借单菜单）。
+    var canViewAssetPreBorrowOrders = HasPermission("ASSET", "ASSET_PRE_BORROW_ORDERS");
+    // 借用单权限（用于显示资产管理下的借用单菜单）。
+    var canViewAssetBorrowOrders = HasPermission("ASSET", "ASSET_BORROW_ORDERS");
+    // 退还单权限（用于显示资产管理下的退还单菜单）。
+    var canViewAssetReturnOrders = HasPermission("ASSET", "ASSET_RETURN_ORDERS");
+    // 资产维护权限（用于显示资产管理下的资产维护菜单）。
+    var canViewAssetMaintenance = HasPermission("ASSET", "ASSET_MAINTENANCE_RECORDS");
+    // 资产盘点权限（用于显示资产管理下的资产盘点菜单）。
+    var canViewAssetStocktakes = HasPermission("ASSET", "ASSET_STOCKTAKES");
+    // 资产折旧权限（用于显示资产管理下的资产折旧菜单）。
+    var canViewAssetDepreciations = HasPermission("ASSET", "ASSET_DEPRECIATIONS");
+    // 资产报损权限（用于显示资产管理下的资产报损菜单）。
+    var canViewAssetLossReports = HasPermission("ASSET", "ASSET_LOSS_REPORTS");
+    // 资产管理父级菜单权限（用于承载资产相关子功能）。
+    var canViewAsset = canViewAssetAssets
+        || canViewAssetPreBorrowOrders
+        || canViewAssetBorrowOrders
+        || canViewAssetReturnOrders
+        || canViewAssetMaintenance
+        || canViewAssetStocktakes
+        || canViewAssetDepreciations
+        || canViewAssetLossReports;
+    // 资产管理菜单展开状态（进入资产区域时自动展开子功能）。
+    var isAssetMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Asset", StringComparison.OrdinalIgnoreCase);
+    // 会议管理权限（用于显示办公管理下的会议管理菜单）。
+    var canViewOfficeMeetings = HasPermission("OFFICE", "OFFICE_MEETINGS");
+    // 任务管理权限（用于显示办公管理下的任务管理菜单）。
+    var canViewOfficeTasks = HasPermission("OFFICE", "OFFICE_TASKS");
+    // 办公用品权限（用于显示办公管理下的办公用品菜单）。
+    var canViewOfficeSupplies = HasPermission("OFFICE", "OFFICE_SUPPLIES");
+    // 申请单权限（用于显示办公管理下的申请单菜单）。
+    var canViewOfficeApplyOrders = HasPermission("OFFICE", "OFFICE_APPLY_ORDERS");
+    // 领用单权限（用于显示办公管理下的领用单菜单）。
+    var canViewOfficeIssueOrders = HasPermission("OFFICE", "OFFICE_ISSUE_ORDERS");
+    // 退回单权限（用于显示办公管理下的退回单菜单）。
+    var canViewOfficeReturnOrders = HasPermission("OFFICE", "OFFICE_RETURN_ORDERS");
+    // 报损单权限（用于显示办公管理下的报损单菜单）。
+    var canViewOfficeLossOrders = HasPermission("OFFICE", "OFFICE_LOSS_ORDERS");
+    // 办公管理父级菜单权限（用于承载办公相关子功能）。
+    var canViewOffice = canViewOfficeMeetings
+        || canViewOfficeTasks
+        || canViewOfficeSupplies
+        || canViewOfficeApplyOrders
+        || canViewOfficeIssueOrders
+        || canViewOfficeReturnOrders
+        || canViewOfficeLossOrders;
+    // 办公管理菜单展开状态（进入办公区域时自动展开子功能）。
+    var isOfficeMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "Office", StringComparison.OrdinalIgnoreCase);
+    // 人事报表权限（用于显示报表中心下的人事报表菜单）。
+    var canViewReportHr = HasPermission("REPORT_CENTER", "REPORT_HR");
+    // 财务报表权限（用于显示报表中心下的财务报表菜单）。
+    var canViewReportFinance = HasPermission("REPORT_CENTER", "REPORT_FINANCE");
+    // 采购报表权限（用于显示报表中心下的采购报表菜单）。
+    var canViewReportPurchasing = HasPermission("REPORT_CENTER", "REPORT_PURCHASING");
+    // 销售报表权限（用于显示报表中心下的销售报表菜单）。
+    var canViewReportSales = HasPermission("REPORT_CENTER", "REPORT_SALES");
+    // 仓务报表权限（用于显示报表中心下的仓务报表菜单）。
+    var canViewReportWarehouse = HasPermission("REPORT_CENTER", "REPORT_WAREHOUSE");
+    // 生产报表权限（用于显示报表中心下的生产报表菜单）。
+    var canViewReportProduction = HasPermission("REPORT_CENTER", "REPORT_PRODUCTION");
+    // 服务报表权限（用于显示报表中心下的服务报表菜单）。
+    var canViewReportService = HasPermission("REPORT_CENTER", "REPORT_SERVICE");
+    // 考勤报表权限（用于显示报表中心下的考勤报表菜单）。
+    var canViewReportAttendance = HasPermission("REPORT_CENTER", "REPORT_ATTENDANCE");
+    // 资产报表权限（用于显示报表中心下的资产报表菜单）。
+    var canViewReportAsset = HasPermission("REPORT_CENTER", "REPORT_ASSET");
+    // 办公报表权限（用于显示报表中心下的办公报表菜单）。
+    var canViewReportOffice = HasPermission("REPORT_CENTER", "REPORT_OFFICE");
+    // 运输报表权限（用于显示报表中心下的运输报表菜单）。
+    var canViewReportTransport = HasPermission("REPORT_CENTER", "REPORT_TRANSPORT");
+    // CRM（客户关系管理）报表权限（用于显示报表中心下的CRM报表菜单）。
+    var canViewReportCrm = HasPermission("REPORT_CENTER", "REPORT_CRM");
+    // 报表中心父级菜单权限（用于承载各模块报表子功能）。
+    var canViewReportCenter = canViewReportHr
+        || canViewReportFinance
+        || canViewReportPurchasing
+        || canViewReportSales
+        || canViewReportWarehouse
+        || canViewReportProduction
+        || canViewReportService
+        || canViewReportAttendance
+        || canViewReportAsset
+        || canViewReportOffice
+        || canViewReportTransport
+        || canViewReportCrm;
+    // 报表中心菜单展开状态（进入报表中心区域时自动展开子功能）。
+    var isReportCenterMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "ReportCenter", StringComparison.OrdinalIgnoreCase);
+    // 基础资料权限（用于显示基本资料下的基础资料菜单，复用基础数据维护模块）。
+    var canViewBasicData = HasPermission("BASIC_DATA", "BASIC_DATA_TYPES", "BASIC_DATA_ITEMS");
+    // 客户/友商资料权限（用于显示基本资料下的客户与友商资料菜单）。
+    var canViewBasicInformationCustomers = HasPermission("BASIC_INFORMATION", "BASIC_INFO_CUSTOMERS");
+    // 供应商/厂商资料权限（用于显示基本资料下的供应商与厂商资料菜单）。
+    var canViewBasicInformationSuppliers = HasPermission("BASIC_INFORMATION", "BASIC_INFO_SUPPLIERS");
+    // 仓库/车间资料权限（用于显示基本资料下的仓库与车间资料菜单）。
+    var canViewBasicInformationWarehouses = HasPermission("BASIC_INFORMATION", "BASIC_INFO_WAREHOUSES");
+    // 工程项目资料权限（用于显示基本资料下的工程项目资料菜单）。
+    var canViewBasicInformationProjects = HasPermission("BASIC_INFORMATION", "BASIC_INFO_PROJECTS");
+    // 基本资料父级菜单权限（用于承载客户、供应商、仓库车间和工程项目资料子功能）。
+    var canViewBasicInformation = canViewBasicInformationCustomers
+        || canViewBasicInformationSuppliers
+        || canViewBasicInformationWarehouses
+        || canViewBasicInformationProjects
+        || canViewBasicData;
+    // 基本资料菜单展开状态（进入基本资料或基础资料区域时自动展开子功能）。
+    var isBasicInformationMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "BasicInformation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(Context.Request.RouteValues["area"]?.ToString(), "BasicData", StringComparison.OrdinalIgnoreCase);
+    // 我的审批权限（用于显示任务中心下的我的审批菜单）。
+    var canViewTaskMyApprovals = HasPermission("TASK_CENTER", "TASK_MY_APPROVALS");
+    // 日常任务权限（用于显示任务中心下的日常任务菜单）。
+    var canViewTaskDailyTasks = HasPermission("TASK_CENTER", "TASK_DAILY_TASKS");
+    // 跟单管理权限（用于显示任务中心下的跟单管理菜单）。
+    var canViewTaskFollowUps = HasPermission("TASK_CENTER", "TASK_FOLLOW_UPS");
+    // 内容消息权限（用于显示任务中心下的内容消息菜单）。
+    var canViewTaskContentMessages = HasPermission("TASK_CENTER", "TASK_CONTENT_MESSAGES");
+    // 收发邮件权限（用于显示任务中心下的收发邮件菜单）。
+    var canViewTaskEmails = HasPermission("TASK_CENTER", "TASK_EMAILS");
+    // 系统公告权限（用于显示任务中心下的系统公告菜单）。
+    var canViewTaskAnnouncements = HasPermission("TASK_CENTER", "TASK_ANNOUNCEMENTS");
+    // 任务中心父级菜单权限（用于承载审批、任务、跟单、消息、邮件和公告子功能）。
+    var canViewTaskCenter = canViewTaskMyApprovals
+        || canViewTaskDailyTasks
+        || canViewTaskFollowUps
+        || canViewTaskContentMessages
+        || canViewTaskEmails
+        || canViewTaskAnnouncements;
+    // 任务中心菜单展开状态（进入任务中心区域时自动展开子功能）。
+    var isTaskCenterMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "TaskCenter", StringComparison.OrdinalIgnoreCase);
+    // RFID Reader（射频识别读写器）权限（用于显示系统设备下的RFID Reader菜单）。
+    var canViewSystemDeviceRfidReaders = HasPermission("SYSTEM_DEVICES", "SYSTEM_DEVICE_RFID_READERS");
+    // 镜头设备权限（用于显示系统设备下的镜头设备菜单）。
+    var canViewSystemDeviceCameras = HasPermission("SYSTEM_DEVICES", "SYSTEM_DEVICE_CAMERAS");
+    // GPIO（通用输入输出接口）设备权限（用于显示系统设备下的GPIO设备菜单）。
+    var canViewSystemDeviceGpioDevices = HasPermission("SYSTEM_DEVICES", "SYSTEM_DEVICE_GPIO_DEVICES");
+    // 系统设备父级菜单权限（用于承载RFID Reader、镜头设备和GPIO设备子功能）。
+    var canViewSystemDevices = canViewSystemDeviceRfidReaders
+        || canViewSystemDeviceCameras
+        || canViewSystemDeviceGpioDevices;
+    // 系统设备菜单展开状态（进入系统设备区域时自动展开子功能）。
+    var isSystemDeviceMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "SystemDevice", StringComparison.OrdinalIgnoreCase);
+    // 在线帮助权限（用于显示技术支持下的在线帮助菜单）。
+    var canViewTechnicalSupportOnlineHelp = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_ONLINE_HELP");
+    // 下载中心权限（用于显示技术支持下的下载中心菜单）。
+    var canViewTechnicalSupportDownloadCenter = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_DOWNLOAD_CENTER");
+    // 在线支持权限（用于显示技术支持下的在线支持菜单）。
+    var canViewTechnicalSupportOnlineSupport = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_ONLINE_SUPPORT");
+    // 联络我们权限（用于显示技术支持下的联络我们菜单）。
+    var canViewTechnicalSupportContactUs = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_CONTACT_US");
+    // 系统版本权限（用于显示技术支持下的系统版本菜单）。
+    var canViewTechnicalSupportSystemVersion = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_SYSTEM_VERSION");
+    // 在线更新权限（用于显示技术支持下的在线更新菜单）。
+    var canViewTechnicalSupportOnlineUpdates = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_ONLINE_UPDATES");
+    // 更新日志权限（用于显示技术支持下的更新日志菜单）。
+    var canViewTechnicalSupportUpdateLogs = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_UPDATE_LOGS");
+    // API（应用程序接口）管理权限（用于显示技术支持下的API管理菜单）。
+    var canViewTechnicalSupportApiManagement = HasPermission("TECHNICAL_SUPPORT", "TECH_SUPPORT_API_MANAGEMENT");
+    // 技术支持父级菜单权限（用于承载帮助、下载、在线支持、版本、更新和API管理子功能）。
+    var canViewTechnicalSupport = canViewTechnicalSupportOnlineHelp
+        || canViewTechnicalSupportDownloadCenter
+        || canViewTechnicalSupportOnlineSupport
+        || canViewTechnicalSupportContactUs
+        || canViewTechnicalSupportSystemVersion
+        || canViewTechnicalSupportOnlineUpdates
+        || canViewTechnicalSupportUpdateLogs
+        || canViewTechnicalSupportApiManagement;
+    // 技术支持菜单展开状态（进入技术支持区域时自动展开子功能）。
+    var isTechnicalSupportMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "TechnicalSupport", StringComparison.OrdinalIgnoreCase);
+    // 用户资料权限（用于显示系统管理下的用户资料菜单）。
+    var canViewSystemManagementUsers = HasPermission("SYSTEM_SETTINGS", "SYSTEM_USERS");
+    // 角色管理权限（用于显示系统管理下的角色管理菜单）。
+    var canViewSystemManagementRoles = HasPermission("SYSTEM_SETTINGS", "SYSTEM_ROLES");
+    // 系统设置权限（用于显示系统管理下的系统设置菜单）。
+    var canViewSystemManagementSettings = HasPermission("SYSTEM_SETTINGS", "SYSTEM_CONFIGURATIONS");
+    // 在线用户权限（用于显示系统管理下的在线用户菜单）。
+    var canViewSystemManagementOnlineUsers = HasPermission("SYSTEM_SETTINGS", "SYSTEM_ONLINE_USERS");
+    // 登入日志权限（用于显示系统管理下查看日志中的登入日志菜单）。
+    var canViewSystemLoginLogs = HasPermission("SYSTEM_SETTINGS", "SYSTEM_LOGS", "SYSTEM_LOGIN_LOGS");
+    // 操作日志权限（用于显示系统管理下查看日志中的操作日志菜单）。
+    var canViewSystemOperationLogs = HasPermission("SYSTEM_SETTINGS", "SYSTEM_LOGS", "SYSTEM_OPERATION_LOGS");
+    // 系统日志权限（用于显示系统管理下查看日志中的系统日志菜单）。
+    var canViewSystemSystemLogs = HasPermission("SYSTEM_SETTINGS", "SYSTEM_LOGS", "SYSTEM_SYSTEM_LOGS");
+    // 查看日志权限（用于承载登入日志、操作日志和系统日志子功能）。
+    var canViewSystemManagementLogs = canViewSystemLoginLogs
+        || canViewSystemOperationLogs
+        || canViewSystemSystemLogs;
+    // 系统管理父级菜单权限（用于承载用户、角色、设置、在线用户和日志子功能）。
+    var canViewSystemManagement = canViewSystemManagementUsers
+        || canViewSystemManagementRoles
+        || canViewSystemManagementSettings
+        || canViewSystemManagementOnlineUsers
+        || canViewSystemManagementLogs;
+    // 系统管理菜单展开状态（进入系统管理区域时自动展开子功能）。
+    var isSystemManagementMenuOpen = string.Equals(Context.Request.RouteValues["area"]?.ToString(), "SystemManagement", StringComparison.OrdinalIgnoreCase);
+    var currentSystemManagementAction = Context.Request.RouteValues["action"]?.ToString();
+    // 查看日志菜单展开状态（进入任一日志页面时自动展开日志子功能）。
+    var isSystemManagementLogsMenuOpen = isSystemManagementMenuOpen
+        && new[] { "Logs", "LoginLogs", "OperationLogs", "SystemLogs" }
+            .Contains(currentSystemManagementAction, StringComparer.OrdinalIgnoreCase);
+    var companyOrganizations = await HrRepository.GetCompanyOrganizationsAsync();
+    var companyOptions = companyOrganizations
+        .Where(organization => !string.IsNullOrWhiteSpace(organization.OrganizationCode))
+        .Where(organization => !shouldRestrictCompanyOptions || allowedCompanyCodes.Contains(organization.OrganizationCode))
+        .OrderBy(organization => organization.OrganizationCode)
+        .Select(organization => new
+        {
+            Value = organization.OrganizationCode,
+            Code = organization.OrganizationCode,
+            Text = organization.OrganizationName
+        })
+        .ToArray();
+    if (companyOptions.Length == 0)
+    {
+        companyOptions =
+        [
+            new
+            {
+                Value = currentCompanyValue,
+                Code = currentCompanyValue,
+                Text = currentCompanyValue
+            }
+        ];
+    }
+    var currentCompany = companyOptions.FirstOrDefault(option => string.Equals(option.Value, currentCompanyValue, StringComparison.OrdinalIgnoreCase))
+        ?? companyOptions.FirstOrDefault()
+        ?? new { Value = currentCompanyValue, Code = currentCompanyValue, Text = currentCompanyValue };
+    var currentCompanyPrintSettings = await CompanyPrintTemplateService.GetSettingsByOrganizationCodeAsync(currentCompany.Value);
+}
+
+<!DOCTYPE html>
+<html lang="@currentCulture">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google" content="notranslate" />
+    <title>@ViewData["Title"] - @Localizer["AppName"]</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OpenERP.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @await Html.PartialAsync("_CompanyPrintChrome", currentCompanyPrintSettings)
+    <div class="layout-shell">
+        <div class="bg-dark border-right text-white layout-shell__sidebar" id="sidebar-wrapper">
+            <div class="sidebar-heading p-4">
+                <h3 class="m-0 text-white">@Localizer["AppName"]</h3>
+            </div>
+            <div class="list-group list-group-flush layout-shell__sidebar-nav">
+                @if (canViewDashboard)
+                {
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0">
+                        <i class="bi bi-speedometer2 me-2"></i> @Localizer["Common_Dashboard"]
+                    </a>
+                }
+                @if (canViewPurchasing)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#purchasingMenu" role="button" aria-expanded="@(isPurchasingMenuOpen ? "true" : "false")" aria-controls="purchasingMenu">
+                        <span><i class="bi bi-bag-check me-2"></i> @Localizer["Layout_Purchasing"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isPurchasingMenuOpen ? "show" : string.Empty)" id="purchasingMenu">
+                        @if (canViewPurchasingSuppliers)
+                        {
+                            <a asp-area="Purchasing" asp-controller="Suppliers" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-building-check me-2"></i> 供应商/厂商资料
+                            </a>
+                        }
+                        @if (canViewPurchasingContracts)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Contracts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-file-earmark-text me-2"></i> 合约管理
+                            </a>
+                        }
+                        @if (canViewPurchasingInquiries)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Inquiries" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-search me-2"></i> 采购询价
+                            </a>
+                        }
+                        @if (canViewPurchasingPurchaseOrders)
+                        {
+                            <a asp-area="Purchasing" asp-controller="PurchaseOrders" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-receipt-cutoff me-2"></i> 采购订单
+                            </a>
+                        }
+                        @if (canViewPurchasingInvoices)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Invoices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-journal-text me-2"></i> 采购发票
+                            </a>
+                        }
+                        @if (canViewPurchasingPayments)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Payments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cash-coin me-2"></i> 采购付款
+                            </a>
+                        }
+                        @if (canViewPurchasingPrepayments)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Prepayments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-wallet2 me-2"></i> 预付款
+                            </a>
+                        }
+                        @if (canViewPurchasingReturns)
+                        {
+                            <a asp-area="Purchasing" asp-controller="SupplyChain" asp-action="Returns" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-left-right me-2"></i> 采购退换
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewSales)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#salesMenu" role="button" aria-expanded="@(isSalesMenuOpen ? "true" : "false")" aria-controls="salesMenu">
+                        <span><i class="bi bi-cart3 me-2"></i> @Localizer["Layout_Sales"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isSalesMenuOpen ? "show" : string.Empty)" id="salesMenu">
+                        @if (canViewSalesQuotations)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesQuotations" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-chat-square-quote me-2"></i> 销售报价
+                            </a>
+                        }
+                        @if (canViewSalesOrders)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesOrders" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-receipt-cutoff me-2"></i> 销售订单
+                            </a>
+                        }
+                        @if (canViewSalesDeliveries)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="Deliveries" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-truck me-2"></i> 销售送货
+                            </a>
+                        }
+                        @if (canViewSalesInvoices)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="Invoices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-journal-text me-2"></i> 销售发票
+                            </a>
+                        }
+                        @if (canViewSalesReceipts)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="Receipts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cash-coin me-2"></i> 销售收款
+                            </a>
+                        }
+                        @if (canViewSalesAdvanceReceipts)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="AdvanceReceipts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-wallet2 me-2"></i> 预收款
+                            </a>
+                        }
+                        @if (canViewSalesReturns)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="Returns" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-left-right me-2"></i> 销售退换
+                            </a>
+                        }
+                        @if (canViewSalesRecurringInvoices)
+                        {
+                            <a asp-area="Sales" asp-controller="SalesManagement" asp-action="RecurringInvoices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar2-week me-2"></i> 定期发票
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewLogistics)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#logisticsMenu" role="button" aria-expanded="@(isLogisticsMenuOpen ? "true" : "false")" aria-controls="logisticsMenu">
+                        <span><i class="bi bi-box-seam me-2"></i> @Localizer["Layout_Logistics"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isLogisticsMenuOpen ? "show" : string.Empty)" id="logisticsMenu">
+                        @if (canViewWorkshopWarehouses)
+                        {
+                            <a asp-area="Logistics" asp-controller="WorkshopWarehouses" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-boxes me-2"></i> 车间仓库
+                            </a>
+                        }
+                        @if (canViewLogisticsMaterialManagement)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#logisticsMaterialManagementMenu" role="button" aria-expanded="@(isLogisticsMaterialManagementMenuOpen ? "true" : "false")" aria-controls="logisticsMaterialManagementMenu">
+                                <span><i class="bi bi-grid-3x3-gap me-2"></i> 物料管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isLogisticsMaterialManagementMenuOpen ? "show" : string.Empty)" id="logisticsMaterialManagementMenu">
+                                @if (canViewLogisticsProducts)
+                                {
+                                    <a asp-area="Logistics" asp-controller="MaterialManagement" asp-action="Products" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-box me-2"></i> 产品
+                                    </a>
+                                }
+                                @if (canViewLogisticsMaterials)
+                                {
+                                    <a asp-area="Logistics" asp-controller="MaterialManagement" asp-action="Materials" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-layers me-2"></i> 材料
+                                    </a>
+                                }
+                                @if (canViewLogisticsAuxiliaryMaterials)
+                                {
+                                    <a asp-area="Logistics" asp-controller="MaterialManagement" asp-action="AuxiliaryMaterials" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-box2-heart me-2"></i> 辅料
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewLogisticsInventoryQuery)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#logisticsInventoryQueryMenu" role="button" aria-expanded="@(isLogisticsInventoryQueryMenuOpen ? "true" : "false")" aria-controls="logisticsInventoryQueryMenu">
+                                <span><i class="bi bi-search me-2"></i> 库存查询</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isLogisticsInventoryQueryMenuOpen ? "show" : string.Empty)" id="logisticsInventoryQueryMenu">
+                                @if (canViewLogisticsProductInventory)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="ProductInventory" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-box me-2"></i> 产品库存
+                                    </a>
+                                }
+                                @if (canViewLogisticsMaterialInventory)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="MaterialInventory" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-layers me-2"></i> 材料库存
+                                    </a>
+                                }
+                                @if (canViewLogisticsAuxiliaryMaterialInventory)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="AuxiliaryMaterialInventory" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-box2-heart me-2"></i> 辅料库存
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewLogisticsInboundManagement)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#logisticsInboundManagementMenu" role="button" aria-expanded="@(isLogisticsInboundManagementMenuOpen ? "true" : "false")" aria-controls="logisticsInboundManagementMenu">
+                                <span><i class="bi bi-box-arrow-in-down me-2"></i> 入库管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isLogisticsInboundManagementMenuOpen ? "show" : string.Empty)" id="logisticsInboundManagementMenu">
+                                @if (canViewLogisticsReceivingNotices)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="ReceivingNotices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-bell me-2"></i> 收货通知
+                                    </a>
+                                }
+                                @if (canViewLogisticsInboundVerifications)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="InboundVerifications" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-check2-square me-2"></i> 入库核实
+                                    </a>
+                                }
+                                @if (canViewLogisticsInboundIqc)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="InboundIqc" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-shield-check me-2"></i> 入库IQC
+                                    </a>
+                                }
+                                @if (canViewLogisticsInboundOrders)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="InboundOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-file-earmark-arrow-down me-2"></i> 入库单
+                                    </a>
+                                }
+                                @if (canViewLogisticsInboundRecords)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="InboundRecords" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-clock-history me-2"></i> 入库记录
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewLogisticsOutboundManagement)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#logisticsOutboundManagementMenu" role="button" aria-expanded="@(isLogisticsOutboundManagementMenuOpen ? "true" : "false")" aria-controls="logisticsOutboundManagementMenu">
+                                <span><i class="bi bi-box-arrow-up me-2"></i> 出库管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isLogisticsOutboundManagementMenuOpen ? "show" : string.Empty)" id="logisticsOutboundManagementMenu">
+                                @if (canViewLogisticsShippingNotices)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="ShippingNotices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-send me-2"></i> 出货通知
+                                    </a>
+                                }
+                                @if (canViewLogisticsOutboundVerifications)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="OutboundVerifications" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-check2-square me-2"></i> 出库核实
+                                    </a>
+                                }
+                                @if (canViewLogisticsOutboundOrders)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="OutboundOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-file-earmark-arrow-up me-2"></i> 出库单
+                                    </a>
+                                }
+                                @if (canViewLogisticsOutboundRecords)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="OutboundRecords" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-clock-history me-2"></i> 出库记录
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewLogisticsMaterialRequisitions)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Requisitions" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-check me-2"></i> 领料单
+                            </a>
+                        }
+                        @if (canViewLogisticsReturnOrders)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Returns" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i> 退货单
+                            </a>
+                        }
+                        @if (canViewLogisticsTransferOrders)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Transfers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-left-right me-2"></i> 调拨单
+                            </a>
+                        }
+                        @if (canViewLogisticsReplenishmentOrders)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Replenishments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-plus-square me-2"></i> 补货单
+                            </a>
+                        }
+                        @if (canViewLogisticsRelocationOrders)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Relocations" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrows-move me-2"></i> 转位单
+                            </a>
+                        }
+                        @if (canViewLogisticsAdjustmentOrders)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Adjustments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-sliders me-2"></i> 调整单
+                            </a>
+                        }
+                        @if (canViewLogisticsStocktakes)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#logisticsStocktakeManagementMenu" role="button" aria-expanded="@(isLogisticsStocktakeManagementMenuOpen ? "true" : "false")" aria-controls="logisticsStocktakeManagementMenu">
+                                <span><i class="bi bi-clipboard-data me-2"></i> 盘点管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isLogisticsStocktakeManagementMenuOpen ? "show" : string.Empty)" id="logisticsStocktakeManagementMenu">
+                                @if (canViewLogisticsStocktakeOrders)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="StocktakeOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-clipboard-check me-2"></i> 盘点单
+                                    </a>
+                                }
+                                @if (canViewLogisticsCycleCountPlans)
+                                {
+                                    <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="CycleCountPlans" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-calendar-check me-2"></i> 周期盘点计划
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewLogisticsBatches)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="Batches" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-tags me-2"></i> 批次管理
+                            </a>
+                        }
+                        @if (canViewLogisticsRfidRecords)
+                        {
+                            <a asp-area="Logistics" asp-controller="WarehouseOperations" asp-action="RfidRecords" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-broadcast-pin me-2"></i> RFID记录
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewProduction)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#productionMenu" role="button" aria-expanded="@(isProductionMenuOpen ? "true" : "false")" aria-controls="productionMenu">
+                        <span><i class="bi bi-gear-wide-connected me-2"></i> @Localizer["Layout_Production"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isProductionMenuOpen ? "show" : string.Empty)" id="productionMenu">
+                        @if (canViewProductionEquipment)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="Equipment" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cpu me-2"></i> 生产设备
+                            </a>
+                        }
+                        @if (canViewProductionProcesses)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="Processes" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-diagram-3 me-2"></i> 工序管理
+                            </a>
+                        }
+                        @if (canViewProductionSampleWorkOrders)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="SampleWorkOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-file-earmark-richtext me-2"></i> 样板工单
+                            </a>
+                        }
+                        @if (canViewProductionWorkOrders)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionOrders" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-check me-2"></i> 生产工单
+                            </a>
+                        }
+                        @if (canViewProductionSchedulingPlans)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="SchedulingPlans" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar2-week me-2"></i> 排产计划
+                            </a>
+                        }
+                        @if (canViewProductionWorkpieceEntries)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="WorkpieceEntries" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-input-cursor-text me-2"></i> 工件录入
+                            </a>
+                        }
+                        @if (canViewProductionProgress)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="Progress" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-activity me-2"></i> 生产进度
+                            </a>
+                        }
+                        @if (canViewProductionFinishedProductDisassembly)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="FinishedProductDisassembly" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-down-left me-2"></i> 成品拆解
+                            </a>
+                        }
+                        @if (canViewProductionFinishedProductAssembly)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="FinishedProductAssembly" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-up-right me-2"></i> 成品组装
+                            </a>
+                        }
+                        @if (canViewProductionOutsourcedProcessing)
+                        {
+                            <a asp-area="Production" asp-controller="ProductionManagement" asp-action="OutsourcedProcessing" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-truck-flatbed me-2"></i> 外发加工
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewFinance)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#financeMenu" role="button" aria-expanded="@(isFinanceMenuOpen ? "true" : "false")" aria-controls="financeMenu">
+                        <span><i class="bi bi-cash-coin me-2"></i> @Localizer["Layout_Finance"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isFinanceMenuOpen ? "show" : string.Empty)" id="financeMenu">
+                        @if (canViewFinanceAccounts)
+                        {
+                            <a asp-area="Finance" asp-controller="Accounts" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-journal-bookmark me-2"></i> 科目资料
+                            </a>
+                        }
+                        @if (canViewFinanceReceipts)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#financeReceiptsMenu" role="button" aria-expanded="@(isFinanceReceiptsMenuOpen ? "true" : "false")" aria-controls="financeReceiptsMenu">
+                                <span><i class="bi bi-cash-stack me-2"></i> 收款管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isFinanceReceiptsMenuOpen ? "show" : string.Empty)" id="financeReceiptsMenu">
+                                @if (canViewFinanceAccountsReceivable)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AccountsReceivable" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-journal-check me-2"></i> 应收账
+                                    </a>
+                                }
+                                @if (canViewFinanceDebitNotes)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="DebitNotes" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-file-earmark-plus me-2"></i> 借记单
+                                    </a>
+                                }
+                                @if (canViewFinanceAdvanceReceipts)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AdvanceReceipts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-wallet2 me-2"></i> 预收款
+                                    </a>
+                                }
+                                @if (canViewFinanceReceiptOrders)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="ReceiptOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-receipt-cutoff me-2"></i> 收款单
+                                    </a>
+                                }
+                                @if (canViewFinanceOtherReceipts)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="OtherReceipts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-cash-coin me-2"></i> 其他收款
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewFinancePayments)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#financePaymentsMenu" role="button" aria-expanded="@(isFinancePaymentsMenuOpen ? "true" : "false")" aria-controls="financePaymentsMenu">
+                                <span><i class="bi bi-credit-card me-2"></i> 付款管理</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isFinancePaymentsMenuOpen ? "show" : string.Empty)" id="financePaymentsMenu">
+                                @if (canViewFinanceAccountsPayable)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AccountsPayable" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-journal-minus me-2"></i> 应付账
+                                    </a>
+                                }
+                                @if (canViewFinanceCreditNotes)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="CreditNotes" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-file-earmark-minus me-2"></i> 贷记单
+                                    </a>
+                                }
+                                @if (canViewFinanceAdvancePayments)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AdvancePayments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-wallet2 me-2"></i> 预付款
+                                    </a>
+                                }
+                                @if (canViewFinancePaymentOrders)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="PaymentOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-receipt-cutoff me-2"></i> 付款单
+                                    </a>
+                                }
+                                @if (canViewFinanceOtherPayments)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="OtherPayments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-cash-coin me-2"></i> 其他付款
+                                    </a>
+                                }
+                            </div>
+                        }
+                        @if (canViewFinanceExpenseReimbursements)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="ExpenseReimbursements" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-receipt me-2"></i> 费用报销
+                            </a>
+                        }
+                        @if (canViewFinancePayrollRecords)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="PayrollRecords" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-vcard me-2"></i> 工资记录
+                            </a>
+                        }
+                        @if (canViewFinanceAccountingVouchers)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AccountingVouchers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-file-earmark-text me-2"></i> 记账凭证
+                            </a>
+                        }
+                        @if (canViewFinanceBatchPosting)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="BatchPosting" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-files me-2"></i> 批量记账
+                            </a>
+                        }
+                        @if (canViewFinanceVoucherReviews)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="VoucherReviews" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-check2-square me-2"></i> 凭证审核
+                            </a>
+                        }
+                        @if (canViewFinanceCheckCashings)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="CheckCashings" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-wallet2 me-2"></i> 支票兑现
+                            </a>
+                        }
+                        @if (canViewFinanceBankReconciliations)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="BankReconciliations" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-bank me-2"></i> 银行对账
+                            </a>
+                        }
+                        @if (canViewFinanceCostAdjustments)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="CostAdjustments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-sliders me-2"></i> 成本调整
+                            </a>
+                        }
+                        @if (canViewFinanceAccruedReceipts)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AccruedReceipts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-in-down me-2"></i> 暂估入库
+                            </a>
+                        }
+                        @if (canViewFinanceCostTransfers)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="CostTransfers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-left-right me-2"></i> 成本转移
+                            </a>
+                        }
+                        @if (canViewFinanceInventoryMonthlyClosing)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="InventoryMonthlyClosing" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-boxes me-2"></i> 库存月结
+                            </a>
+                        }
+                        @if (canViewFinanceMonthlyPosting)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="MonthlyPosting" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-check me-2"></i> 月结过账
+                            </a>
+                        }
+                        @if (canViewFinanceYearlyPosting)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="YearlyPosting" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar2-check me-2"></i> 年结过账
+                            </a>
+                        }
+                        @if (canViewFinanceYearOpeningBalances)
+                        {
+                            <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="YearOpeningBalances" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-plus me-2"></i> 年初始账
+                            </a>
+                        }
+                        @if (canViewFinanceStatistics)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#financeStatisticsMenu" role="button" aria-expanded="@(isFinanceStatisticsMenuOpen ? "true" : "false")" aria-controls="financeStatisticsMenu">
+                                <span><i class="bi bi-graph-up me-2"></i> 财务统计</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isFinanceStatisticsMenuOpen ? "show" : string.Empty)" id="financeStatisticsMenu">
+                                @if (canViewFinanceAccountBalanceReports)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="AccountBalanceReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-table me-2"></i> 科目余额表
+                                    </a>
+                                }
+                                @if (canViewFinanceDetailLedgers)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="DetailLedgers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-list-columns-reverse me-2"></i> 明细账
+                                    </a>
+                                }
+                                @if (canViewFinanceIncomeStatements)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="IncomeStatements" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-bar-chart-line me-2"></i> 利润表
+                                    </a>
+                                }
+                                @if (canViewFinanceCashFlowStatements)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="CashFlowStatements" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-water me-2"></i> 现金流量表
+                                    </a>
+                                }
+                                @if (canViewFinanceBalanceSheets)
+                                {
+                                    <a asp-area="Finance" asp-controller="FinanceManagement" asp-action="BalanceSheets" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-columns-gap me-2"></i> 资产负债表
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                @if (canViewOrganizationMenu)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#orgMenu" role="button" aria-expanded="@(isOrganizationMenuOpen ? "true" : "false")" aria-controls="orgMenu">
+                        <span><i class="bi bi-people me-2"></i> @Localizer["Layout_OrganizationManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isOrganizationMenuOpen ? "show" : string.Empty)" id="orgMenu">
+                        @if (canViewEmployees)
+                        {
+                            <a asp-area="HR" asp-controller="Employees" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-badge me-2"></i> @Localizer["Layout_EmployeeManagement"]
+                            </a>
+                        }
+                        @if (canViewCompanyOrganizations)
+                        {
+                            <a asp-area="HR" asp-controller="CompanyOrganizations" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-building me-2"></i> @Localizer["Layout_CompanyOrganization"]
+                            </a>
+                        }
+                        @if (canViewDepartments)
+                        {
+                            <a asp-area="HR" asp-controller="Departments" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-diagram-3 me-2"></i> @Localizer["Layout_DepartmentManagement"]
+                            </a>
+                        }
+                        @if (canViewEmployeeTraining)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="EmployeeTraining" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-mortarboard me-2"></i> 员工培训
+                            </a>
+                        }
+                        @if (canViewPersonnelChanges)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="PersonnelChanges" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-arrow-left-right me-2"></i> 人事变更
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewAttendanceManagement)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#attendanceManagementMenu" role="button" aria-expanded="@(isAttendanceManagementMenuOpen ? "true" : "false")" aria-controls="attendanceManagementMenu">
+                        <span><i class="bi bi-calendar-check me-2"></i> 考勤管理</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isAttendanceManagementMenuOpen ? "show" : string.Empty)" id="attendanceManagementMenu">
+                        @if (canViewHolidayManagement)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="Holidays" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-event me-2"></i> 节日管理
+                            </a>
+                        }
+                        @if (canViewAttendanceShiftSettings)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="ShiftSettings" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clock-history me-2"></i> 班次设置
+                            </a>
+                        }
+                        @if (canViewAttendanceScheduling)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="AttendanceScheduling" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-week me-2"></i> 考勤排班
+                            </a>
+                        }
+                        @if (canViewAttendanceRecords)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="AttendanceRecords" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-check me-2"></i> 出勤记录
+                            </a>
+                        }
+                        @if (canViewLeaveRegistrations)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="LeaveRegistrations" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-pencil-square me-2"></i> 请假登记
+                            </a>
+                        }
+                        @if (canViewLeaveApprovals)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="LeaveApprovals" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-check2-square me-2"></i> 请假审批
+                            </a>
+                        }
+                        @if (canViewFieldWorkRegistrations)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="FieldWorkRegistrations" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-geo-alt me-2"></i> 外勤登记
+                            </a>
+                        }
+                        @if (canViewAttendanceDevices)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="AttendanceDevices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-hdd-network me-2"></i> 考勤机管理
+                            </a>
+                        }
+                        @if (canViewAttendanceAdjustments)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="AttendanceAdjustments" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-plus-slash-minus me-2"></i> 应补应扣
+                            </a>
+                        }
+                        @if (canViewAttendanceStatistics)
+                        {
+                            <a asp-area="HR" asp-controller="OrganizationManagement" asp-action="AttendanceStatistics" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-bar-chart-line me-2"></i> 考勤统计
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewCrm)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#crmMenu" role="button" aria-expanded="@(isCrmMenuOpen ? "true" : "false")" aria-controls="crmMenu">
+                        <span><i class="bi bi-person-lines-fill me-2"></i> @Localizer["Layout_CrmManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isCrmMenuOpen ? "show" : string.Empty)" id="crmMenu">
+                        @if (canViewCrmCustomers)
+                        {
+                            <a asp-area="CRM" asp-controller="Customers" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-building-check me-2"></i> 客户资料
+                            </a>
+                        }
+                        @if (canViewCrmBusinessPartners)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="BusinessPartners" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-buildings me-2"></i> 友商资料
+                            </a>
+                        }
+                        @if (canViewCrmContracts)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="Contracts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-file-earmark-text me-2"></i> 合约管理
+                            </a>
+                        }
+                        @if (canViewCrmCommissionRules)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="CommissionRules" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-percent me-2"></i> 佣金规则
+                            </a>
+                        }
+                        @if (canViewCrmCustomerVisits)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="CustomerVisits" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar2-check me-2"></i> 客户拜访
+                            </a>
+                        }
+                        @if (canViewCrmCustomerTraining)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="CustomerTraining" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-mortarboard me-2"></i> 客户培训
+                            </a>
+                        }
+                        @if (canViewCrmTechnicalSeminars)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="TechnicalSeminars" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-easel2 me-2"></i> 技术讲座
+                            </a>
+                        }
+                        @if (canViewCrmMassPromotions)
+                        {
+                            <a asp-area="CRM" asp-controller="CrmManagement" asp-action="MassPromotions" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-megaphone me-2"></i> 宣传群发
+                            </a>
+                        }
+                        @if (canViewCrmLeads)
+                        {
+                            <a asp-area="CRM" asp-controller="Leads" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-lines-fill me-2"></i> 线索资料
+                            </a>
+                        }
+                        @if (canViewCrmOpportunities)
+                        {
+                            <a asp-area="CRM" asp-controller="Opportunities" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-graph-up-arrow me-2"></i> 商机资料
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewService)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#serviceMenu" role="button" aria-expanded="@(isServiceMenuOpen ? "true" : "false")" aria-controls="serviceMenu">
+                        <span><i class="bi bi-headset me-2"></i> @Localizer["Layout_ServiceManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isServiceMenuOpen ? "show" : string.Empty)" id="serviceMenu">
+                        @if (canViewServiceContracts)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceContracts" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-file-earmark-text me-2"></i> 服务合同
+                            </a>
+                        }
+                        @if (canViewServiceRequests)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceRequests" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-tools me-2"></i> 服务请求
+                            </a>
+                        }
+                        @if (canViewServiceLendingOrders)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="LendingOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-up-right me-2"></i> 借出单
+                            </a>
+                        }
+                        @if (canViewServiceReturnOrders)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="ReturnOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-in-down-left me-2"></i> 归还单
+                            </a>
+                        }
+                        @if (canViewServiceMaintenance)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="Maintenance" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-wrench-adjustable me-2"></i> 维修保养
+                            </a>
+                        }
+                        @if (canViewServiceFieldService)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="FieldService" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-workspace me-2"></i> 外出服务
+                            </a>
+                        }
+                        @if (canViewServiceMaintenanceContracts)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="MaintenanceContracts" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-journal-check me-2"></i> 保养合约
+                            </a>
+                        }
+                        @if (canViewServiceMaintenanceQueries)
+                        {
+                            <a asp-area="Service" asp-controller="ServiceManagement" asp-action="MaintenanceQueries" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-search me-2"></i> 保养查询
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewTransport)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#transportMenu" role="button" aria-expanded="@(isTransportMenuOpen ? "true" : "false")" aria-controls="transportMenu">
+                        <span><i class="bi bi-truck me-2"></i> @Localizer["Layout_TransportManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isTransportMenuOpen ? "show" : string.Empty)" id="transportMenu">
+                        @if (canViewTransportVehicles)
+                        {
+                            <a asp-area="Transport" asp-controller="Vehicles" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-truck-front me-2"></i> 车辆资料
+                            </a>
+                        }
+                        @if (canViewTransportRequests)
+                        {
+                            <a asp-area="Transport" asp-controller="TransportRequests" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-check me-2"></i> 运输申请
+                            </a>
+                        }
+                        @if (canViewTransportDrivers)
+                        {
+                            <a asp-area="Transport" asp-controller="TransportManagement" asp-action="Drivers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-vcard me-2"></i> 司机资料
+                            </a>
+                        }
+                        @if (canViewTransportDispatches)
+                        {
+                            <a asp-area="Transport" asp-controller="TransportManagement" asp-action="Dispatches" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar2-week me-2"></i> 运输排车
+                            </a>
+                        }
+                        @if (canViewTransportCosts)
+                        {
+                            <a asp-area="Transport" asp-controller="TransportManagement" asp-action="Costs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cash-coin me-2"></i> 运输费用
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewAsset)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#assetMenu" role="button" aria-expanded="@(isAssetMenuOpen ? "true" : "false")" aria-controls="assetMenu">
+                        <span><i class="bi bi-box-seam me-2"></i> @Localizer["Layout_AssetManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isAssetMenuOpen ? "show" : string.Empty)" id="assetMenu">
+                        @if (canViewAssetAssets)
+                        {
+                            <a asp-area="Asset" asp-controller="Assets" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-seam me-2"></i> 资产资料
+                            </a>
+                        }
+                        @if (canViewAssetPreBorrowOrders)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="PreBorrowOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-plus me-2"></i> 预借单
+                            </a>
+                        }
+                        @if (canViewAssetBorrowOrders)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="BorrowOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-up-right me-2"></i> 借用单
+                            </a>
+                        }
+                        @if (canViewAssetReturnOrders)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="ReturnOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-in-down-left me-2"></i> 退还单
+                            </a>
+                        }
+                        @if (canViewAssetMaintenance)
+                        {
+                            <a asp-area="Asset" asp-controller="MaintenanceRecords" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-wrench-adjustable me-2"></i> 资产维护
+                            </a>
+                        }
+                        @if (canViewAssetStocktakes)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="Stocktakes" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-data me-2"></i> 资产盘点
+                            </a>
+                        }
+                        @if (canViewAssetDepreciations)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="Depreciations" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-graph-down-arrow me-2"></i> 资产折旧
+                            </a>
+                        }
+                        @if (canViewAssetLossReports)
+                        {
+                            <a asp-area="Asset" asp-controller="AssetManagement" asp-action="LossReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-exclamation-triangle me-2"></i> 资产报损
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewOffice)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#officeMenu" role="button" aria-expanded="@(isOfficeMenuOpen ? "true" : "false")" aria-controls="officeMenu">
+                        <span><i class="bi bi-briefcase me-2"></i> @Localizer["Layout_OfficeManagement"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isOfficeMenuOpen ? "show" : string.Empty)" id="officeMenu">
+                        @if (canViewOfficeMeetings)
+                        {
+                            <a asp-area="Office" asp-controller="Meetings" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-event me-2"></i> 会议管理
+                            </a>
+                        }
+                        @if (canViewOfficeTasks)
+                        {
+                            <a asp-area="Office" asp-controller="Tasks" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-list-task me-2"></i> 任务管理
+                            </a>
+                        }
+                        @if (canViewOfficeSupplies)
+                        {
+                            <a asp-area="Office" asp-controller="OfficeManagement" asp-action="Supplies" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box2 me-2"></i> 办公用品
+                            </a>
+                        }
+                        @if (canViewOfficeApplyOrders)
+                        {
+                            <a asp-area="Office" asp-controller="OfficeManagement" asp-action="ApplyOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-plus me-2"></i> 申请单
+                            </a>
+                        }
+                        @if (canViewOfficeIssueOrders)
+                        {
+                            <a asp-area="Office" asp-controller="OfficeManagement" asp-action="IssueOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-up-right me-2"></i> 领用单
+                            </a>
+                        }
+                        @if (canViewOfficeReturnOrders)
+                        {
+                            <a asp-area="Office" asp-controller="OfficeManagement" asp-action="ReturnOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-arrow-in-down-left me-2"></i> 退回单
+                            </a>
+                        }
+                        @if (canViewOfficeLossOrders)
+                        {
+                            <a asp-area="Office" asp-controller="OfficeManagement" asp-action="LossOrders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-exclamation-triangle me-2"></i> 报损单
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewReportCenter)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#reportCenterMenu" role="button" aria-expanded="@(isReportCenterMenuOpen ? "true" : "false")" aria-controls="reportCenterMenu">
+                        <span><i class="bi bi-bar-chart-line me-2"></i> 报表中心</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isReportCenterMenuOpen ? "show" : string.Empty)" id="reportCenterMenu">
+                        @if (canViewReportHr)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="HrReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-people me-2"></i> 人事报表
+                            </a>
+                        }
+                        @if (canViewReportFinance)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="FinanceReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cash-coin me-2"></i> 财务报表
+                            </a>
+                        }
+                        @if (canViewReportPurchasing)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="PurchasingReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cart-check me-2"></i> 采购报表
+                            </a>
+                        }
+                        @if (canViewReportSales)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="SalesReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-receipt me-2"></i> 销售报表
+                            </a>
+                        }
+                        @if (canViewReportWarehouse)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="WarehouseReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-boxes me-2"></i> 仓务报表
+                            </a>
+                        }
+                        @if (canViewReportProduction)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="ProductionReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cpu me-2"></i> 生产报表
+                            </a>
+                        }
+                        @if (canViewReportService)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="ServiceReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-tools me-2"></i> 服务报表
+                            </a>
+                        }
+                        @if (canViewReportAttendance)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="AttendanceReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-calendar-check me-2"></i> 考勤报表
+                            </a>
+                        }
+                        @if (canViewReportAsset)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="AssetReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-box-seam me-2"></i> 资产报表
+                            </a>
+                        }
+                        @if (canViewReportOffice)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="OfficeReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-briefcase me-2"></i> 办公报表
+                            </a>
+                        }
+                        @if (canViewReportTransport)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="TransportReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-truck me-2"></i> 运输报表
+                            </a>
+                        }
+                        @if (canViewReportCrm)
+                        {
+                            <a asp-area="ReportCenter" asp-controller="ReportCenter" asp-action="CrmReports" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-lines-fill me-2"></i> CRM报表
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewBasicInformation)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#basicInformationMenu" role="button" aria-expanded="@(isBasicInformationMenuOpen ? "true" : "false")" aria-controls="basicInformationMenu">
+                        <span><i class="bi bi-folder2-open me-2"></i> 基本资料</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isBasicInformationMenuOpen ? "show" : string.Empty)" id="basicInformationMenu">
+                        @if (canViewBasicInformationCustomers)
+                        {
+                            <a asp-area="BasicInformation" asp-controller="BasicInformation" asp-action="Customers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-lines-fill me-2"></i> 客户/友商资料
+                            </a>
+                        }
+                        @if (canViewBasicInformationSuppliers)
+                        {
+                            <a asp-area="BasicInformation" asp-controller="BasicInformation" asp-action="Suppliers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-building-check me-2"></i> 供应商/厂商资料
+                            </a>
+                        }
+                        @if (canViewBasicInformationWarehouses)
+                        {
+                            <a asp-area="BasicInformation" asp-controller="BasicInformation" asp-action="Warehouses" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-building-gear me-2"></i> 仓库/车间资料
+                            </a>
+                        }
+                        @if (canViewBasicInformationProjects)
+                        {
+                            <a asp-area="BasicInformation" asp-controller="BasicInformation" asp-action="Projects" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-kanban me-2"></i> 工程项目资料
+                            </a>
+                        }
+                        @if (canViewBasicData)
+                        {
+                            <a asp-area="BasicData" asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-database me-2"></i> 基础资料
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewSystemManagement)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#systemManagementMenu" role="button" aria-expanded="@(isSystemManagementMenuOpen ? "true" : "false")" aria-controls="systemManagementMenu">
+                        <span><i class="bi bi-gear me-2"></i> @Localizer["Layout_SystemSettings"]</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isSystemManagementMenuOpen ? "show" : string.Empty)" id="systemManagementMenu">
+                        @if (canViewSystemManagementUsers)
+                        {
+                            <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="Users" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-vcard me-2"></i> 用户资料
+                            </a>
+                        }
+                        @if (canViewSystemManagementRoles)
+                        {
+                            <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="Roles" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-shield-lock me-2"></i> 角色管理
+                            </a>
+                        }
+                        @if (canViewSystemManagementSettings)
+                        {
+                            <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="Settings" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-sliders me-2"></i> 系统设置
+                            </a>
+                        }
+                        @if (canViewSystemManagementOnlineUsers)
+                        {
+                            <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="OnlineUsers" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-person-check me-2"></i> 在线用户
+                            </a>
+                        }
+                        @if (canViewSystemManagementLogs)
+                        {
+                            <a class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 d-flex justify-content-between align-items-center"
+                               data-bs-toggle="collapse" href="#systemManagementLogsMenu" role="button" aria-expanded="@(isSystemManagementLogsMenuOpen ? "true" : "false")" aria-controls="systemManagementLogsMenu">
+                                <span><i class="bi bi-journal-text me-2"></i> 查看日志</span>
+                                <i class="bi bi-chevron-down small"></i>
+                            </a>
+                            <div class="collapse @(isSystemManagementLogsMenuOpen ? "show" : string.Empty)" id="systemManagementLogsMenu">
+                                @if (canViewSystemLoginLogs)
+                                {
+                                    <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="LoginLogs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i> 登入日志
+                                    </a>
+                                }
+                                @if (canViewSystemOperationLogs)
+                                {
+                                    <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="OperationLogs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-mouse2 me-2"></i> 操作日志
+                                    </a>
+                                }
+                                @if (canViewSystemSystemLogs)
+                                {
+                                    <a asp-area="SystemManagement" asp-controller="SystemManagement" asp-action="SystemLogs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5 ms-3">
+                                        <i class="bi bi-terminal me-2"></i> 系统日志
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                @if (canViewTaskCenter)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#taskCenterMenu" role="button" aria-expanded="@(isTaskCenterMenuOpen ? "true" : "false")" aria-controls="taskCenterMenu">
+                        <span><i class="bi bi-kanban me-2"></i> 任务中心</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isTaskCenterMenuOpen ? "show" : string.Empty)" id="taskCenterMenu">
+                        @if (canViewTaskMyApprovals)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="MyApprovals" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-check2-square me-2"></i> 我的审批
+                            </a>
+                        }
+                        @if (canViewTaskDailyTasks)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="DailyTasks" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-list-task me-2"></i> 日常任务
+                            </a>
+                        }
+                        @if (canViewTaskFollowUps)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="FollowUps" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-clipboard-check me-2"></i> 跟单管理
+                            </a>
+                        }
+                        @if (canViewTaskContentMessages)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="ContentMessages" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-chat-left-text me-2"></i> 内容消息
+                            </a>
+                        }
+                        @if (canViewTaskEmails)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="Emails" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-envelope-paper me-2"></i> 收发邮件
+                            </a>
+                        }
+                        @if (canViewTaskAnnouncements)
+                        {
+                            <a asp-area="TaskCenter" asp-controller="TaskCenter" asp-action="Announcements" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-megaphone me-2"></i> 系统公告
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewSystemDevices)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#systemDeviceMenu" role="button" aria-expanded="@(isSystemDeviceMenuOpen ? "true" : "false")" aria-controls="systemDeviceMenu">
+                        <span><i class="bi bi-hdd-network me-2"></i> 系统设备</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isSystemDeviceMenuOpen ? "show" : string.Empty)" id="systemDeviceMenu">
+                        @if (canViewSystemDeviceRfidReaders)
+                        {
+                            <a asp-area="SystemDevice" asp-controller="SystemDevice" asp-action="RfidReaders" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-broadcast-pin me-2"></i> RFID Reader
+                            </a>
+                        }
+                        @if (canViewSystemDeviceCameras)
+                        {
+                            <a asp-area="SystemDevice" asp-controller="SystemDevice" asp-action="CameraDevices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-camera-video me-2"></i> 镜头设备
+                            </a>
+                        }
+                        @if (canViewSystemDeviceGpioDevices)
+                        {
+                            <a asp-area="SystemDevice" asp-controller="SystemDevice" asp-action="GpioDevices" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-diagram-3 me-2"></i> GPIO设备
+                            </a>
+                        }
+                    </div>
+                }
+                @if (canViewTechnicalSupport)
+                {
+                    <a class="list-group-item list-group-item-action bg-dark text-white border-0 d-flex justify-content-between align-items-center"
+                       data-bs-toggle="collapse" href="#technicalSupportMenu" role="button" aria-expanded="@(isTechnicalSupportMenuOpen ? "true" : "false")" aria-controls="technicalSupportMenu">
+                        <span><i class="bi bi-life-preserver me-2"></i> 技术支持</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse @(isTechnicalSupportMenuOpen ? "show" : string.Empty)" id="technicalSupportMenu">
+                        @if (canViewTechnicalSupportOnlineHelp)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="OnlineHelp" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-question-circle me-2"></i> 在线帮助
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportDownloadCenter)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="DownloadCenter" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-download me-2"></i> 下载中心
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportOnlineSupport)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="OnlineSupport" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-headset me-2"></i> 在线支持
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportContactUs)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="ContactUs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-telephone me-2"></i> 联络我们
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportSystemVersion)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="SystemVersion" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-info-circle me-2"></i> 系统版本
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportOnlineUpdates)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="OnlineUpdates" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-cloud-arrow-down me-2"></i> 在线更新
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportUpdateLogs)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="UpdateLogs" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-card-checklist me-2"></i> 更新日志
+                            </a>
+                        }
+                        @if (canViewTechnicalSupportApiManagement)
+                        {
+                            <a asp-area="TechnicalSupport" asp-controller="TechnicalSupport" asp-action="ApiManagement" class="list-group-item list-group-item-action bg-dark text-white border-0 ps-5">
+                                <i class="bi bi-braces me-2"></i> API管理
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+            @* 当前操作用户信息：放在左侧导航底部区域，方便与功能导航形成同一视觉分组 *@
+            <div class="layout-shell__sidebar-user" id="sidebar-user-menu-shell">
+                <button type="button"
+                        class="layout-shell__sidebar-company-trigger"
+                        id="company-switch-trigger"
+                        aria-expanded="false"
+                        aria-controls="company-switch-lock">
+                    <i class="bi bi-building"></i>
+                    <span id="current-company-name">@currentCompany.Text</span>
+                </button>
+                <div class="layout-shell__sidebar-user-label">当前操作用户</div>
+                <button type="button"
+                        class="layout-shell__sidebar-user-trigger"
+                        id="sidebar-user-menu-trigger"
+                        aria-expanded="false"
+                        aria-controls="sidebar-user-menu">
+                    <span class="layout-shell__sidebar-user-name">
+                    <i class="bi bi-person-circle"></i>
+                    <span>@(User.Identity?.Name ?? Localizer["Layout_WelcomeAdmin"])</span>
+                    </span>
+                </button>
+                <div class="layout-shell__sidebar-user-menu" id="sidebar-user-menu" hidden>
+                    <button type="button" class="layout-shell__sidebar-user-menu-item">
+                        <i class="bi bi-gear"></i>
+                        <span>我的设定</span>
+                    </button>
+                    <button type="button" class="layout-shell__sidebar-user-menu-item">
+                        <i class="bi bi-lock-fill"></i>
+                        <span>修改密码</span>
+                    </button>
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="layout-shell__sidebar-user-menu-form">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="layout-shell__sidebar-user-menu-item layout-shell__sidebar-user-menu-item--logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>退出系统</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-popup-lock page-popup-lock--modal" id="company-switch-lock" hidden>
+            <div class="page-popup-lock__dialog company-switch-dialog" role="dialog" aria-modal="true" aria-labelledby="company-switch-title">
+                <div class="page-popup-lock__dialog-header company-switch-dialog__header">
+                    <div class="page-popup-lock__dialog-title" id="company-switch-title">开单公司</div>
+                    <button type="button" class="page-popup-lock__dialog-close" id="company-switch-close" aria-label="关闭">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="page-popup-lock__dialog-body company-switch-dialog__body">
+                    <form asp-area=""
+                          asp-controller="Account"
+                          asp-action="SwitchCompany"
+                          method="post"
+                          id="company-switch-form"
+                          class="company-switch-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                        <div class="company-switch-form__actions">
+                            <button type="submit" class="btn btn-primary btn-sm">确定</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="company-switch-cancel">关闭</button>
+                        </div>
+
+                        @if (shouldRestrictCompanyOptions)
+                        {
+                            <div class="text-muted small mb-2">仅显示当前账号已配置管辖权限的公司组织。</div>
+                        }
+
+                        <div class="company-switch-table-shell">
+                            <table class="table company-switch-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">序号</th>
+                                        <th scope="col">公司编号</th>
+                                        <th scope="col">公司名称</th>
+                                        <th scope="col">拥有权限</th>
+                                        <th scope="col">当前开单公司</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (var index = 0; index < companyOptions.Length; index++)
+                                    {
+                                        var option = companyOptions[index];
+                                        var isCurrentCompany = string.Equals(option.Value, currentCompany.Value, StringComparison.OrdinalIgnoreCase);
+                                        <tr>
+                                            <td>@(index + 1)</td>
+                                            <td>@option.Code</td>
+                                            <td>@option.Text</td>
+                                            <td>
+                                                <span class="company-switch-table__permission">
+                                                    <input type="checkbox" checked="checked" disabled="disabled" />
+                                                    <span>查看</span>
+                                                </span>
+                                                <span class="company-switch-table__permission">
+                                                    <input type="checkbox" checked="checked" disabled="disabled" />
+                                                    <span>操作</span>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <input type="radio"
+                                                       name="company"
+                                                       value="@option.Value"
+                                                       checked="@isCurrentCompany"
+                                                       aria-label="选择 @option.Text 作为当前开单公司" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-shell__main" id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom layout-shell__navbar">
+                <div class="container-fluid gap-3">
+                    <button class="btn btn-primary" id="menu-toggle" type="button">@Localizer["Layout_ToggleMenu"]</button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <div class="ms-auto d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
+                            @* 顶部快捷功能组：先提供快速查单、查看信息、设置入口，后续再补业务逻辑 *@
+                            <div class="layout-shell__header-tools" aria-label="系统快捷功能">
+                                <div class="layout-shell__quick-search">
+                                    <input type="search"
+                                           class="form-control form-control-sm layout-shell__quick-search-input"
+                                           placeholder="快速查单单号"
+                                           aria-label="快速查单单号" />
+                                    <button type="button"
+                                            class="layout-shell__quick-search-button"
+                                            title="快速查单"
+                                            aria-label="快速查单">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                                <button type="button"
+                                        class="layout-shell__icon-action"
+                                        title="查看信息"
+                                        aria-label="查看信息">
+                                    <i class="bi bi-bell"></i>
+                                </button>
+                                <button type="button"
+                                        class="layout-shell__icon-action"
+                                        title="设置"
+                                        aria-label="设置">
+                                    <i class="bi bi-gear"></i>
+                                </button>
+                            </div>
+                            <form asp-area="" asp-controller="Home" asp-action="SetLanguage" method="post" class="language-switcher-form notranslate" translate="no">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                <label class="language-switcher-label" for="culture">@Localizer["Layout_Language"]</label>
+                                <select id="culture" name="culture" class="form-select form-select-sm language-switcher-select" onchange="this.form.submit()" translate="no">
+                                    <option value="zh-Hans" selected="@(currentCulture == "zh-Hans" ? "selected" : null)">@Localizer["Language_SimplifiedChinese"]</option>
+                                    <option value="zh-Hant" selected="@(currentCulture == "zh-Hant" ? "selected" : null)">@Localizer["Language_TraditionalChinese"]</option>
+                                    <option value="en" selected="@(currentCulture == "en" ? "selected" : null)">@Localizer["Language_English"]</option>
+                                </select>
+                            </form>
+                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline layout-shell__logout-form">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="layout-shell__icon-action layout-shell__logout-action"
+                                        title="@Localizer["Layout_Logout"]"
+                                        aria-label="@Localizer["Layout_Logout"]">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="page-tabs-shell layout-shell__tabs">
+                <div id="page-tabs-bar"
+                     class="page-tabs-bar"
+                     data-current-url="@returnUrl"
+                     data-current-title="@currentPageTitle"
+                     data-home-url="@homeUrl">
+                </div>
+            </div>
+
+            <div class="container-fluid p-4 layout-shell__content">
+                <main role="main" class="company-print-page">
+                    @RenderBody()
+                </main>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#sidebar-wrapper").toggle();
+        });
+
+        (() => {
+            const companySwitchTrigger = document.getElementById("company-switch-trigger");
+            const companySwitchLock = document.getElementById("company-switch-lock");
+            const companySwitchClose = document.getElementById("company-switch-close");
+            const companySwitchCancel = document.getElementById("company-switch-cancel");
+
+            if (!companySwitchTrigger || !companySwitchLock) {
+                return;
+            }
+
+            // 开单公司切换窗：点击左下角公司标签时弹出，确认后切换当前业务公司。
+            function setCompanySwitchOpen(isOpen) {
+                companySwitchTrigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+                companySwitchLock.hidden = !isOpen;
+            }
+
+            companySwitchTrigger.addEventListener("click", () => {
+                const isOpen = companySwitchTrigger.getAttribute("aria-expanded") === "true";
+                setCompanySwitchOpen(!isOpen);
+            });
+
+            companySwitchClose?.addEventListener("click", () => setCompanySwitchOpen(false));
+            companySwitchCancel?.addEventListener("click", () => setCompanySwitchOpen(false));
+
+            companySwitchLock.addEventListener("click", event => {
+                if (event.target === companySwitchLock) {
+                    setCompanySwitchOpen(false);
+                }
+            });
+
+            document.addEventListener("keydown", event => {
+                if (event.key === "Escape") {
+                    setCompanySwitchOpen(false);
+                }
+            });
+        })();
+
+        (() => {
+            const sidebarUserShell = document.getElementById("sidebar-user-menu-shell");
+            const sidebarUserTrigger = document.getElementById("sidebar-user-menu-trigger");
+            const sidebarUserMenu = document.getElementById("sidebar-user-menu");
+
+            if (!sidebarUserShell || !sidebarUserTrigger || !sidebarUserMenu) {
+                return;
+            }
+
+            // 左下角用户菜单：点击头像或姓名时在右侧展开菜单。
+            function setSidebarUserMenuOpen(isOpen) {
+                sidebarUserTrigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+                sidebarUserMenu.hidden = !isOpen;
+            }
+
+            sidebarUserTrigger.addEventListener("click", () => {
+                const isOpen = sidebarUserTrigger.getAttribute("aria-expanded") === "true";
+                setSidebarUserMenuOpen(!isOpen);
+            });
+
+            const sidebarMenuActionButtons = sidebarUserMenu.querySelectorAll(".layout-shell__sidebar-user-menu-item");
+            if (sidebarMenuActionButtons.length > 1) {
+                sidebarMenuActionButtons[1].addEventListener("click", () => {
+                    window.location.href = '@Url.Action("ChangePassword", "Account", new { area = "" })';
+                });
+            }
+
+            document.addEventListener("click", (event) => {
+                if (!sidebarUserShell.contains(event.target)) {
+                    setSidebarUserMenuOpen(false);
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    setSidebarUserMenuOpen(false);
+                }
+            });
+        })();
+
+        (() => {
+            const pageTabsBar = document.getElementById("page-tabs-bar");
+            if (!pageTabsBar) {
+                return;
+            }
+
+            // 页签缓存键（用于保存当前已打开的顶部页签集合）。
+            const storageKey = "openErp.pageTabs";
+
+            // 页签状态参数（只影响当前列表选择，不代表新的功能页）。
+            const tabStateQueryKeys = new Set(["selectedCustomerId", "selectedWarehouseId"]);
+            // 默认查询范围（空关键字时与不带 scope 参数等价）。
+            const defaultSearchScope = "全部";
+
+            // 当前页面页签信息（来自布局数据属性）。
+            const currentUrl = normalizeUrl(pageTabsBar.dataset.currentUrl || "/");
+            const currentTitle = (pageTabsBar.dataset.currentTitle || "Open ERP").trim();
+            const homeUrl = normalizeUrl(pageTabsBar.dataset.homeUrl || "/");
+
+            // 统一标准化站内地址，避免同一路由因绝对/相对路径或列表选中态不同而重复建页签。
+            function normalizeUrl(url) {
+                try {
+                    const parsedUrl = new URL(url, window.location.origin);
+                    tabStateQueryKeys.forEach(key => parsedUrl.searchParams.delete(key));
+                    const keyword = (parsedUrl.searchParams.get("keyword") || "").trim();
+                    const scope = (parsedUrl.searchParams.get("scope") || "").trim();
+
+                    if (!keyword) {
+                        parsedUrl.searchParams.delete("keyword");
+                    }
+
+                    if (!scope || (!keyword && scope === defaultSearchScope)) {
+                        parsedUrl.searchParams.delete("scope");
+                    }
+
+                    const queryString = parsedUrl.searchParams.toString();
+                    return `${parsedUrl.pathname}${queryString ? `?${queryString}` : ""}`;
+                } catch {
+                    return url || "/";
+                }
+            }
+
+            // 合并历史缓存中的同功能页签，清理已经产生的重复页签。
+            function normalizeTabs(tabs) {
+                const normalizedTabs = [];
+                const tabIndexMap = new Map();
+
+                tabs
+                    .filter(tab => tab && typeof tab.url === "string" && typeof tab.title === "string")
+                    .forEach(tab => {
+                        const tabUrl = normalizeUrl(tab.url);
+                        const normalizedTab = {
+                            url: tabUrl,
+                            title: tab.title
+                        };
+                        const existingIndex = tabIndexMap.get(tabUrl);
+
+                        if (existingIndex === undefined) {
+                            tabIndexMap.set(tabUrl, normalizedTabs.length);
+                            normalizedTabs.push(normalizedTab);
+                            return;
+                        }
+
+                        normalizedTabs[existingIndex] = normalizedTab;
+                    });
+
+                return normalizedTabs;
+            }
+
+            // 读取浏览器缓存中的页签列表。
+            function readTabs() {
+                try {
+                    const rawValue = sessionStorage.getItem(storageKey);
+                    if (!rawValue) {
+                        return [];
+                    }
+
+                    const parsedTabs = JSON.parse(rawValue);
+                    return Array.isArray(parsedTabs) ? parsedTabs : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            // 写回最新页签列表。
+            function writeTabs(tabs) {
+                sessionStorage.setItem(storageKey, JSON.stringify(tabs));
+            }
+
+            // 将当前页面登记为顶部页签，已存在时只刷新标题。
+            function upsertCurrentTab() {
+                const tabs = normalizeTabs(readTabs());
+                const existingTab = tabs.find(tab => tab.url === currentUrl);
+
+                if (existingTab) {
+                    existingTab.url = currentUrl;
+                    existingTab.title = currentTitle;
+                } else {
+                    tabs.push({
+                        url: currentUrl,
+                        title: currentTitle
+                    });
+                }
+
+                writeTabs(tabs);
+                return tabs;
+            }
+
+            // 渲染顶部可切换、可关闭的页签卡。
+            function renderTabs(tabs) {
+                pageTabsBar.innerHTML = "";
+
+                tabs.forEach(tab => {
+                    const tabUrl = normalizeUrl(tab.url);
+                    const tabItem = document.createElement("div");
+                    const tabLink = document.createElement("a");
+                    const closeButton = document.createElement("button");
+
+                    tabItem.className = "page-tab-card";
+                    if (tabUrl === currentUrl) {
+                        tabItem.classList.add("is-active");
+                    }
+
+                    tabLink.className = "page-tab-card__link";
+                    tabLink.href = tabUrl;
+                    tabLink.textContent = tab.title;
+
+                    closeButton.type = "button";
+                    closeButton.className = "page-tab-card__close";
+                    closeButton.dataset.url = tabUrl;
+                    closeButton.setAttribute("aria-label", `关闭 ${tab.title}`);
+                    closeButton.innerHTML = "&times;";
+
+                    tabItem.appendChild(tabLink);
+                    tabItem.appendChild(closeButton);
+                    pageTabsBar.appendChild(tabItem);
+                });
+            }
+
+            // 关闭指定页签，若关闭当前页则自动跳到前一个页签或首页。
+            function closeTab(targetUrl) {
+                const tabs = normalizeTabs(readTabs());
+                const targetIndex = tabs.findIndex(tab => tab.url === targetUrl);
+
+                if (targetIndex < 0) {
+                    return;
+                }
+
+                const fallbackTab = tabs[targetIndex - 1] ?? tabs[targetIndex + 1];
+                const isClosingCurrentTab = targetUrl === currentUrl;
+
+                tabs.splice(targetIndex, 1);
+                writeTabs(tabs);
+
+                if (isClosingCurrentTab) {
+                    window.location.href = fallbackTab ? normalizeUrl(fallbackTab.url) : homeUrl;
+                    return;
+                }
+
+                renderTabs(tabs);
+            }
+
+            const tabs = upsertCurrentTab();
+            renderTabs(tabs);
+
+            pageTabsBar.addEventListener("click", event => {
+                const closeButton = event.target.closest(".page-tab-card__close");
+                if (!closeButton) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                closeTab(normalizeUrl(closeButton.dataset.url || ""));
+            });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

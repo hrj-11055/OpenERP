@@ -1,0 +1,502 @@
+@model OpenERP.Web.Areas.CRM.ViewModels.Customers.CustomerEditViewModel
+@{
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    var isEdit = Model.Id.HasValue;
+    var isReadOnly = ViewBag.IsReadOnly as bool? == true;
+    ViewData["Title"] = "客户/友商资料";
+    var formAction = isEdit ? "Edit" : "Create";
+    var customerDocumentFeatureCode = "CRM_CUSTOMER";
+    var taskFollowUpFeatureCode = "CRM_CUSTOMER";
+    var taskFollowUpDocumentFeatureCode = "CRM_TASK_FOLLOW_UP";
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    var createUrl = Url.Action("Create", "Customers", new { area = "CRM", popup = isPopup }) ?? "#";
+    var editUrl = isEdit ? Url.Action("Edit", "Customers", new { area = "CRM", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+    var copyUrl = isEdit ? Url.Action("Copy", "Customers", new { area = "CRM", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/employee-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/crm-customers.css" asp-append-version="true" />
+}
+
+<div class="employee-detail-page crm-customer-detail">
+    <form id="customerDetailForm"
+          method="post"
+          asp-area="CRM"
+          asp-controller="Customers"
+          asp-action="@formAction"
+          asp-route-id="@Model.Id"
+          data-customer-id="@(Model.Id ?? 0)"
+          data-customer-document-feature-code="@customerDocumentFeatureCode"
+          data-read-only="@isReadOnly.ToString().ToLowerInvariant()"
+          class="employee-detail-shell crm-customer-detail__form @(isReadOnly ? "is-readonly" : "")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="ArchivePath" type="hidden" />
+        <input asp-for="IsCustomerRole" type="hidden" value="true" />
+
+        <div class="employee-detail-toolbar crm-customer-detail__topbar">
+            @if (isReadOnly)
+            {
+                <a href="@createUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>新增</a>
+                <a href="@editUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>编辑</a>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>复制</a>
+                }
+                <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="mail" data-readonly-toolbar>邮件</button>
+                <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="info" data-readonly-toolbar>信息</button>
+            }
+            else
+            {
+                <a href="@createUrl" class="employee-detail-toolbar__btn">新增</a>
+                <button type="submit" class="employee-detail-toolbar__btn">保存</button>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn">复制</a>
+                }
+                <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="mail">邮件</button>
+                <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="info">信息</button>
+            }
+            <button type="button" class="employee-detail-toolbar__btn" data-readonly-toolbar onclick="window.closeCustomerDetailPage()">关闭</button>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="employee-detail-validation crm-customer-validation"></div>
+
+        <section class="employee-detail-hero">
+            <div class="employee-detail-hero__grid crm-customer-hero__grid">
+                <div class="employee-detail-field crm-customer-field--required">
+                    <label asp-for="CustomerCode">客户编号</label>
+                    <div class="employee-detail-field__inline">
+                        <input asp-for="CustomerCode" class="form-control" placeholder="请输入" />
+                        <button type="button" class="employee-detail-icon-btn" data-customer-tool="lookup" aria-label="查询客户编号">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="CustomerCode" class="text-danger"></span>
+                </div>
+
+                <div class="employee-detail-field crm-customer-field--required">
+                    <label asp-for="CustomerNature">性质</label>
+                    <select asp-for="CustomerNature" class="form-select">
+                        <option value="企业">企业</option>
+                        <option value="个人">个人</option>
+                        <option value="政府机构">政府机构</option>
+                        <option value="其他">其他</option>
+                    </select>
+                    <span asp-validation-for="CustomerNature" class="text-danger"></span>
+                </div>
+
+                <div class="employee-detail-field crm-customer-field--required">
+                    <label asp-for="Status">状态</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="合作中">合作中</option>
+                        <option value="潜在">潜在</option>
+                        <option value="暂停">暂停</option>
+                        <option value="终止">终止</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="employee-detail-field employee-detail-field--full crm-customer-field--required">
+                    <label asp-for="CustomerName">客户名称</label>
+                    <input asp-for="CustomerName" class="form-control" placeholder="请输入" />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="employee-detail-tabs">
+            <button type="button" class="employee-detail-tabs__item is-active" data-customer-tab="basic">基本信息</button>
+            <button type="button" class="employee-detail-tabs__item" data-customer-tab="contacts">联系人</button>
+            <button type="button" class="employee-detail-tabs__item" data-customer-tab="finance">账务</button>
+            <button type="button" class="employee-detail-tabs__item" data-customer-tab="inspection">检视用户</button>
+            <button type="button" class="employee-detail-tabs__item" data-customer-tab="tasks">任务跟进</button>
+        </nav>
+
+        <section class="employee-detail-body employee-detail-body--single crm-customer-tabpanel is-active" data-customer-panel="basic">
+            <div class="employee-detail-main">
+                <div class="employee-detail-grid crm-customer-detail-grid">
+                    <div class="employee-detail-field crm-customer-field--required">
+                        <label asp-for="EnterpriseType">企业类型</label>
+                        <select asp-for="EnterpriseType" class="form-select">
+                            <option value="电子">电子</option>
+                            <option value="科技">科技</option>
+                            <option value="贸易">贸易</option>
+                            <option value="制造">制造</option>
+                            <option value="服务">服务</option>
+                        </select>
+                        <span asp-validation-for="EnterpriseType" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="BusinessRegistrationNumber">商业登记号</label>
+                        <input asp-for="BusinessRegistrationNumber" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="BusinessRegistrationNumber" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="BusinessRegistrationDate">商业登记证明日期</label>
+                        <input asp-for="BusinessRegistrationDate" type="date" class="form-control" />
+                        <span asp-validation-for="BusinessRegistrationDate" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="AliasName">别名/简称</label>
+                        <input asp-for="AliasName" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="AliasName" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="GroupCode">所属集团</label>
+                        <input asp-for="GroupCode" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="GroupCode" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--double">
+                        <label asp-for="GroupName">集团名称</label>
+                        <input asp-for="GroupName" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="GroupName" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CountryRegion">国家/地区</label>
+                        <select asp-for="CountryRegion" class="form-select">
+                            <option value="中国华南">中国华南</option>
+                            <option value="中国华东">中国华东</option>
+                            <option value="中国华北">中国华北</option>
+                            <option value="中国香港">中国香港</option>
+                        </select>
+                        <span asp-validation-for="CountryRegion" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="City">城市</label>
+                        <select asp-for="City" class="form-select">
+                            <option value="广州市">广州市</option>
+                            <option value="深圳市">深圳市</option>
+                            <option value="佛山市">佛山市</option>
+                            <option value="东莞市">东莞市</option>
+                        </select>
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="District">县/区</label>
+                        <select asp-for="District" class="form-select">
+                            <option value="天河区">天河区</option>
+                            <option value="越秀区">越秀区</option>
+                            <option value="南山区">南山区</option>
+                            <option value="禅城区">禅城区</option>
+                        </select>
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Address">地址</label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="请输入详细地址"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Manager">负责人</label>
+                        <input asp-for="Manager" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Manager" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Phone">电话</label>
+                        <input asp-for="Phone" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Fax">传真</label>
+                        <input asp-for="Fax" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Email">电邮</label>
+                        <input asp-for="Email" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Website">网址</label>
+                        <input asp-for="Website" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="Website" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="Remarks">备注</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="7" placeholder="请输入备注"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label>档案管理</label>
+                        <button type="button" class="employee-detail-document-btn" data-customer-tool="archive">
+                            <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                            <span>打开档案管理</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single crm-customer-tabpanel" data-customer-panel="contacts">
+            <div class="training-experience-panel crm-customer-contact-panel">
+                <div class="training-experience-toolbar">
+                    <div class="training-experience-toolbar__filters">
+                        <input id="customerContactKeyword" type="text" class="form-control" placeholder="请输入关键字查询" />
+                        <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="filterContacts">查询</button>
+                        <button type="button" class="employee-detail-toolbar__btn" data-customer-tool="resetContacts">刷新</button>
+                    </div>
+                    <div class="training-experience-toolbar__actions">
+                        <button id="addCustomerContactButton" type="button" class="employee-detail-toolbar__btn">新增</button>
+                        <button id="deleteCustomerContactButton" type="button" class="employee-detail-toolbar__btn">删除</button>
+                    </div>
+                </div>
+
+                <div class="training-experience-table-shell crm-customer-contact-editor">
+                    <table id="customerContactEditTable" class="training-experience-table crm-customer-edit-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th class="training-experience-table__checkbox"></th>
+                                <th>姓名</th>
+                                <th>类型</th>
+                                <th>称呼</th>
+                                <th>职位</th>
+                                <th>手机</th>
+                                <th>电话</th>
+                                <th>传真</th>
+                                <th>电邮</th>
+                                <th>名片</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                                <th>默认</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Contacts.Count; i++)
+                            {
+                                <tr data-contact-row>
+                                    <td class="contact-sequence training-experience-table__seq">@(i + 1)</td>
+                                    <td class="training-experience-table__checkbox">
+                                        <input type="checkbox" class="contact-row-selector" aria-label="选择联络人 @(i + 1)" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="Contacts[i].Id" type="hidden" />
+                                        <input asp-for="Contacts[i].IsDeleted" type="hidden" class="contact-delete-flag" />
+                                        <input asp-for="Contacts[i].Name" class="form-control crm-customer-table-input" />
+                                        <span asp-validation-for="Contacts[i].Name" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <select asp-for="Contacts[i].ContactType" class="form-select crm-customer-table-input">
+                                            <option value="">请选择</option>
+                                            <option value="账单联系人">账单联系人</option>
+                                            <option value="送货联系人">送货联系人</option>
+                                            <option value="会计联系人">会计联系人</option>
+                                            <option value="普通联系人">普通联系人</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select asp-for="Contacts[i].Salutation" class="form-select crm-customer-table-input">
+                                            <option value="">请选择</option>
+                                            <option value="先生">先生</option>
+                                            <option value="小姐">小姐</option>
+                                            <option value="女士">女士</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Contacts[i].Position" class="form-control crm-customer-table-input" /></td>
+                                    <td><input asp-for="Contacts[i].Mobile" class="form-control crm-customer-table-input" /></td>
+                                    <td><input asp-for="Contacts[i].Phone" class="form-control crm-customer-table-input" /></td>
+                                    <td><input asp-for="Contacts[i].Fax" class="form-control crm-customer-table-input" /></td>
+                                    <td>
+                                        <input asp-for="Contacts[i].Email" class="form-control crm-customer-table-input" />
+                                        <span asp-validation-for="Contacts[i].Email" class="text-danger"></span>
+                                    </td>
+                                    <td><input asp-for="Contacts[i].BusinessCardNote" class="form-control crm-customer-table-input" placeholder="查看" /></td>
+                                    <td>
+                                        <select asp-for="Contacts[i].Status" class="form-select crm-customer-table-input">
+                                            <option value="在职">在职</option>
+                                            <option value="离职">离职</option>
+                                            <option value="停用">停用</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Contacts[i].Remarks" class="form-control crm-customer-table-input crm-customer-table-input--remarks" /></td>
+                                    <td class="crm-customer-default-cell"><input asp-for="Contacts[i].IsDefault" class="contact-default-selector" /></td>
+                                    <td><button type="button" class="training-experience-archive-btn crm-customer-row-action" data-remove-contact>删除</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <template id="customerContactRowTemplate">
+                    <tr data-contact-row>
+                        <td class="contact-sequence training-experience-table__seq"></td>
+                        <td class="training-experience-table__checkbox"><input type="checkbox" class="contact-row-selector" aria-label="选择联络人" /></td>
+                        <td>
+                            <input name="Contacts[__index__].Id" type="hidden" />
+                            <input name="Contacts[__index__].IsDeleted" type="hidden" value="false" class="contact-delete-flag" />
+                            <input name="Contacts[__index__].Name" class="form-control crm-customer-table-input" />
+                        </td>
+                        <td>
+                            <select name="Contacts[__index__].ContactType" class="form-select crm-customer-table-input">
+                                <option value="">请选择</option>
+                                <option value="账单联系人">账单联系人</option>
+                                <option value="送货联系人">送货联系人</option>
+                                <option value="会计联系人">会计联系人</option>
+                                <option value="普通联系人">普通联系人</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="Contacts[__index__].Salutation" class="form-select crm-customer-table-input">
+                                <option value="">请选择</option>
+                                <option value="先生">先生</option>
+                                <option value="小姐">小姐</option>
+                                <option value="女士">女士</option>
+                            </select>
+                        </td>
+                        <td><input name="Contacts[__index__].Position" class="form-control crm-customer-table-input" /></td>
+                        <td><input name="Contacts[__index__].Mobile" class="form-control crm-customer-table-input" /></td>
+                        <td><input name="Contacts[__index__].Phone" class="form-control crm-customer-table-input" /></td>
+                        <td><input name="Contacts[__index__].Fax" class="form-control crm-customer-table-input" /></td>
+                        <td><input name="Contacts[__index__].Email" class="form-control crm-customer-table-input" /></td>
+                        <td><input name="Contacts[__index__].BusinessCardNote" class="form-control crm-customer-table-input" placeholder="查看" /></td>
+                        <td>
+                            <select name="Contacts[__index__].Status" class="form-select crm-customer-table-input">
+                                <option value="在职">在职</option>
+                                <option value="离职">离职</option>
+                                <option value="停用">停用</option>
+                            </select>
+                        </td>
+                        <td><input name="Contacts[__index__].Remarks" class="form-control crm-customer-table-input crm-customer-table-input--remarks" /></td>
+                        <td class="crm-customer-default-cell"><input name="Contacts[__index__].IsDefault" type="checkbox" value="true" class="contact-default-selector" /></td>
+                        <td><button type="button" class="training-experience-archive-btn crm-customer-row-action" data-remove-contact>删除</button></td>
+                    </tr>
+                </template>
+            </div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single crm-customer-tabpanel" data-customer-panel="finance">
+            <div class="employee-detail-main">
+                <div class="employee-detail-grid crm-customer-detail-grid">
+                    <div class="employee-detail-field">
+                        <label asp-for="PayerCode">付款单位</label>
+                        <input asp-for="PayerCode" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="PayerCode" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--double">
+                        <label asp-for="PayerName">单位名称</label>
+                        <input asp-for="PayerName" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="PayerName" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="BankAccount">银行账户</label>
+                        <input asp-for="BankAccount" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="BankAccount" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="BankName">开户银行</label>
+                        <select asp-for="BankName" class="form-select">
+                            <option value="">请选择</option>
+                            <option value="中国工商银行">中国工商银行</option>
+                            <option value="中国建设银行">中国建设银行</option>
+                            <option value="中国银行">中国银行</option>
+                            <option value="招商银行">招商银行</option>
+                        </select>
+                        <span asp-validation-for="BankName" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="TransferCode">转款代码</label>
+                        <input asp-for="TransferCode" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="TransferCode" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Currency">货币</label>
+                        <select asp-for="Currency" class="form-select">
+                            <option value="RMB">RMB</option>
+                            <option value="HKD">HKD</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        <span asp-validation-for="Currency" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CreditLimit">信贷限额</label>
+                        <input asp-for="CreditLimit" type="number" step="0.001" min="0" class="form-control" />
+                        <span asp-validation-for="CreditLimit" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CreditTerm">信贷期限</label>
+                        <select asp-for="CreditTerm" class="form-select">
+                            <option value="现结">现结</option>
+                            <option value="月结30天">月结30天</option>
+                            <option value="月结60天">月结60天</option>
+                        </select>
+                        <span asp-validation-for="CreditTerm" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="DefaultPriceCategory">默认计价</label>
+                        <select asp-for="DefaultPriceCategory" class="form-select">
+                            <option value="计价一">计价一</option>
+                            <option value="计价二">计价二</option>
+                            <option value="计价三">计价三</option>
+                        </select>
+                        <span asp-validation-for="DefaultPriceCategory" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="PaymentMethod">付款方式</label>
+                        <select asp-for="PaymentMethod" class="form-select">
+                            <option value="现金">现金</option>
+                            <option value="银行转账">银行转账</option>
+                            <option value="支票">支票</option>
+                        </select>
+                        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="MinimumOrderAmount">最少订货金额</label>
+                        <input asp-for="MinimumOrderAmount" type="number" step="0.001" min="0" class="form-control" />
+                        <span asp-validation-for="MinimumOrderAmount" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="DefaultTaxRate">默认税率</label>
+                        <input asp-for="DefaultTaxRate" class="form-control" placeholder="请输入" />
+                        <span asp-validation-for="DefaultTaxRate" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field crm-customer-checkbox-field">
+                        <label asp-for="IsAccountFrozen">冻结账户</label>
+                        <input asp-for="IsAccountFrozen" class="form-check-input" />
+                    </div>
+                    <div class="employee-detail-field crm-customer-checkbox-field crm-customer-checkbox-field--supplier">
+                        <label asp-for="IsSupplierRole">兼顾供应商</label>
+                        <input asp-for="IsSupplierRole" class="form-check-input" />
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="AccountRemarks">账户备注</label>
+                        <textarea asp-for="AccountRemarks" class="form-control" rows="10" placeholder="请输入账户备注"></textarea>
+                        <span asp-validation-for="AccountRemarks" class="text-danger"></span>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label>档案管理</label>
+                        <button type="button" class="employee-detail-document-btn" data-customer-tool="archive">
+                            <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                            <span>打开档案管理</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single crm-customer-tabpanel" data-customer-panel="inspection">
+            <div class="crm-customer-placeholder">检视用户功能待接入权限与客户可见范围。</div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single crm-customer-tabpanel" data-customer-panel="tasks">
+            @{
+                ViewData["TaskFollowUpEntityId"] = Model.Id ?? 0;
+                ViewData["TaskFollowUpFeatureCode"] = taskFollowUpFeatureCode;
+                ViewData["TaskFollowUpDocumentFeatureCode"] = taskFollowUpDocumentFeatureCode;
+                ViewData["TaskFollowUpEmptyMessage"] = "请先保存客户基本资料，再新增任务跟进记录。";
+            }
+            <partial name="_TaskFollowUpPanel" />
+        </section>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script src="~/js/crm-customers.js" asp-append-version="true"></script>
+    <script src="~/js/task-follow-up.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,27 @@
+@{
+    var featureName = ViewData["FeatureName"]?.ToString() ?? "办公功能";
+    var featureDescription = ViewData["FeatureDescription"]?.ToString() ?? "用于维护办公管理相关业务资料。";
+}
+
+<div class="container-fluid erp-card-page">
+    <h1 class="erp-card-page__title">@featureName</h1>
+    <ol class="breadcrumb erp-card-page__breadcrumb">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">首页</a></li>
+        <li class="breadcrumb-item">办公管理</li>
+        <li class="breadcrumb-item active">@featureName</li>
+    </ol>
+
+    <div class="row erp-card-page__sections">
+        <div class="col-xl-8">
+            <section class="erp-content-card">
+                <div class="erp-content-card__header">
+                    <span><i class="bi bi-briefcase me-2"></i>@featureName</span>
+                </div>
+                <div class="erp-content-card__body">
+                    <p class="mb-2">@featureDescription</p>
+                    <p class="text-muted mb-0">当前已完成菜单入口，后续可在此扩展列表、查询、新增、编辑、审核、打印和附件管理能力。</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

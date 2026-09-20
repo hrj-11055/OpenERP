@@ -1,0 +1,388 @@
+@model OpenERP.Web.Areas.Logistics.ViewModels.MaterialItems.MaterialItemEditViewModel
+@{
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    var isEdit = Model.Id.HasValue;
+    var isReadOnly = ViewBag.IsReadOnly as bool? == true;
+    ViewData["Title"] = $"{Model.Category}资料";
+    var formAction = isEdit ? "Edit" : "Create";
+    var itemDocumentFeatureCode = "BD_ITEM_MASTER";
+    var taskFollowUpFeatureCode = "BD_ITEM_MASTER";
+    var taskFollowUpDocumentFeatureCode = "BD_ITEM_MASTER_TASK_FOLLOW_UP";
+    Layout = isPopup ? "~/Views/Shared/_PopupLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    var createUrl = Url.Action("Create", "MaterialManagement", new { area = "Logistics", category = Model.Category, popup = isPopup }) ?? "#";
+    var editUrl = isEdit ? Url.Action("Edit", "MaterialManagement", new { area = "Logistics", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+    var copyUrl = isEdit ? Url.Action("Copy", "MaterialManagement", new { area = "Logistics", id = Model.Id, popup = isPopup }) ?? "#" : "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/employee-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/document-manager.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/material-management.css" asp-append-version="true" />
+}
+
+<div class="employee-detail-page material-detail">
+    <form id="materialDetailForm"
+          method="post"
+          asp-area="Logistics"
+          asp-controller="MaterialManagement"
+          asp-action="@formAction"
+          asp-route-id="@Model.Id"
+          data-material-id="@(Model.Id ?? 0)"
+          data-material-document-feature-code="@itemDocumentFeatureCode"
+          data-read-only="@isReadOnly.ToString().ToLowerInvariant()"
+          class="employee-detail-shell material-detail__form @(isReadOnly ? "is-readonly" : "")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="Category" type="hidden" />
+        <input asp-for="ArchivePath" type="hidden" />
+
+        <div class="employee-detail-toolbar material-detail__topbar">
+            @if (isReadOnly)
+            {
+                <a href="@createUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>新增</a>
+                <a href="@editUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>编辑</a>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn" data-readonly-toolbar>复制</a>
+                }
+                <button type="button" class="employee-detail-toolbar__btn" data-material-tool="mail" data-readonly-toolbar>邮件</button>
+                <button type="button" class="employee-detail-toolbar__btn" data-material-tool="info" data-readonly-toolbar>信息</button>
+            }
+            else
+            {
+                <a href="@createUrl" class="employee-detail-toolbar__btn">新增</a>
+                <button type="submit" class="employee-detail-toolbar__btn">保存</button>
+                @if (isEdit)
+                {
+                    <a href="@copyUrl" class="employee-detail-toolbar__btn">复制</a>
+                }
+                <button type="button" class="employee-detail-toolbar__btn" data-material-tool="mail">邮件</button>
+                <button type="button" class="employee-detail-toolbar__btn" data-material-tool="info">信息</button>
+            }
+            <button type="button" class="employee-detail-toolbar__btn" data-readonly-toolbar onclick="window.closeMaterialDetailPage()">关闭</button>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="employee-detail-validation material-validation"></div>
+
+        <section class="employee-detail-hero material-hero">
+            <div class="employee-detail-hero__grid material-hero__grid">
+                <div class="employee-detail-field material-field--required">
+                    <label asp-for="ItemCode">产品编号</label>
+                    <div class="employee-detail-field__inline">
+                        <input asp-for="ItemCode" class="form-control" />
+                        <button type="button" class="employee-detail-icon-btn" data-material-tool="lookup" aria-label="查询产品编号">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ItemCode" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field material-field--required">
+                    <label asp-for="Barcode">条形码</label>
+                    <input asp-for="Barcode" class="form-control" />
+                    <span asp-validation-for="Barcode" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field material-field--required">
+                    <label asp-for="Status">状态</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="正常">正常</option>
+                        <option value="停用">停用</option>
+                        <option value="试用">试用</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field material-field--required">
+                    <label asp-for="ItemType">类型</label>
+                    <div class="employee-detail-field__inline">
+                        <select asp-for="ItemType" class="form-select">
+                            <option value="电子">电子</option>
+                            <option value="手机">手机</option>
+                            <option value="材料">材料</option>
+                            <option value="辅料">辅料</option>
+                            <option value="办公用品">办公用品</option>
+                        </select>
+                        <button type="button" class="employee-detail-icon-btn" data-material-tool="dictionary" aria-label="选择类型">...</button>
+                    </div>
+                    <span asp-validation-for="ItemType" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field employee-detail-field--full material-field--required">
+                    <label asp-for="ItemName">产品名称</label>
+                    <input asp-for="ItemName" class="form-control" />
+                    <span asp-validation-for="ItemName" class="text-danger"></span>
+                </div>
+                <div class="employee-detail-field material-field--required">
+                    <label asp-for="BaseUnit">基本单位</label>
+                    <div class="employee-detail-field__inline">
+                        <select asp-for="BaseUnit" class="form-select">
+                            <option value="部">部</option>
+                            <option value="台">台</option>
+                            <option value="个">个</option>
+                            <option value="箱">箱</option>
+                        </select>
+                        <button type="button" class="employee-detail-icon-btn" data-material-tool="dictionary" aria-label="选择单位">...</button>
+                    </div>
+                    <span asp-validation-for="BaseUnit" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="employee-detail-tabs">
+            <button type="button" class="employee-detail-tabs__item is-active" data-material-tab="basic">基本信息</button>
+            <button type="button" class="employee-detail-tabs__item" data-material-tab="packing">包装及其他设置</button>
+            <button type="button" class="employee-detail-tabs__item" data-material-tab="bom">BOM清单</button>
+            <button type="button" class="employee-detail-tabs__item" data-material-tab="price">售价设置</button>
+            <button type="button" class="employee-detail-tabs__item" data-material-tab="tasks">任务跟进</button>
+        </nav>
+
+        <section class="employee-detail-body employee-detail-body--single material-tabpanel is-active" data-material-panel="basic">
+            <div class="employee-detail-main">
+                <div class="employee-detail-grid material-detail-grid">
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="DetailDescription">详细描述</label>
+                        <textarea asp-for="DetailDescription" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="ForeignName">外文名称</label>
+                        <input asp-for="ForeignName" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="ForeignDescription">外文描述</label>
+                        <textarea asp-for="ForeignDescription" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Brand">品牌</label>
+                        <div class="employee-detail-field__inline">
+                            <select asp-for="Brand" class="form-select">
+                                <option value="">请选择</option>
+                                <option value="华为">华为</option>
+                                <option value="苹果">苹果</option>
+                                <option value="小米">小米</option>
+                            </select>
+                            <button type="button" class="employee-detail-icon-btn" data-material-tool="dictionary" aria-label="选择品牌">...</button>
+                        </div>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Model">型号</label>
+                        <input asp-for="Model" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Specification">规格</label>
+                        <input asp-for="Specification" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Origin">产地</label>
+                        <div class="employee-detail-field__inline">
+                            <select asp-for="Origin" class="form-select">
+                                <option value="中国">中国</option>
+                                <option value="中国香港">中国香港</option>
+                                <option value="日本">日本</option>
+                                <option value="美国">美国</option>
+                            </select>
+                            <button type="button" class="employee-detail-icon-btn" data-material-tool="dictionary" aria-label="选择产地">...</button>
+                        </div>
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomsCode">海关代码</label>
+                        <input asp-for="CustomsCode" class="form-control" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="InternationalBarcode">国际条形码</label>
+                        <input asp-for="InternationalBarcode" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="SupplierItemCode">供应商货号</label>
+                        <input asp-for="SupplierItemCode" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="MaterialTexture">材质</label>
+                        <input asp-for="MaterialTexture" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="Feature">特性</label>
+                        <input asp-for="Feature" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField1">自定义名称1</label>
+                        <input asp-for="CustomField1" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField2">自定义名称2</label>
+                        <input asp-for="CustomField2" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomDate3">自定义名称3</label>
+                        <input asp-for="CustomDate3" type="date" class="form-control" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField4">自定义名称4</label>
+                        <input asp-for="CustomField4" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField5">自定义名称5</label>
+                        <input asp-for="CustomField5" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField6">自定义名称6</label>
+                        <input asp-for="CustomField6" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField7">自定义名称7</label>
+                        <input asp-for="CustomField7" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField8">自定义名称8</label>
+                        <input asp-for="CustomField8" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field">
+                        <label asp-for="CustomField9">自定义名称9</label>
+                        <input asp-for="CustomField9" class="form-control" placeholder="用户定义下拉或文本或日期" />
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full">
+                        <label asp-for="Website">网址</label>
+                        <input asp-for="Website" class="form-control" placeholder="请输入" />
+                    </div>
+                    <div class="employee-detail-field employee-detail-field--full employee-detail-field--large">
+                        <label asp-for="Remarks">备注</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <aside class="material-side">
+                <div class="material-unit-card">
+                    <div class="material-unit-row">
+                        <label asp-for="PurchaseUnit">进货单位</label>
+                        <select asp-for="PurchaseUnit" class="form-select"><option value="箱">箱</option><option value="部">部</option><option value="台">台</option></select>
+                        <span>=</span>
+                        <input asp-for="PurchaseUnitRate" type="number" step="0.0001" class="form-control" />
+                        <span>@Model.BaseUnit</span>
+                    </div>
+                    <div class="material-unit-row">
+                        <label asp-for="InventoryUnit">库存单位</label>
+                        <select asp-for="InventoryUnit" class="form-select"><option value="部">部</option><option value="箱">箱</option><option value="台">台</option></select>
+                        <span>=</span>
+                        <input asp-for="InventoryUnitRate" type="number" step="0.0001" class="form-control" />
+                        <span>@Model.BaseUnit</span>
+                    </div>
+                    <div class="material-unit-row">
+                        <label asp-for="SalesUnit">销售单位</label>
+                        <select asp-for="SalesUnit" class="form-select"><option value="部">部</option><option value="箱">箱</option><option value="台">台</option></select>
+                        <span>=</span>
+                        <input asp-for="SalesUnitRate" type="number" step="0.0001" class="form-control" />
+                        <span>@Model.BaseUnit</span>
+                    </div>
+                    <div class="material-stock-box">
+                        <div class="material-stock-row">
+                            <span>库存数量</span>
+                            <strong>@Model.InventoryQuantity.ToString("0.####") / @Model.InventoryCapacity.ToString("0.####")</strong>
+                        </div>
+                        <label asp-for="PrimaryLocation">首选库位</label>
+                        <input asp-for="PrimaryLocation" class="form-control" />
+                        <label asp-for="CurrentCost">当前成本价</label>
+                        <input asp-for="CurrentCost" type="number" step="0.0001" class="form-control" />
+                        <label asp-for="SuggestedPrice">建议售价</label>
+                        <input asp-for="SuggestedPrice" type="number" step="0.0001" class="form-control" />
+                        <div class="material-radio-row">
+                            <label><input asp-for="ProductForm" type="radio" value="成品" /> 成品</label>
+                            <label><input asp-for="ProductForm" type="radio" value="配件" /> 配件</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-image-box">
+                    <span>显示产品首个图片</span>
+                </div>
+                <button type="button" class="material-pink-btn" data-material-tool="moreImages">更多图片</button>
+                <button type="button" class="material-pink-btn" data-material-tool="archive">档案管理</button>
+            </aside>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single material-tabpanel" data-material-panel="packing">
+            <div class="material-packing-panel">
+                <table class="material-packing-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>包装数量</th>
+                            <th>长宽高(CM)</th>
+                            <th>CBM</th>
+                            <th>净重(KG)</th>
+                            <th>毛重(KG)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>单个</th>
+                            <td><input asp-for="SinglePackageQuantity" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="SinglePackageSize" class="form-control" /></td>
+                            <td><input asp-for="SingleCbm" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="SingleNetWeight" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="SingleGrossWeight" type="number" step="0.0001" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>小包</th>
+                            <td><input asp-for="InnerPackageQuantity" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="InnerPackageSize" class="form-control" /></td>
+                            <td><input asp-for="InnerCbm" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="InnerNetWeight" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="InnerGrossWeight" type="number" step="0.0001" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>箱装</th>
+                            <td><input asp-for="CartonPackageQuantity" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="CartonPackageSize" class="form-control" /></td>
+                            <td><input asp-for="CartonCbm" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="CartonNetWeight" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="CartonGrossWeight" type="number" step="0.0001" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>其他</th>
+                            <td><input asp-for="OtherPackageQuantity" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="OtherPackageSize" class="form-control" /></td>
+                            <td><input asp-for="OtherCbm" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="OtherNetWeight" type="number" step="0.0001" class="form-control" /></td>
+                            <td><input asp-for="OtherGrossWeight" type="number" step="0.0001" class="form-control" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="employee-detail-field employee-detail-field--large material-shipping-mark">
+                    <label asp-for="ShippingMark">唛头描述</label>
+                    <textarea asp-for="ShippingMark" class="form-control" rows="6"></textarea>
+                </div>
+                <div class="material-switch-row">
+                    <label><input asp-for="EnableSerialNumber" /> 启用序列号</label>
+                    <label><input asp-for="EnableBatch" /> 启用批次</label>
+                    <label><input asp-for="EnableShelfLife" /> 启用保质期</label>
+                    <input asp-for="ShelfLifeDays" type="number" class="form-control" />
+                    <span>天</span>
+                    <label><input asp-for="EnableMaintenancePeriod" /> 启用保养期</label>
+                    <input asp-for="MaintenancePeriodDays" type="number" class="form-control" />
+                    <span>天</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single material-tabpanel" data-material-panel="bom">
+            <partial name="_MaterialBomEditor" model="Model" />
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single material-tabpanel" data-material-panel="price">
+            <partial name="_MaterialPriceEditor" model="Model" />
+        </section>
+
+        <section class="employee-detail-body employee-detail-body--single material-tabpanel" data-material-panel="tasks">
+            @{
+                ViewData["TaskFollowUpEntityId"] = Model.Id ?? 0;
+                ViewData["TaskFollowUpFeatureCode"] = taskFollowUpFeatureCode;
+                ViewData["TaskFollowUpDocumentFeatureCode"] = taskFollowUpDocumentFeatureCode;
+                ViewData["TaskFollowUpEmptyMessage"] = "请先保存产品资料，再新增任务跟进记录。";
+            }
+            <partial name="_TaskFollowUpPanel" />
+        </section>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/document-manager.js" asp-append-version="true"></script>
+    <script src="~/js/material-management.js" asp-append-version="true"></script>
+    <script src="~/js/task-follow-up.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

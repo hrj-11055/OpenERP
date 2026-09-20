@@ -1,0 +1,146 @@
+.workshop-warehouse-page {
+    display: grid;
+    grid-template-rows: minmax(360px, 1fr) minmax(248px, 0.52fr);
+    gap: 0.9rem;
+    min-height: calc(100vh - 128px);
+}
+
+.workshop-warehouse-panel {
+    border-radius: 0 16px 16px 16px;
+}
+
+.workshop-warehouse-panel--detail {
+    min-height: 0;
+}
+
+.workshop-warehouse-toolbar {
+    flex-shrink: 0;
+}
+
+.workshop-warehouse-table-wrap {
+    min-height: 0;
+}
+
+.workshop-warehouse-table {
+    min-width: 1480px;
+}
+
+.workshop-warehouse-location-table {
+    min-width: 1280px;
+}
+
+.workshop-warehouse-table tbody tr.is-selected td {
+    background: #edf6ff;
+}
+
+.workshop-warehouse-subtitle {
+    flex-shrink: 0;
+}
+
+.workshop-warehouse-subtitle .company-org-meta__left span {
+    color: #10243b;
+    font-weight: 800;
+}
+
+.workshop-warehouse-detail {
+    min-height: calc(100vh - 48px);
+    padding: 0;
+    background: #fff;
+}
+
+.workshop-warehouse-detail__form {
+    min-height: 0;
+}
+
+.workshop-warehouse-detail__topbar {
+    align-items: center;
+}
+
+.workshop-warehouse-detail__topbar .employee-detail-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+    text-decoration: none;
+}
+
+.workshop-warehouse-validation:empty {
+    display: none;
+}
+
+.workshop-warehouse-hero__grid {
+    grid-template-columns: minmax(180px, 0.85fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr);
+}
+
+.workshop-warehouse-hero__grid .employee-detail-field--full {
+    grid-column: 1 / -1;
+}
+
+.workshop-warehouse-field--required label::after {
+    color: #cf2e2e;
+    content: "*";
+}
+
+.workshop-warehouse-tabpanel {
+    display: none;
+}
+
+.workshop-warehouse-tabpanel.is-active {
+    display: grid;
+}
+
+.workshop-warehouse-detail-grid {
+    max-width: 980px;
+}
+
+.workshop-warehouse-location-panel {
+    min-width: 0;
+}
+
+.workshop-warehouse-location-editor {
+    min-height: 0;
+}
+
+.workshop-warehouse-edit-table {
+    min-width: 1540px;
+}
+
+.workshop-warehouse-table-input {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.8rem;
+}
+
+.workshop-warehouse-table-input--remarks {
+    min-width: 180px;
+}
+
+.workshop-warehouse-row-action {
+    min-width: 48px;
+    min-height: 28px;
+    cursor: pointer;
+}
+
+@media (max-width: 1200px) {
+    .workshop-warehouse-page {
+        grid-template-rows: minmax(360px, 1fr) minmax(260px, 0.65fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .workshop-warehouse-page {
+        min-height: auto;
+        overflow: auto;
+    }
+
+    .workshop-warehouse-hero__grid,
+    .workshop-warehouse-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workshop-warehouse-hero__grid .employee-detail-field--full {
+        grid-column: auto;
+    }
+}

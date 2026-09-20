@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppName" xml:space="preserve">
+    <value>Open ERP</value>
+  </data>
+  <data name="Common_Action" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Common_Admin" xml:space="preserve">
+    <value>管理員</value>
+  </data>
+  <data name="Common_AdvancedSearch" xml:space="preserve">
+    <value>高級查詢</value>
+  </data>
+  <data name="Common_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Common_BackToList" xml:space="preserve">
+    <value>返回列表</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="Common_CreatedAt" xml:space="preserve">
+    <value>建立時間</value>
+  </data>
+  <data name="Common_Create" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Common_Dashboard" xml:space="preserve">
+    <value>控制面板</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="Common_Department" xml:space="preserve">
+    <value>部門</value>
+  </data>
+  <data name="Common_Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="Common_Email" xml:space="preserve">
+    <value>電子郵件</value>
+  </data>
+  <data name="Common_Export" xml:space="preserve">
+    <value>匯出</value>
+  </data>
+  <data name="Common_Fax" xml:space="preserve">
+    <value>傳真</value>
+  </data>
+  <data name="Common_Home" xml:space="preserve">
+    <value>首頁</value>
+  </data>
+  <data name="Common_Import" xml:space="preserve">
+    <value>匯入</value>
+  </data>
+  <data name="Common_LastModifiedBy" xml:space="preserve">
+    <value>最後修改人</value>
+  </data>
+  <data name="Common_LastModifiedAt" xml:space="preserve">
+    <value>最後修改時間</value>
+  </data>
+  <data name="Common_Name" xml:space="preserve">
+    <value>姓名</value>
+  </data>
+  <data name="Common_Normal" xml:space="preserve">
+    <value>正常</value>
+  </data>
+  <data name="Common_NotAssigned" xml:space="preserve">
+    <value>未指派</value>
+  </data>
+  <data name="Common_NotConfigured" xml:space="preserve">
+    <value>未配置</value>
+  </data>
+  <data name="Common_OnboardingDate" xml:space="preserve">
+    <value>到職日期</value>
+  </data>
+  <data name="Common_Phone" xml:space="preserve">
+    <value>電話</value>
+  </data>
+  <data name="Common_Position" xml:space="preserve">
+    <value>職位</value>
+  </data>
+  <data name="Common_Principal" xml:space="preserve">
+    <value>負責人</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="Common_Region" xml:space="preserve">
+    <value>地域</value>
+  </data>
+  <data name="Common_Remarks" xml:space="preserve">
+    <value>備註</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Common_Search" xml:space="preserve">
+    <value>查詢</value>
+  </data>
+  <data name="Common_SequenceNo" xml:space="preserve">
+    <value>序號</value>
+  </data>
+  <data name="Common_Status" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="Common_Type" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="Common_ViewDetails" xml:space="preserve">
+    <value>查看詳情</value>
+  </data>
+  <data name="CompanyOrganization_Archive" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="CompanyOrganization_ArchiveText" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="CompanyOrganization_CompanyName" xml:space="preserve">
+    <value>公司名稱</value>
+  </data>
+  <data name="CompanyOrganization_FilteredCount" xml:space="preserve">
+    <value>共 {0} 筆記錄</value>
+  </data>
+  <data name="CompanyOrganization_KeywordPlaceholder" xml:space="preserve">
+    <value>請輸入關鍵字查詢</value>
+  </data>
+  <data name="CompanyOrganization_NoRecords" xml:space="preserve">
+    <value>暫無公司組織記錄</value>
+  </data>
+  <data name="CompanyOrganization_OrganizationCode" xml:space="preserve">
+    <value>組織編號</value>
+  </data>
+  <data name="CompanyOrganization_OrganizationName" xml:space="preserve">
+    <value>組織名稱</value>
+  </data>
+  <data name="CompanyOrganization_PageIndicator" xml:space="preserve">
+    <value>第 {0} / {1} 頁</value>
+  </data>
+  <data name="CompanyOrganization_PageSize" xml:space="preserve">
+    <value>每頁 {0} 筆</value>
+  </data>
+  <data name="CompanyOrganization_SelectedCount" xml:space="preserve">
+    <value>已選擇 {0} 筆</value>
+  </data>
+  <data name="CompanyOrganization_SelectedCountPattern" xml:space="preserve">
+    <value>已選擇 {0} 筆</value>
+  </data>
+  <data name="CompanyOrganization_TotalCount" xml:space="preserve">
+    <value>總計 {0} 筆</value>
+  </data>
+  <data name="Department_CreateTitle" xml:space="preserve">
+    <value>新增部門</value>
+  </data>
+  <data name="Department_DescriptionPlaceholder" xml:space="preserve">
+    <value>請輸入部門描述</value>
+  </data>
+  <data name="Department_FormTitle" xml:space="preserve">
+    <value>填寫部門資訊</value>
+  </data>
+  <data name="Department_List" xml:space="preserve">
+    <value>部門列表</value>
+  </data>
+  <data name="Department_Name" xml:space="preserve">
+    <value>部門名稱</value>
+  </data>
+  <data name="Department_NamePlaceholder" xml:space="preserve">
+    <value>請輸入部門名稱</value>
+  </data>
+  <data name="Department_NoRecords" xml:space="preserve">
+    <value>暫無部門資料</value>
+  </data>
+  <data name="Error_DevelopmentMode" xml:space="preserve">
+    <value>開發模式</value>
+  </data>
+  <data name="Error_DevelopmentModeDescription" xml:space="preserve">
+    <value>切換到 Development 環境後，會顯示更詳細的異常資訊。</value>
+  </data>
+  <data name="Error_DevelopmentModeInstruction" xml:space="preserve">
+    <value>如需本機偵錯，請將 ASPNETCORE_ENVIRONMENT 環境變數設定為 Development，然後重新啟動應用程式。</value>
+  </data>
+  <data name="Error_DevelopmentModeWarning" xml:space="preserve">
+    <value>已部署環境不應啟用 Development。</value>
+  </data>
+  <data name="Error_Heading" xml:space="preserve">
+    <value>發生錯誤。</value>
+  </data>
+  <data name="Error_Message" xml:space="preserve">
+    <value>處理要求時發生異常。</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>要求 ID：</value>
+  </data>
+  <data name="Error_Title" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="Home_DepartmentCount" xml:space="preserve">
+    <value>部門總數</value>
+  </data>
+  <data name="Home_EmployeeCount" xml:space="preserve">
+    <value>員工總數</value>
+  </data>
+  <data name="Home_MonthlyOrders" xml:space="preserve">
+    <value>本月訂單</value>
+  </data>
+  <data name="Home_Overview" xml:space="preserve">
+    <value>ERP 系統概覽</value>
+  </data>
+  <data name="Home_PendingTasks" xml:space="preserve">
+    <value>待辦任務</value>
+  </data>
+  <data name="Home_PerformanceStatistics" xml:space="preserve">
+    <value>業績統計</value>
+  </data>
+  <data name="Home_RecentEmployees" xml:space="preserve">
+    <value>最近員工到職</value>
+  </data>
+  <data name="Home_UpdatedJustNow" xml:space="preserve">
+    <value>剛剛更新</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Language_SimplifiedChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Language_TraditionalChinese" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="Layout_AssetManagement" xml:space="preserve">
+    <value>資產管理</value>
+  </data>
+  <data name="Layout_BasicData" xml:space="preserve">
+    <value>基礎資料</value>
+  </data>
+  <data name="Layout_CompanyOrganization" xml:space="preserve">
+    <value>公司組織</value>
+  </data>
+  <data name="Layout_CrmManagement" xml:space="preserve">
+    <value>CRM 管理</value>
+  </data>
+  <data name="Layout_DepartmentManagement" xml:space="preserve">
+    <value>部門管理</value>
+  </data>
+  <data name="Layout_EmployeeManagement" xml:space="preserve">
+    <value>人員管理</value>
+  </data>
+  <data name="Layout_Finance" xml:space="preserve">
+    <value>財務管理</value>
+  </data>
+  <data name="Layout_Language" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="Layout_Logistics" xml:space="preserve">
+    <value>倉務管理</value>
+  </data>
+  <data name="Layout_OfficeManagement" xml:space="preserve">
+    <value>辦公管理</value>
+  </data>
+  <data name="Layout_OrganizationManagement" xml:space="preserve">
+    <value>組織管理</value>
+  </data>
+  <data name="Layout_PrivacyPolicy" xml:space="preserve">
+    <value>隱私政策</value>
+  </data>
+  <data name="Layout_Production" xml:space="preserve">
+    <value>生產管理</value>
+  </data>
+  <data name="Layout_Purchasing" xml:space="preserve">
+    <value>供應鏈管理</value>
+  </data>
+  <data name="Layout_Sales" xml:space="preserve">
+    <value>銷售管理</value>
+  </data>
+  <data name="Layout_ServiceManagement" xml:space="preserve">
+    <value>服務管理</value>
+  </data>
+  <data name="Layout_SystemSettings" xml:space="preserve">
+    <value>系統管理</value>
+  </data>
+  <data name="Layout_ToggleMenu" xml:space="preserve">
+    <value>切換選單</value>
+  </data>
+  <data name="Layout_TransportManagement" xml:space="preserve">
+    <value>運輸管理</value>
+  </data>
+  <data name="Layout_WelcomeAdmin" xml:space="preserve">
+    <value>歡迎，管理員</value>
+  </data>
+  <data name="Privacy_Description" xml:space="preserve">
+    <value>此頁面用於顯示系統的隱私政策說明。</value>
+  </data>
+  <data name="Privacy_Title" xml:space="preserve">
+    <value>隱私政策</value>
+  </data>
+  <data name="Sample_AccountManager" xml:space="preserve">
+    <value>客戶經理</value>
+  </data>
+  <data name="Sample_Developer" xml:space="preserve">
+    <value>開發工程師</value>
+  </data>
+  <data name="Sample_LiSi" xml:space="preserve">
+    <value>李四</value>
+  </data>
+  <data name="Sample_MarketingDepartment" xml:space="preserve">
+    <value>市場部</value>
+  </data>
+  <data name="Sample_TechDepartment" xml:space="preserve">
+    <value>技術部</value>
+  </data>
+  <data name="Sample_ZhangSan" xml:space="preserve">
+    <value>張三</value>
+  </data>
+  <data name="Employee_JobTitle_Director" xml:space="preserve">
+    <value>總監</value>
+  </data>
+  <data name="Employee_MaritalStatus_Single" xml:space="preserve">
+    <value>未婚</value>
+  </data>
+  <data name="Employee_AdvancedSearchHint" xml:space="preserve">
+    <value>高級查詢可繼續擴充為部門、組別、到職日期等多條件組合檢索。</value>
+  </data>
+  <data name="Employee_StatusFilterAria" xml:space="preserve">
+    <value>員工狀態篩選</value>
+  </data>
+  <data name="Employee_Status_Active" xml:space="preserve">
+    <value>在職</value>
+  </data>
+  <data name="Employee_NoRecords" xml:space="preserve">
+    <value>暫無員工記錄，點擊右上角「新增」開始錄入。</value>
+  </data>
+  <data name="Login_DemoAdminDisplayName" xml:space="preserve">
+    <value>系統管理員</value>
+  </data>
+  <data name="Login_Company_SH" xml:space="preserve">
+    <value>上海分公司</value>
+  </data>
+  <data name="Login_ForgotPassword" xml:space="preserve">
+    <value>忘記密碼</value>
+  </data>
+  <data name="Employee_DefaultRemark" xml:space="preserve">
+    <value>隨意填寫備註</value>
+  </data>
+  <data name="Employee_County_Tianhe" xml:space="preserve">
+    <value>天河區</value>
+  </data>
+  <data name="Employee_JobTitle" xml:space="preserve">
+    <value>職務</value>
+  </data>
+  <data name="Employee_Group_Business" xml:space="preserve">
+    <value>華南業務組</value>
+  </data>
+  <data name="Employee_Status_Disabled" xml:space="preserve">
+    <value>已停用</value>
+  </data>
+  <data name="Employee_DefaultOrganizationName" xml:space="preserve">
+    <value>宏易科技</value>
+  </data>
+  <data name="Login_FiscalYearOption" xml:space="preserve">
+    <value>{0} 年度</value>
+  </data>
+  <data name="Employee_City_Shenzhen" xml:space="preserve">
+    <value>深圳市</value>
+  </data>
+  <data name="Login_Company_BJ" xml:space="preserve">
+    <value>北京分公司</value>
+  </data>
+  <data name="Login_Account" xml:space="preserve">
+    <value>帳號</value>
+  </data>
+  <data name="Employee_CreatePopupMessage" xml:space="preserve">
+    <value>員工新增頁面已開啟，請先完成或關閉該頁面後再繼續操作目前列表。</value>
+  </data>
+  <data name="Employee_City_Foshan" xml:space="preserve">
+    <value>佛山市</value>
+  </data>
+  <data name="Employee_Group_Rnd" xml:space="preserve">
+    <value>研發項目組</value>
+  </data>
+  <data name="Login_Company_HQ" xml:space="preserve">
+    <value>總公司</value>
+  </data>
+  <data name="Login_InvalidCredentials" xml:space="preserve">
+    <value>帳號或密碼錯誤，請重新輸入。</value>
+  </data>
+  <data name="Employee_PageTitle" xml:space="preserve">
+    <value>人員管理</value>
+  </data>
+  <data name="Employee_ExportFileName" xml:space="preserve">
+    <value>員工記錄匯出.csv</value>
+  </data>
+  <data name="Employee_Status_Left" xml:space="preserve">
+    <value>離職</value>
+  </data>
+  <data name="Login_PasswordRequired" xml:space="preserve">
+    <value>請輸入密碼</value>
+  </data>
+  <data name="Employee_SelectRowAria" xml:space="preserve">
+    <value>選擇員工 {0}</value>
+  </data>
+  <data name="Employee_SelectedCount" xml:space="preserve">
+    <value>已選擇 {0} 筆</value>
+  </data>
+  <data name="Login_AccountMaxLength" xml:space="preserve">
+    <value>帳號長度不能超過50個字元。</value>
+  </data>
+  <data name="Employee_Ethnicity_Manchu" xml:space="preserve">
+    <value>滿族</value>
+  </data>
+  <data name="Common_Processing" xml:space="preserve">
+    <value>處理中</value>
+  </data>
+  <data name="Employee_PageIndicator" xml:space="preserve">
+    <value>第 {0} / {1} 頁</value>
+  </data>
+  <data name="Employee_County_Nanshan" xml:space="preserve">
+    <value>南山區</value>
+  </data>
+  <data name="Employee_Group_Standard" xml:space="preserve">
+    <value>紅旗標準組</value>
+  </data>
+  <data name="Login_AccountRequired" xml:space="preserve">
+    <value>請輸入帳號</value>
+  </data>
+  <data name="Employee_JobTitle_Manager" xml:space="preserve">
+    <value>經理</value>
+  </data>
+  <data name="Employee_PageSizeAria" xml:space="preserve">
+    <value>每頁顯示數量</value>
+  </data>
+  <data name="Login_CompanyRequired" xml:space="preserve">
+    <value>請選擇公司</value>
+  </data>
+  <data name="Login_Watermark" xml:space="preserve">
+    <value>Open ERP</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_Engineer" xml:space="preserve">
+    <value>工程師</value>
+  </data>
+  <data name="Employee_Education_Bachelor" xml:space="preserve">
+    <value>本科</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_AssistantEngineer" xml:space="preserve">
+    <value>助理工程師</value>
+  </data>
+  <data name="Login_Company_GZ" xml:space="preserve">
+    <value>廣州分公司</value>
+  </data>
+  <data name="Employee_Ethnicity_Zhuang" xml:space="preserve">
+    <value>壯族</value>
+  </data>
+  <data name="Employee_FilteredCount" xml:space="preserve">
+    <value>共 {0} 筆記錄</value>
+  </data>
+  <data name="Login_Submit" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="Login_Company" xml:space="preserve">
+    <value>公司</value>
+  </data>
+  <data name="Employee_ArchiveText" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="Employee_EditPopupTitle" xml:space="preserve">
+    <value>編輯員工</value>
+  </data>
+  <data name="Login_Company_SZ" xml:space="preserve">
+    <value>深圳分公司</value>
+  </data>
+  <data name="Employee_SelectForDeletePrompt" xml:space="preserve">
+    <value>請先選擇一筆員工記錄再進行刪除。</value>
+  </data>
+  <data name="Employee_Region_EastChina" xml:space="preserve">
+    <value>中國華東</value>
+  </data>
+  <data name="Employee_Gender" xml:space="preserve">
+    <value>性別</value>
+  </data>
+  <data name="Employee_NoResult" xml:space="preserve">
+    <value>未找到符合條件的員工記錄。</value>
+  </data>
+  <data name="Employee_Code" xml:space="preserve">
+    <value>員工編號</value>
+  </data>
+  <data name="Login_CompanyName" xml:space="preserve">
+    <value>宏易科技有限公司</value>
+  </data>
+  <data name="Employee_Group" xml:space="preserve">
+    <value>組別</value>
+  </data>
+  <data name="Employee_CardNumber" xml:space="preserve">
+    <value>員工卡號</value>
+  </data>
+  <data name="Employee_NotNamed" xml:space="preserve">
+    <value>未命名員工</value>
+  </data>
+  <data name="Employee_SelectForEditPrompt" xml:space="preserve">
+    <value>請先選擇一筆員工記錄再進行修改。</value>
+  </data>
+  <data name="Employee_TotalCount" xml:space="preserve">
+    <value>總計 {0} 筆</value>
+  </data>
+  <data name="Employee_Education_HighSchool" xml:space="preserve">
+    <value>高中</value>
+  </data>
+  <data name="Employee_MaritalStatus_Married" xml:space="preserve">
+    <value>已婚</value>
+  </data>
+  <data name="Login_RememberMe" xml:space="preserve">
+    <value>記住我</value>
+  </data>
+  <data name="Employee_Education_Master" xml:space="preserve">
+    <value>碩士</value>
+  </data>
+  <data name="Employee_EditPopupMessage" xml:space="preserve">
+    <value>員工編輯頁面已開啟，請先完成或關閉該頁面後再繼續操作目前列表。</value>
+  </data>
+  <data name="Employee_GroupPattern" xml:space="preserve">
+    <value>組別{0}</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_TechnicalManager" xml:space="preserve">
+    <value>技術經理</value>
+  </data>
+  <data name="Employee_Organization" xml:space="preserve">
+    <value>所屬組織</value>
+  </data>
+  <data name="Login_PasswordMaxLength" xml:space="preserve">
+    <value>密碼長度不能超過100個字元。</value>
+  </data>
+  <data name="Employee_CopyNameSuffix" xml:space="preserve">
+    <value>（副本）</value>
+  </data>
+  <data name="Employee_Education_College" xml:space="preserve">
+    <value>大專</value>
+  </data>
+  <data name="Employee_Gender_Male" xml:space="preserve">
+    <value>男</value>
+  </data>
+  <data name="Employee_SelectAllAria" xml:space="preserve">
+    <value>全選員工記錄</value>
+  </data>
+  <data name="Employee_County_Yuexiu" xml:space="preserve">
+    <value>越秀區</value>
+  </data>
+  <data name="Employee_PageSize" xml:space="preserve">
+    <value>{0}筆/頁</value>
+  </data>
+  <data name="Employee_DefaultGroup" xml:space="preserve">
+    <value>華南</value>
+  </data>
+  <data name="Employee_JobTitle_Accountant" xml:space="preserve">
+    <value>會計</value>
+  </data>
+  <data name="Employee_Name" xml:space="preserve">
+    <value>員工姓名</value>
+  </data>
+  <data name="Employee_Region_SouthChina" xml:space="preserve">
+    <value>中國華南</value>
+  </data>
+  <data name="Employee_Region_NorthChina" xml:space="preserve">
+    <value>中國華北</value>
+  </data>
+  <data name="Employee_Group_Admin" xml:space="preserve">
+    <value>總部行政組</value>
+  </data>
+  <data name="Employee_DefaultDepartment" xml:space="preserve">
+    <value>IT</value>
+  </data>
+  <data name="Employee_Gender_Female" xml:space="preserve">
+    <value>女</value>
+  </data>
+  <data name="Login_PageAria" xml:space="preserve">
+    <value>Open ERP 登入</value>
+  </data>
+  <data name="Login_FiscalYear" xml:space="preserve">
+    <value>財務年度</value>
+  </data>
+  <data name="Login_Title" xml:space="preserve">
+    <value>登入 - Open ERP</value>
+  </data>
+  <data name="Login_Password" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="Employee_ProfessionalTitle_SeniorEngineer" xml:space="preserve">
+    <value>高級工程師</value>
+  </data>
+  <data name="Employee_Education_Doctor" xml:space="preserve">
+    <value>博士</value>
+  </data>
+  <data name="Employee_Ethnicity_Han" xml:space="preserve">
+    <value>漢族</value>
+  </data>
+  <data name="Employee_City_Guangzhou" xml:space="preserve">
+    <value>廣州市</value>
+  </data>
+  <data name="Employee_Ethnicity_Hui" xml:space="preserve">
+    <value>回族</value>
+  </data>
+  <data name="Login_PasswordPlaceholder" xml:space="preserve">
+    <value>請輸入密碼</value>
+  </data>
+  <data name="Login_FiscalYearRequired" xml:space="preserve">
+    <value>請選擇財務年度</value>
+  </data>
+  <data name="Employee_CopySuffix" xml:space="preserve">
+    <value>-COPY</value>
+  </data>
+  <data name="Employee_KeywordPlaceholder" xml:space="preserve">
+    <value>請輸入關鍵字查詢</value>
+  </data>
+  <data name="Employee_CreatePopupTitle" xml:space="preserve">
+    <value>新增員工</value>
+  </data>
+  <data name="Login_AccountPlaceholder" xml:space="preserve">
+    <value>請輸入帳號</value>
+  </data>
+  <data name="Employee_SelectForCopyPrompt" xml:space="preserve">
+    <value>請先選擇一筆員工記錄再進行複製。</value>
+  </data>
+  <data name="Employee_SelectOnlyOnePrompt" xml:space="preserve">
+    <value>只能選擇一筆員工記錄，請取消多餘的選擇。</value>
+  </data>
+  <data name="Delete_PageTitle" xml:space="preserve">
+    <value>刪除確認</value>
+  </data>
+  <data name="Delete_ConfirmTitle" xml:space="preserve">
+    <value>確認刪除員工</value>
+  </data>
+  <data name="Delete_EmployeeCode" xml:space="preserve">
+    <value>員工編號</value>
+  </data>
+  <data name="Delete_EmployeeName" xml:space="preserve">
+    <value>員工姓名</value>
+  </data>
+  <data name="Delete_Unnamed" xml:space="preserve">
+    <value>未命名員工</value>
+  </data>
+  <data name="Delete_WarningText" xml:space="preserve">
+    <value>刪除後該員工將被標記為已停用狀態，是否確認刪除？</value>
+  </data>
+  <data name="Delete_ConfirmButton" xml:space="preserve">
+    <value>確認刪除</value>
+  </data>
+  <data name="Delete_CancelButton" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="Common_Info" xml:space="preserve">
+    <value>資訊</value>
+  </data>
+  <data name="Employee_CurrentStatus" xml:space="preserve">
+    <value>目前狀態</value>
+  </data>
+  <data name="Employee_Label_HireDate" xml:space="preserve">
+    <value>入職日期</value>
+  </data>
+  <data name="Employee_Label_LeaveDate" xml:space="preserve">
+    <value>離職日期</value>
+  </data>
+  <data name="Employee_LookupEmployeeCodeAria" xml:space="preserve">
+    <value>查找員工編號</value>
+  </data>
+  <data name="Employee_SearchItem_Employee" xml:space="preserve">
+    <value>員工</value>
+  </data>
+  <data name="Employee_Tab_AccountPermission" xml:space="preserve">
+    <value>帳號及權限</value>
+  </data>
+  <data name="Employee_Tab_AttendanceSalary" xml:space="preserve">
+    <value>考勤及工資</value>
+  </data>
+  <data name="Employee_Tab_BasicInfo" xml:space="preserve">
+    <value>基本資訊</value>
+  </data>
+</root>

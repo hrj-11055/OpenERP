@@ -1,0 +1,59 @@
+@model IEnumerable<OpenERP.Asset.Models.Entities.Asset>
+@{
+    ViewData["Title"] = "资产管理";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">资产管理</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">首页</a></li>
+        <li class="breadcrumb-item active">资产管理</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-box-seam me-1"></i>
+                资产列表
+            </div>
+            <a asp-area="Asset" asp-controller="Assets" asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> 新增资产
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>资产标签</th>
+                        <th>状态</th>
+                        <th>购买日期</th>
+                        <th>购买成本</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center">暂无数据</td></tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.AssetTag</td>
+                            <td>@item.Status</td>
+                            <td>@item.PurchaseDate.ToShortDateString()</td>
+                            <td>@item.PurchaseCost.ToString("C")</td>
+                            <td>
+                                <a asp-area="Asset" asp-controller="Assets" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info btn-sm">编辑</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

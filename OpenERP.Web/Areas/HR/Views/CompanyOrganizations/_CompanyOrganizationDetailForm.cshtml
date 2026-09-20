@@ -1,0 +1,537 @@
+@model OpenERP.HR.Models.Entities.CompanyOrganization
+@{
+    var isPopup = ViewBag.IsPopup as bool? == true;
+    var isEdit = Model?.Id > 0;
+    var formAction = ViewData["FormAction"]?.ToString() ?? (isEdit ? "Edit" : "Create");
+    var saveButtonText = ViewData["SaveButtonText"]?.ToString() ?? "保存";
+    var isReadOnly = ViewData["IsReadOnly"] as bool? == true;
+    var ro = isReadOnly ? "readonly" : null;
+    var dis = isReadOnly ? "disabled" : null;
+    var createUrl = Url.Action("Create", "CompanyOrganizations", new { area = "HR", popup = isPopup }) ?? "#";
+    var locationOptionsUrl = Url.Action("LocationOptions", "CompanyOrganizations", new { area = "HR" }) ?? "#";
+    var bankAccountApiBaseUrl = Url.Content("~/api/companyorganizationbankaccount");
+    var documentNumberRuleApiBaseUrl = Url.Content("~/api/companyorganizationdocumentnumberrule");
+    var printTemplateApiBaseUrl = Url.Content("~/api/companyorganizationprinttemplate");
+}
+
+<div class="company-org-detail-page">
+    <form id="companyOrganizationDetailForm"
+          asp-area="HR"
+          asp-controller="CompanyOrganizations"
+          asp-action="@formAction"
+          data-create-url="@createUrl"
+          data-location-options-url="@locationOptionsUrl"
+          data-bank-account-api-base-url="@bankAccountApiBaseUrl"
+          data-document-number-rule-api-base-url="@documentNumberRuleApiBaseUrl"
+          data-print-template-api-base-url="@printTemplateApiBaseUrl"
+          class="company-org-detail-shell @(isReadOnly ? "is-readonly" : "")">
+        <input type="hidden" name="popup" value="@isPopup.ToString().ToLowerInvariant()" />
+        @if (isEdit)
+        {
+            <input type="hidden" asp-for="Id" />
+        }
+
+        <input type="hidden" asp-for="WeeklyWorkDays" />
+        <input type="hidden" asp-for="LeaveCountBasisType" />
+        <input type="hidden" asp-for="HolidayType" />
+        <input type="hidden" asp-for="AnnualLeaveCalculationMonthDay" />
+        <input type="hidden" asp-for="AnnualLeaveGrantRule" />
+        <input type="hidden" asp-for="AnnualLeaveGrantMonthDay" />
+        <input type="hidden" asp-for="IsAnnualLeaveClearEnabled" />
+        <input type="hidden" asp-for="AnnualLeaveClearMonthDay" />
+        <input type="hidden" asp-for="IsCarryForwardAnnualLeaveAllowed" />
+        <input type="hidden" asp-for="BaseAnnualLeaveDays" />
+        <input type="hidden" asp-for="AnnualLeaveIncrementStartYears" />
+        <input type="hidden" asp-for="AnnualLeaveIncrementPerYearDays" />
+        <input type="hidden" asp-for="AnnualLeaveCapDays" />
+        <input type="hidden" asp-for="AnnualLeaveMaxAccumulatedDays" />
+        <input type="hidden" asp-for="PaidSickLeaveDaysPerYear" />
+        <input type="hidden" asp-for="PaidSickLeaveSalaryRatio" />
+        <input type="hidden" asp-for="PaidSickLeaveCalculationMonthDay" />
+        <input type="hidden" asp-for="IsPaidSickLeaveClearEnabled" />
+        <input type="hidden" asp-for="PaidSickLeaveClearMonthDay" />
+        <input type="hidden" asp-for="EmployeeMpfMinimumSalary" />
+
+        <div class="company-org-detail-toolbar">
+            @if (isReadOnly)
+            {
+                <button type="button" class="company-org-detail-toolbar__btn" data-company-tool="new" data-target-url="@createUrl">新增</button>
+                <button type="button" class="company-org-detail-toolbar__btn" id="btnCompanyEdit">编辑</button>
+                <button type="button" class="company-org-detail-toolbar__btn" data-company-tool="copy">复制</button>
+                <button type="button" class="company-org-detail-toolbar__btn" data-company-tool="mail">邮件</button>
+                <button type="button" class="company-org-detail-toolbar__btn" data-company-tool="message">信息</button>
+            }
+            else
+            {
+                <button type="submit" class="company-org-detail-toolbar__btn" id="btnCompanySave">@saveButtonText</button>
+            }
+            <button type="button" class="company-org-detail-toolbar__btn" onclick="window.closeCompanyOrganizationDetailPage()">关闭</button>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="company-org-detail-validation"></div>
+
+        <section class="company-org-detail-hero">
+            <div class="company-org-detail-hero__grid">
+                <div class="company-org-detail-field">
+                    <label asp-for="OrganizationCode">组织编号</label>
+                    <div class="company-org-detail-field__inline">
+                        <input asp-for="OrganizationCode" class="form-control" placeholder="请输入" readonly="@ro" />
+                        <button type="button"
+                                class="company-org-detail-icon-btn"
+                                data-company-tool="lookup"
+                                aria-label="查询组织编号"
+                                @(isReadOnly ? "style=display:none" : "")>
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="OrganizationCode" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="CompanyNatureId">性质</label>
+                    <select asp-for="CompanyNatureId" class="form-select" asp-items="ViewBag.CompanyNatureId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="CompanyNatureId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="StatusId">状态</label>
+                    <select asp-for="StatusId" class="form-select" asp-items="ViewBag.StatusId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="StatusId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full">
+                    <label asp-for="OrganizationName">组织名称</label>
+                    <input asp-for="OrganizationName" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="company-org-detail-tabs">
+            <button type="button" class="company-org-detail-tabs__item is-active" data-tab-panel="basicInfo">基本信息</button>
+            <button type="button" class="company-org-detail-tabs__item" data-tab-panel="financeInfo">账务信息</button>
+            <button type="button" class="company-org-detail-tabs__item" data-company-tool="tab" data-tab-label="人事规则">人事规则</button>
+            <button type="button" class="company-org-detail-tabs__item" data-tab-panel="documentNumberRule">单号规则</button>
+            <button type="button" class="company-org-detail-tabs__item" data-tab-panel="documentPrint">单据打印</button>
+            <button type="button" class="company-org-detail-tabs__item" data-company-tool="tab" data-tab-label="管辖仓库">管辖仓库</button>
+            <button type="button" class="company-org-detail-tabs__item" data-company-tool="tab" data-tab-label="员工记录">员工记录</button>
+        </nav>
+
+        <section class="company-org-detail-body" data-tab-content="basicInfo">
+            <div class="company-org-detail-grid">
+                <div class="company-org-detail-field">
+                    <label asp-for="EnterpriseTypeId">企业类型</label>
+                    <select asp-for="EnterpriseTypeId" class="form-select" asp-items="ViewBag.EnterpriseTypeId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="EnterpriseTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="BusinessRegistrationNumber">商业登记证号</label>
+                    <input asp-for="BusinessRegistrationNumber" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="BusinessRegistrationNumber" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="BusinessRegistrationExpiryDate">商业登记证到期日</label>
+                    <input asp-for="BusinessRegistrationExpiryDate" type="date" class="form-control" readonly="@ro" />
+                    <span asp-validation-for="BusinessRegistrationExpiryDate" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="RegionId">国家/地区</label>
+                    <select asp-for="RegionId" class="form-select" asp-items="ViewBag.RegionId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="RegionId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="CityId">城市</label>
+                    <select asp-for="CityId" class="form-select" asp-items="ViewBag.CityId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="CityId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="CountyId">县/区</label>
+                    <select asp-for="CountyId" class="form-select" asp-items="ViewBag.CountyId" disabled="@dis">
+                        <option value="">请选择</option>
+                    </select>
+                    <span asp-validation-for="CountyId" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full">
+                    <label asp-for="Address">地址</label>
+                    <textarea asp-for="Address" class="form-control" rows="3" placeholder="请输入详细地址" readonly="@ro"></textarea>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="Principal">负责人</label>
+                    <input asp-for="Principal" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="Principal" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="Phone">电话</label>
+                    <input asp-for="Phone" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field">
+                    <label asp-for="Fax">传真</label>
+                    <input asp-for="Fax" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="Fax" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full">
+                    <label asp-for="Email">邮箱</label>
+                    <input asp-for="Email" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full">
+                    <label asp-for="Website">网址</label>
+                    <input asp-for="Website" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="Website" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full company-org-detail-field--large">
+                    <label asp-for="Remarks">备注</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="8" placeholder="请输入备注信息" readonly="@ro"></textarea>
+                    <span asp-validation-for="Remarks" class="text-danger"></span>
+                </div>
+
+                <div class="company-org-detail-field company-org-detail-field--full">
+                    <label asp-for="ArchivePath">存档路径</label>
+                    <input asp-for="ArchivePath" class="form-control" placeholder="请输入" readonly="@ro" />
+                    <span asp-validation-for="ArchivePath" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="company-org-detail-actions">
+                <button type="button" class="company-org-detail-archive-btn" data-company-tool="archive">档案管理</button>
+            </div>
+        </section>
+
+        <section class="company-org-detail-body company-org-detail-body--single" data-tab-content="financeInfo" style="display:none;">
+            <div class="company-org-finance-panel" id="companyOrgFinancePanel" data-company-organization-id="@(Model?.Id ?? 0)">
+                <div class="company-org-finance-toolbar">
+                    <div class="company-org-finance-toolbar__filters">
+                        <select id="companyBankAccountStatusFilter" class="form-select">
+                            <option value="">全部</option>
+                        </select>
+                        <input id="companyBankAccountKeyword" type="text" class="form-control" placeholder="请输入关键字查询" />
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountSearchButton">查询</button>
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountRefreshButton">刷新</button>
+                    </div>
+
+                    <div class="company-org-finance-toolbar__actions">
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountAddButton">新增</button>
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountDeleteButton">删除</button>
+                    </div>
+                </div>
+
+                <p id="companyBankAccountPendingHint" class="company-org-finance-hint" @(Model?.Id > 0 ? "hidden" : null)>
+                    请先保存公司组织后，再维护账务信息中的银行账号记录。
+                </p>
+
+                <section class="company-org-finance-editor" id="companyBankAccountEditor" hidden>
+                    <div class="company-org-finance-editor__header">
+                        <h3 class="company-org-finance-editor__title">银行账号编辑</h3>
+                        <div class="company-org-finance-editor__actions">
+                            <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountSaveButton">保存账号</button>
+                            <button type="button" class="company-org-detail-toolbar__btn" id="companyBankAccountCancelButton">取消</button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="companyBankAccountId" />
+                    <div class="company-org-finance-editor__grid">
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountNumber">账号</label>
+                            <input id="companyBankAccountNumber" type="text" class="form-control" placeholder="请输入银行账号" />
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountBankId">开户银行</label>
+                            <select id="companyBankAccountBankId" class="form-select">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountBranchName">开户支行名称</label>
+                            <input id="companyBankAccountBranchName" type="text" class="form-control" placeholder="请输入开户支行名称" />
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountBranchAddress">开户支行地址</label>
+                            <input id="companyBankAccountBranchAddress" type="text" class="form-control" placeholder="请输入开户地址" />
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountCurrencyCode">货币</label>
+                            <select id="companyBankAccountCurrencyCode" class="form-select"></select>
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountStatusCode">状态</label>
+                            <select id="companyBankAccountStatusCode" class="form-select"></select>
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountSubjectCode">科目编号</label>
+                            <input id="companyBankAccountSubjectCode" type="text" class="form-control" placeholder="请输入科目编号" />
+                        </div>
+
+                        <div class="company-org-finance-field">
+                            <label for="companyBankAccountSubjectName">科目名称</label>
+                            <input id="companyBankAccountSubjectName" type="text" class="form-control" placeholder="请输入科目名称" />
+                        </div>
+
+                        <div class="company-org-finance-field company-org-finance-field--wide">
+                            <label for="companyBankAccountRemarks">备注</label>
+                            <input id="companyBankAccountRemarks" type="text" class="form-control" placeholder="请输入备注" />
+                        </div>
+
+                        <div class="company-org-finance-field company-org-finance-field--checkbox">
+                            <label class="company-org-finance-checkbox">
+                                <input id="companyBankAccountIsDefault" type="checkbox" />
+                                <span>设为默认账号</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="company-org-finance-tablewrap">
+                    <table class="table company-org-finance-table" id="companyBankAccountTable">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>
+                                    <input id="companyBankAccountSelectAll" type="checkbox" />
+                                </th>
+                                <th>账号</th>
+                                <th>开户银行</th>
+                                <th>开户支行名称</th>
+                                <th>开户支行地址</th>
+                                <th>货币</th>
+                                <th>状态</th>
+                                <th>科目编号</th>
+                                <th>科目名称</th>
+                                <th>备注</th>
+                                <th>默认</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyBankAccountTableBody">
+                            <tr>
+                                <td colspan="12" class="company-org-finance-table__empty">请先保存公司组织后再维护银行账号。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="company-org-finance-footer">
+                    <span id="companyBankAccountSummary">共 0 条</span>
+                    <div class="company-org-finance-pagination">
+                        <button type="button" class="company-org-finance-pagebtn" id="companyBankAccountPrevPage">上一页</button>
+                        <div id="companyBankAccountPageNumbers" class="company-org-finance-pagegroup"></div>
+                        <button type="button" class="company-org-finance-pagebtn" id="companyBankAccountNextPage">下一页</button>
+                    </div>
+                    <label class="company-org-finance-pagesize">
+                        <span>每页</span>
+                        <select id="companyBankAccountPageSize" class="form-select">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                        </select>
+                        <span>条</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <section class="company-org-detail-body company-org-detail-body--single" data-tab-content="documentNumberRule" style="display:none;">
+            <div class="company-org-doc-rule-panel" id="companyOrgDocumentRulePanel" data-company-organization-id="@(Model?.Id ?? 0)">
+                <div class="company-org-doc-rule-toolbar">
+                    <div class="company-org-doc-rule-toolbar__info">
+                        <h3 class="company-org-doc-rule-toolbar__title">单号规则</h3>
+                        <p class="company-org-doc-rule-toolbar__hint">当前已接入的销售订单、采购订单、生产工单会按所属公司规则自动生成单号。</p>
+                    </div>
+                    <div class="company-org-doc-rule-toolbar__actions">
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyDocumentRuleRefreshButton">刷新</button>
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyDocumentRuleSaveButton">保存规则</button>
+                    </div>
+                </div>
+
+                <p id="companyDocumentRulePendingHint" class="company-org-finance-hint" @(Model?.Id > 0 ? "hidden" : null)>
+                    请先保存公司组织后，再配置该公司的单号规则。
+                </p>
+
+                <div class="company-org-doc-rule-tablewrap">
+                    <table class="table company-org-doc-rule-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>单据功能</th>
+                                <th>前缀</th>
+                                <th>日期格式</th>
+                                <th>流水位</th>
+                                <th>单号例子</th>
+                                <th>最后一个单号</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyDocumentRuleTableBody">
+                            <tr>
+                                <td colspan="7" class="company-org-finance-table__empty">请先保存公司组织后再维护单号规则。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="company-org-detail-body company-org-detail-body--single" data-tab-content="documentPrint" style="display:none;">
+            <div class="company-org-print-panel" id="companyOrgPrintPanel" data-company-organization-id="@(Model?.Id ?? 0)">
+                <p id="companyPrintPendingHint" class="company-org-finance-hint" @(Model?.Id > 0 ? "hidden" : null)>
+                    请先保存公司组织并确认组织编号后，再上传单据打印 LOGO。页头与页脚文本可直接随公司组织资料一起保存。
+                </p>
+
+                <div class="company-org-print-row">
+                    <div class="company-org-print-row__label">LOGO</div>
+                    <div class="company-org-print-row__content">
+                        <div class="company-org-print-logo">
+                            <div class="company-org-print-logo__preview" id="companyPrintLogoPreview">
+                                <img id="companyPrintLogoImage" class="company-org-print-logo__image" alt="公司 LOGO 预览" hidden />
+                                <div id="companyPrintLogoEmpty" class="company-org-print-logo__empty">未上传 LOGO</div>
+                            </div>
+
+                            <div class="company-org-print-logo__actions">
+                                <div class="company-org-print-logo__buttons">
+                                    <input id="companyPrintLogoFile" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" hidden />
+                                    <button type="button" class="company-org-detail-toolbar__btn" id="companyPrintLogoChooseButton">选择图片</button>
+                                    <button type="button" class="company-org-detail-toolbar__btn" id="companyPrintLogoUploadButton">上传 LOGO</button>
+                                    <button type="button" class="company-org-detail-toolbar__btn" id="companyPrintLogoDeleteButton">删除 LOGO</button>
+                                </div>
+                                <div id="companyPrintLogoSelected" class="company-org-print-logo__meta">支持 JPG / PNG，文件名自动使用组织编号。</div>
+                                <div id="companyPrintLogoPath" class="company-org-print-logo__meta"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="company-org-print-row">
+                    <label asp-for="PrintHeaderContent" class="company-org-print-row__label"></label>
+                    <div class="company-org-print-row__content">
+                        <textarea asp-for="PrintHeaderContent"
+                                  class="form-control company-org-print-textarea"
+                                  rows="8"
+                                  placeholder="请输入打印页头内容，可按行录入。"
+                                  readonly="@ro"></textarea>
+                        <span asp-validation-for="PrintHeaderContent" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="company-org-print-row">
+                    <label asp-for="PrintFooterContent" class="company-org-print-row__label"></label>
+                    <div class="company-org-print-row__content">
+                        <textarea asp-for="PrintFooterContent"
+                                  class="form-control company-org-print-textarea"
+                                  rows="8"
+                                  placeholder="请输入打印页脚内容，可按行录入。"
+                                  readonly="@ro"></textarea>
+                        <span asp-validation-for="PrintFooterContent" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="company-org-print-note">
+                    系统中使用浏览器打印的单据页面，会自动带上当前开单公司的 LOGO、页头和页脚内容。
+                </div>
+            </div>
+        </section>
+        <section class="company-org-detail-body company-org-detail-body--single" data-tab-content="employeeRecords" style="display:none;">
+            <div class="company-org-employee-panel" id="companyOrgEmployeePanel" data-company-organization-id="@(Model?.Id ?? 0)">
+                <div class="company-org-employee-toolbar">
+                    <div class="company-org-employee-toolbar__filters">
+                        <select id="companyEmployeeStatusFilter" class="form-select">
+                            <option value="">鍏ㄩ儴</option>
+                        </select>
+                        <input id="companyEmployeeKeyword" type="text" class="form-control" placeholder="璇疯緭鍏ュ憳宸ョ紪鍙枫€佸鍚嶆垨鑱旂郴鏂瑰紡" />
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyEmployeeSearchButton">鏌ヨ</button>
+                        <button type="button" class="company-org-detail-toolbar__btn" id="companyEmployeeRefreshButton">鍒锋柊</button>
+                    </div>
+                </div>
+
+                <p id="companyEmployeePendingHint" class="company-org-finance-hint" @(Model?.Id > 0 ? "hidden" : null)>
+                    璇峰厛淇濆瓨鍏徃缁勭粐鍚庯紝鍐嶆煡鐪嬭鍏徃缁勭粐涓嬬殑鍛樺伐璁板綍銆?                </p>
+
+                <div class="company-org-employee-tablewrap">
+                    <table class="table company-org-employee-table">
+                        <thead>
+                            <tr>
+                                <th>搴忓彿</th>
+                                <th>鍛樺伐缂栧彿</th>
+                                <th>鍛樺伐濮撳悕</th>
+                                <th>鎬у埆</th>
+                                <th>鍛樺伐鍗″彿</th>
+                                <th>閮ㄩ棬</th>
+                                <th>缁勫埆</th>
+                                <th>鑱屼綅</th>
+                                <th>鎵嬫満</th>
+                                <th>鐢佃瘽</th>
+                                <th>鐢甸偖</th>
+                                <th>鍥剧墖</th>
+                                <th>澶囨敞</th>
+                                <th>鐘舵€�</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyEmployeeTableBody">
+                            <tr>
+                                <td colspan="14" class="company-org-finance-table__empty">璇峰厛淇濆瓨鍏徃缁勭粐鍚庡啀鏌ョ湅鍛樺伐璁板綍銆?/td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="company-org-employee-footer">
+                    <span id="companyEmployeeSummary">鍏?0 鏉?/span>
+                    <div class="company-org-finance-pagination">
+                        <button type="button" class="company-org-finance-pagebtn" id="companyEmployeePrevPage">涓婁竴椤?/button>
+                        <div id="companyEmployeePageNumbers" class="company-org-finance-pagegroup"></div>
+                        <button type="button" class="company-org-finance-pagebtn" id="companyEmployeeNextPage">涓嬩竴椤?/button>
+                    </div>
+                    <label class="company-org-finance-pagesize">
+                        <span>姣忛〉</span>
+                        <select id="companyEmployeePageSize" class="form-select">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                        </select>
+                        <span>鏉?/span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="company-org-photo-modal" id="companyEmployeePhotoModal" hidden>
+                <div class="company-org-photo-modal__dialog" role="dialog" aria-modal="true" aria-label="鍛樺伐鍥剧墖棰勮">
+                    <div class="company-org-photo-modal__header">
+                        <div id="companyEmployeePhotoTitle" class="company-org-photo-modal__title">鍛樺伐鍥剧墖</div>
+                        <button type="button" class="company-org-photo-modal__close" id="companyEmployeePhotoClose" aria-label="鍏抽棴鍥剧墖棰勮">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="company-org-photo-modal__body">
+                        <img id="companyEmployeePhotoImage" class="company-org-photo-modal__image" alt="鍛樺伐鍥剧墖" />
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+</div>

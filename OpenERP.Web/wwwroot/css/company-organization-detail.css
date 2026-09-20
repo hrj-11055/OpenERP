@@ -1,0 +1,746 @@
+:root {
+  --company-org-detail-border: #bcc8d6;
+  --company-org-detail-line: #d7e0ea;
+  --company-org-detail-surface: #f3f4f6;
+  --company-org-detail-ink: #1f2937;
+  --company-org-detail-muted: #6b7280;
+  --company-org-detail-accent: #2f80d1;
+  --company-org-detail-accent-soft: #edf5ff;
+}
+
+.company-org-detail-page {
+  min-height: calc(100vh - 48px);
+  color: var(--company-org-detail-ink);
+  font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+}
+
+.company-org-detail-shell {
+  border: 1px solid var(--company-org-detail-border);
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(40, 60, 84, 0.12);
+}
+
+.company-org-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--company-org-detail-line);
+  background: #fcfdff;
+}
+
+.company-org-detail-toolbar__btn {
+  min-width: 54px;
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 4px;
+  padding: 0.22rem 0.75rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #111827;
+  font-size: 0.84rem;
+}
+
+.company-org-detail-toolbar__btn:hover:not(:disabled) {
+  border-color: #8fb1dc;
+  background: linear-gradient(180deg, #ffffff 0%, #e3eefc 100%);
+}
+
+.company-org-detail-validation {
+  margin: 0.65rem 0.8rem 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: #fff4f4;
+}
+
+.company-org-detail-hero {
+  padding: 0.7rem 0.8rem 0.55rem;
+}
+
+.company-org-detail-hero__grid,
+.company-org-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.company-org-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.company-org-detail-field label {
+  color: #111827;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.company-org-detail-field__inline {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.company-org-detail-field--full {
+  grid-column: 1 / -1;
+}
+
+.company-org-detail-field--large textarea {
+  min-height: 176px;
+}
+
+.company-org-detail-icon-btn {
+  flex: 0 0 34px;
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.company-org-detail-hero .form-control,
+.company-org-detail-hero .form-select,
+.company-org-detail-grid .form-control,
+.company-org-detail-grid .form-select {
+  min-height: 38px;
+  border-color: #ccd5df;
+  border-radius: 0;
+  background: #fff;
+}
+
+.company-org-detail-grid textarea.form-control {
+  min-height: 72px;
+}
+
+.company-org-detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 0 0.8rem;
+  border-top: 1px solid #86b0ff;
+  border-bottom: 1px solid #86b0ff;
+  background: #fff;
+}
+
+.company-org-detail-tabs__item {
+  border: 0;
+  border-right: 1px solid #a8c4ff;
+  padding: 0.45rem 1.4rem;
+  background: transparent;
+  color: #2b6ee7;
+  font-size: 0.82rem;
+}
+
+.company-org-detail-tabs__item.is-active {
+  background: linear-gradient(180deg, #3f85ef 0%, #2466d0 100%);
+  color: #fff;
+}
+
+.company-org-detail-body {
+  padding: 1rem 0.8rem 1.1rem;
+  background: #fafbfc;
+}
+
+.company-org-detail-body--single {
+  padding-bottom: 0.85rem;
+}
+
+.company-org-detail-actions {
+  margin-top: 0.8rem;
+}
+
+.company-org-detail-archive-btn {
+  min-width: 108px;
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 4px;
+  padding: 0.35rem 0.95rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #111827;
+  font-size: 0.84rem;
+}
+
+.company-org-detail-page .text-danger {
+  font-size: 0.76rem;
+}
+
+.company-org-detail-shell.is-readonly .form-control[readonly],
+.company-org-detail-shell.is-readonly .form-select:disabled {
+  background-color: var(--company-org-detail-surface);
+  color: var(--company-org-detail-muted);
+  cursor: default;
+}
+
+.company-org-finance-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.company-org-finance-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-toolbar__filters,
+.company-org-finance-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-toolbar__filters .form-select {
+  min-width: 130px;
+}
+
+.company-org-finance-toolbar__filters .form-control {
+  min-width: 260px;
+}
+
+.company-org-finance-editor {
+  padding: 0.9rem;
+  border: 1px solid var(--company-org-detail-line);
+  background: #fff;
+}
+
+.company-org-finance-editor__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.company-org-finance-editor__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.company-org-finance-editor__actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-editor__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem 0.9rem;
+}
+
+.company-org-finance-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.company-org-finance-field label {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.company-org-finance-field--full {
+  grid-column: 1 / -1;
+}
+
+.company-org-finance-field--checkbox {
+  justify-content: flex-end;
+}
+
+.company-org-finance-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 38px;
+}
+
+.company-org-finance-empty {
+  padding: 0.9rem 1rem;
+  border: 1px dashed #aac3ea;
+  background: #f8fbff;
+  color: #43638c;
+  font-size: 0.86rem;
+}
+
+.company-org-finance-table-shell {
+  overflow: auto;
+  border: 1px solid var(--company-org-detail-line);
+  background: #fff;
+}
+
+.company-org-finance-table {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.company-org-finance-table th,
+.company-org-finance-table td {
+  border: 1px solid #d8e0ea;
+  padding: 0.42rem 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.company-org-finance-table thead th {
+  background: #f5f8fc;
+  font-weight: 700;
+}
+
+.company-org-finance-table__seq {
+  width: 58px;
+  text-align: center;
+}
+
+.company-org-finance-table__checkbox {
+  width: 42px;
+  text-align: center;
+}
+
+.company-org-finance-table__empty {
+  padding: 1.25rem 0.5rem;
+  text-align: center;
+  color: var(--company-org-detail-muted);
+}
+
+.company-org-finance-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #145bb8;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.company-org-finance-link:disabled {
+  color: #6b7280;
+  text-decoration: none;
+  cursor: default;
+}
+
+.company-org-finance-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-footer__summary {
+  color: #4b5563;
+  font-size: 0.84rem;
+}
+
+.company-org-finance-footer__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-pagenums {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.company-org-finance-pagebtn {
+  min-width: 32px;
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 4px;
+  padding: 0.22rem 0.45rem;
+  background: #fff;
+}
+
+.company-org-finance-pagebtn.is-active {
+  background: var(--company-org-detail-accent);
+  color: #fff;
+  border-color: var(--company-org-detail-accent);
+}
+
+.company-org-finance-hint {
+  margin: 0 0 12px;
+  color: #8b5e00;
+  background: #fff8db;
+  border: 1px solid #f1d27a;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.company-org-finance-tablewrap {
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 10px;
+  overflow-x: auto;
+  background: #fff;
+}
+
+.company-org-finance-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.company-org-finance-pagegroup {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.company-org-employee-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.company-org-employee-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.company-org-employee-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.company-org-employee-toolbar__filters .form-select {
+  min-width: 130px;
+}
+
+.company-org-employee-toolbar__filters .form-control {
+  min-width: 280px;
+}
+
+.company-org-employee-tablewrap {
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 10px;
+  overflow-x: auto;
+  background: #fff;
+}
+
+.company-org-employee-table {
+  width: 100%;
+  min-width: 1380px;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.company-org-employee-table th,
+.company-org-employee-table td {
+  border: 1px solid #d8e0ea;
+  padding: 0.42rem 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.company-org-employee-table thead th {
+  background: #f5f8fc;
+  font-weight: 700;
+}
+
+.company-org-employee-table__seq {
+  width: 58px;
+  text-align: center;
+}
+
+.company-org-employee-table__remarks {
+  max-width: 280px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.company-org-employee-link {
+  color: #145bb8;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.company-org-employee-photo-btn {
+  min-width: 54px;
+  border: 1px solid var(--company-org-detail-border);
+  border-radius: 4px;
+  padding: 0.18rem 0.55rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #111827;
+  font-size: 0.8rem;
+}
+
+.company-org-employee-photo-btn:disabled {
+  color: #9ca3af;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.company-org-employee-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.company-org-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.company-org-photo-modal__dialog {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.35);
+}
+
+.company-org-photo-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.company-org-photo-modal__title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.company-org-photo-modal__close {
+  border: 0;
+  background: transparent;
+  color: #4b5563;
+  font-size: 1rem;
+}
+
+.company-org-photo-modal__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.company-org-photo-modal__image {
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+}
+
+.company-org-photo-modal-open {
+  overflow: hidden;
+}
+
+.company-org-doc-rule-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.company-org-doc-rule-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.company-org-doc-rule-toolbar__title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.company-org-doc-rule-toolbar__hint {
+  margin: 0;
+  color: #5f6b7a;
+  font-size: 13px;
+}
+
+.company-org-doc-rule-toolbar__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.company-org-doc-rule-tablewrap {
+  overflow-x: auto;
+}
+
+.company-org-doc-rule-table {
+  width: 100%;
+  min-width: 860px;
+  background: #fff;
+  border: 1px solid #d8e1f0;
+}
+
+.company-org-doc-rule-table th,
+.company-org-doc-rule-table td {
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 12px 10px;
+  border-color: #d8e1f0;
+}
+
+.company-org-doc-rule-table thead th {
+  background: #f4f8ff;
+  font-weight: 700;
+}
+
+.company-org-print-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.company-org-print-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.company-org-print-row__label {
+  padding-top: 8px;
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.company-org-print-row__content {
+  min-width: 0;
+}
+
+.company-org-print-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.company-org-print-logo__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border: 1px solid #d8e1f0;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+}
+
+.company-org-print-logo__image {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.company-org-print-logo__empty {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.company-org-print-logo__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.company-org-print-logo__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.company-org-print-logo__meta {
+  color: #5f6b7a;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.company-org-print-textarea {
+  min-height: 172px;
+  resize: vertical;
+}
+
+.company-org-print-note {
+  padding: 12px 14px;
+  border: 1px solid #cfe0ff;
+  background: #f5f9ff;
+  color: #35537a;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.company-org-finance-pagesize {
+  min-width: 112px;
+}
+
+@media (max-width: 900px) {
+  .company-org-detail-hero__grid,
+  .company-org-detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .company-org-finance-editor__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .company-org-print-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .company-org-detail-page {
+    min-height: auto;
+  }
+
+  .company-org-detail-toolbar,
+  .company-org-detail-hero,
+  .company-org-detail-body,
+  .company-org-detail-tabs {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .company-org-detail-hero__grid,
+  .company-org-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .company-org-finance-editor__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .company-org-finance-toolbar,
+  .company-org-finance-footer,
+  .company-org-employee-toolbar,
+  .company-org-employee-footer {
+    align-items: stretch;
+  }
+
+  .company-org-doc-rule-toolbar {
+    flex-direction: column;
+  }
+
+  .company-org-employee-toolbar__filters .form-control,
+  .company-org-employee-toolbar__filters .form-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .company-org-photo-modal {
+    padding: 0.75rem;
+  }
+}

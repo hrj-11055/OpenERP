@@ -1,0 +1,27 @@
+@model OpenERP.Production.Models.Entities.WorkCenter
+@{
+    ViewData["Title"] = "新增工作中心";
+}
+
+<div class="container">
+    <h1 class="mt-4">新增工作中心</h1>
+    <form asp-area="Production" asp-controller="WorkCenters" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">名称</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Code" class="form-label">编码</label>
+            <input asp-for="Code" class="form-control" required />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Capacity" class="form-label">产能</label>
+            <input asp-for="Capacity" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Capacity" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-area="Production" asp-controller="WorkCenters" asp-action="Index" class="btn btn-secondary ms-2">返回列表</a>
+    </form>
+</div>

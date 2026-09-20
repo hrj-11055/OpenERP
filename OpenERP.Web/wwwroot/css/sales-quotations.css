@@ -1,0 +1,653 @@
+/* 销售报价列表页样式（复用公司组织列表的蓝灰管理后台风格）。 */
+
+.sales-quotation-page {
+    display: grid;
+    grid-template-rows: minmax(360px, 1fr) minmax(260px, 0.6fr);
+    gap: 0.9rem;
+    min-height: calc(100vh - 128px);
+}
+
+.sales-quotation-panel {
+    border-radius: 0 8px 8px 8px;
+}
+
+.sales-quotation-panel--detail {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sales-quotation-toolbar,
+.sales-quotation-tabs,
+.sales-quotation-detail-toolbar {
+    flex-shrink: 0;
+}
+
+.sales-quotation-table-wrap {
+    min-height: 0;
+}
+
+.sales-quotation-table {
+    min-width: 1560px;
+}
+
+.sales-quotation-item-table {
+    min-width: 1200px;
+}
+
+.sales-quotation-table tbody tr.is-selected td {
+    background: #edf6ff;
+}
+
+.company-org-status--active {
+    color: #15803d;
+}
+
+.company-org-status--void {
+    color: #6b7280;
+}
+
+.company-org-status--expired {
+    color: #dc2626;
+}
+
+.sales-quotation-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 0 0.5rem;
+}
+
+.sales-quotation-tab {
+    position: relative;
+    padding: 0.55rem 1.2rem;
+    border: 0;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.sales-quotation-tab:hover,
+.sales-quotation-tab.is-active {
+    color: #1d4ed8;
+}
+
+.sales-quotation-tab.is-active::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -2px;
+    left: 0;
+    height: 2px;
+    background: #1d4ed8;
+}
+
+.sales-quotation-tabpanel {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.sales-quotation-tabpanel.is-active {
+    display: flex;
+}
+
+.sales-quotation-detail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    gap: 0.75rem;
+}
+
+.sales-quotation-detail-searchbar {
+    flex: 0 1 360px;
+}
+
+.sales-quotation-placeholder {
+    margin: 1rem;
+    padding: 1.5rem;
+    border: 1px dashed #c5d1df;
+    border-radius: 8px;
+    background: #fbfdff;
+    color: #53657a;
+}
+
+/* 销售报价详情页：参考用户提供的单据录入窗体效果。 */
+
+.popup-layout-body {
+    overflow-x: hidden;
+    background: #f1f1f1;
+}
+
+.popup-layout-shell {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    background: #f1f1f1;
+}
+
+.sales-quote-window {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #f1f1f1;
+    color: #111827;
+    font-size: 12px;
+}
+
+.sales-quote-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    background: #f1f1f1;
+}
+
+.sales-quote-titlebar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    height: 34px;
+    padding: 0 10px 0 12px;
+    border: 1px solid #a5a5a5;
+    border-bottom-color: #bdbdbd;
+    background: #cfcfcf;
+    color: #111827;
+    font-size: 13px;
+}
+
+.sales-quote-titlebar__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: transparent;
+    color: #e11d48;
+    cursor: pointer;
+}
+
+.sales-quote-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 34px;
+    padding: 4px 8px;
+    border-right: 1px solid #bcbcbc;
+    border-left: 1px solid #bcbcbc;
+    background: #f1f1f1;
+}
+
+.sales-quote-toolbar__spacer {
+    flex: 0 0 700px;
+}
+
+.sales-quote-tool,
+.sales-quote-icon-tool,
+.sales-quote-mini-btn,
+.sales-quote-archive-btn,
+.sales-quote-row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 24px;
+    border: 1px solid #bfc7d1;
+    border-radius: 4px;
+    background: #fff;
+    color: #111827;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sales-quote-tool {
+    min-width: 50px;
+    padding: 0 10px;
+    font-weight: 600;
+}
+
+.sales-quote-tool--compact {
+    min-width: 56px;
+}
+
+.sales-quote-tool:hover,
+.sales-quote-icon-tool:hover,
+.sales-quote-mini-btn:hover,
+.sales-quote-archive-btn:hover,
+.sales-quote-row-action:hover {
+    border-color: #2f80ed;
+    color: #075dbf;
+}
+
+.sales-quote-icon-tool {
+    width: 26px;
+    padding: 0;
+    font-size: 14px;
+}
+
+.sales-quote-validation {
+    padding: 0 10px;
+    color: #dc2626;
+}
+
+.sales-quote-validation:empty {
+    display: none;
+}
+
+.sales-quote-summary,
+.sales-quote-main-frame {
+    margin: 0 8px 8px;
+    border: 0;
+    background: #f1f1f1;
+}
+
+.sales-quote-summary {
+    padding: 8px 8px;
+}
+
+.sales-quote-summary__grid {
+    display: grid;
+    grid-template-columns: 312px 300px 300px minmax(250px, 1fr);
+    gap: 10px 28px;
+    align-items: start;
+    width: 100%;
+}
+
+.sales-quote-field {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.sales-quote-field label {
+    margin: 0;
+    color: #111827;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.sales-quote-field--required label::after {
+    content: "*";
+    color: #d71920;
+}
+
+.sales-quote-summary__grid .sales-quote-field--wide label,
+.sales-quote-footer-row .sales-quote-field:nth-child(2) label {
+    padding-left: 18px;
+    text-align: left;
+}
+
+.sales-quote-field--wide {
+    grid-column: span 2;
+}
+
+.sales-quote-field--full {
+    grid-column: 1 / -1;
+}
+
+.sales-quote-field .form-control,
+.sales-quote-field .form-select,
+.sales-quote-number .form-control,
+.sales-quote-item-toolbar .form-control,
+.sales-quote-table-input {
+    min-height: 24px;
+    padding: 2px 7px;
+    border: 1px solid #c5c5c5;
+    border-radius: 2px;
+    background-color: #fff;
+    color: #111827;
+    font-size: 12px;
+    line-height: 18px;
+    box-shadow: none;
+}
+
+.sales-quote-field .form-control:focus,
+.sales-quote-field .form-select:focus,
+.sales-quote-number .form-control:focus,
+.sales-quote-table-input:focus {
+    border-color: #2f80ed;
+    outline: 0;
+    box-shadow: 0 0 0 1px rgba(47, 128, 237, 0.15);
+}
+
+.sales-quote-number {
+    display: grid;
+    grid-template-columns: 150px 44px;
+    align-items: center;
+    justify-content: start;
+    gap: 8px;
+}
+
+.sales-quote-summary__grid .sales-quote-field:not(.sales-quote-field--wide) .form-control,
+.sales-quote-summary__grid .sales-quote-field:not(.sales-quote-field--wide) .form-select,
+.sales-quote-main-frame .sales-quote-field:not(.sales-quote-field--full):not(.sales-quote-field--salutation) .form-control,
+.sales-quote-main-frame .sales-quote-field:not(.sales-quote-field--full):not(.sales-quote-field--salutation) .form-select {
+    width: min(100%, 150px);
+}
+
+.sales-quote-field--wide .form-control,
+.sales-quote-field--full .form-control,
+.sales-quote-field--full .form-select {
+    width: 100%;
+}
+
+.sales-quote-summary__grid .sales-quote-field--wide .form-control {
+    width: min(100%, 478px);
+}
+
+.sales-quote-main-frame .sales-quote-field--full .form-control,
+.sales-quote-main-frame .sales-quote-field--full .form-select {
+    width: min(100%, 818px);
+}
+
+.sales-quote-field__with-action {
+    width: min(100%, 190px);
+}
+
+.sales-quote-tabs {
+    display: flex;
+    align-items: end;
+    height: 36px;
+    padding: 8px 4px 0;
+    border-bottom: 1px solid #5aa2ff;
+    background: #f1f1f1;
+}
+
+.sales-quote-tabs__item {
+    min-width: 118px;
+    height: 26px;
+    padding: 0 18px;
+    border: 1px solid #5aa2ff;
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    background: #fff;
+    color: #1373e5;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sales-quote-tabs__item.is-active {
+    background: linear-gradient(180deg, #3ca2ff 0%, #1d7fee 100%);
+    color: #fff;
+}
+
+.sales-quote-panel {
+    display: none;
+    min-height: 0;
+}
+
+.sales-quote-panel.is-active {
+    display: block;
+}
+
+.sales-quote-main-frame {
+    display: grid;
+    grid-template-columns: 968px minmax(320px, 360px);
+    gap: 28px;
+    min-height: 570px;
+    padding: 8px 24px 16px 8px;
+}
+
+.sales-quote-left {
+    display: grid;
+    grid-template-rows: auto auto auto auto minmax(210px, 1fr) auto;
+    gap: 12px;
+    min-width: 0;
+}
+
+.sales-quote-inline-row {
+    display: grid;
+    grid-template-columns: 228px 100px 328px minmax(188px, 1fr);
+    gap: 10px 6px;
+}
+
+.sales-quote-inline-row .sales-quote-field,
+.sales-quote-address-row .sales-quote-field,
+.sales-quote-footer-row .sales-quote-field,
+.sales-quote-right .sales-quote-field {
+    grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.sales-quote-right .sales-quote-field label {
+    text-align: left;
+}
+
+.sales-quote-inline-row .sales-quote-field:nth-child(4) {
+    margin-left: -14px;
+}
+
+.sales-quote-field--salutation {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.sales-quote-field--salutation .form-control {
+    width: 48px;
+    min-height: 24px;
+}
+
+.sales-quote-field--salutation label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.sales-quote-address-row {
+    display: grid;
+    grid-template-columns: 312px 300px minmax(260px, 1fr);
+    gap: 28px;
+}
+
+.sales-quote-textarea-field {
+    align-items: start;
+}
+
+.sales-quote-textarea-field .form-control {
+    resize: vertical;
+}
+
+.sales-quote-textarea-field--remarks .form-control {
+    min-height: 315px;
+}
+
+.sales-quote-footer-row {
+    display: grid;
+    grid-template-columns: 312px minmax(260px, 1fr) minmax(120px, 0.2fr);
+    gap: 28px;
+    align-items: center;
+}
+
+.sales-quote-field__with-action {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    gap: 4px;
+}
+
+.sales-quote-right .sales-quote-field__with-action {
+    width: min(100%, 190px);
+}
+
+.sales-quote-main-frame .sales-quote-field__with-action .form-control,
+.sales-quote-main-frame .sales-quote-field__with-action .form-select {
+    width: 100%;
+}
+
+.sales-quote-mini-btn {
+    width: 36px;
+    padding: 0;
+}
+
+.sales-quote-archive-btn {
+    width: 106px;
+    height: 26px;
+    justify-self: end;
+    transform: translateX(-76px);
+    font-weight: 700;
+}
+
+.sales-quote-right {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding-top: 4px;
+}
+
+.sales-quote-custom-field {
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+}
+
+.sales-quote-right .sales-quote-field .form-control,
+.sales-quote-right .sales-quote-field .form-select {
+    width: min(100%, 268px);
+}
+
+.sales-quote-item-panel {
+    margin: 0 8px 8px;
+    border: 0;
+    background: #f1f1f1;
+}
+
+.sales-quote-item-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px;
+}
+
+.sales-quote-item-toolbar__filters,
+.sales-quote-item-toolbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sales-quote-item-toolbar__filters .form-control {
+    width: 260px;
+}
+
+.sales-quote-table-shell {
+    max-height: 520px;
+    overflow: auto;
+    border-top: 1px solid #c9d3df;
+    background: #fff;
+}
+
+.sales-quote-edit-table {
+    width: 100%;
+    min-width: 1480px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.sales-quote-edit-table th,
+.sales-quote-edit-table td {
+    height: 30px;
+    padding: 3px 5px;
+    border: 1px solid #d4d9e0;
+    vertical-align: middle;
+}
+
+.sales-quote-edit-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f0f5fb;
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.sales-quote-table-input {
+    width: 100%;
+}
+
+.sales-quote-table-input--number {
+    min-width: 80px;
+    text-align: right;
+}
+
+.sales-quote-table-input--notes {
+    min-width: 140px;
+}
+
+.sales-quote-row-action {
+    min-width: 44px;
+    min-height: 24px;
+}
+
+.sales-quote-placeholder {
+    margin: 0 8px 8px;
+    padding: 18px;
+    border: 0;
+    background: #fff;
+    color: #53657a;
+}
+
+.sales-quote-placeholder p {
+    margin: 6px 0 0;
+}
+
+.sales-quote-form.is-readonly .form-control[readonly],
+.sales-quote-form.is-readonly .form-select:disabled {
+    background: #f4f4f4;
+    color: #4b5563;
+}
+
+@media (max-width: 1180px) {
+    .sales-quote-summary__grid,
+    .sales-quote-main-frame,
+    .sales-quote-inline-row,
+    .sales-quote-address-row,
+    .sales-quote-footer-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sales-quote-main-frame {
+        padding-right: 8px;
+    }
+
+    .sales-quote-field,
+    .sales-quote-inline-row .sales-quote-field,
+    .sales-quote-address-row .sales-quote-field,
+    .sales-quote-footer-row .sales-quote-field,
+    .sales-quote-right .sales-quote-field {
+        grid-template-columns: 92px minmax(0, 1fr);
+    }
+
+    .sales-quote-field--wide {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .sales-quotation-page {
+        min-height: auto;
+        overflow: auto;
+    }
+
+    .sales-quote-toolbar {
+        height: auto;
+        flex-wrap: wrap;
+    }
+
+    .sales-quote-tabs {
+        height: auto;
+        flex-wrap: wrap;
+    }
+
+    .sales-quote-tabs__item {
+        flex: 1 1 120px;
+    }
+}

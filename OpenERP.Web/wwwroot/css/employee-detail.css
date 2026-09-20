@@ -1,0 +1,1305 @@
+:root {
+  --employee-detail-border: #b9c7d6;
+  --employee-detail-line: #d7e0ea;
+  --employee-detail-surface: #f7f8fb;
+  --employee-detail-surface-strong: #eef2f7;
+  --employee-detail-ink: #1f2b39;
+  --employee-detail-muted: #6b7280;
+  --employee-detail-accent: #3c7be0;
+  --employee-detail-accent-soft: #eaf2ff;
+  --employee-detail-danger: #de7d86;
+  --employee-detail-success: #2b4d16;
+  --employee-detail-success-bg: #f6fbf2;
+  --employee-detail-danger-bg: #fff4f4;
+}
+
+.employee-detail-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 48px);
+  height: calc(100vh - 48px);
+  color: var(--employee-detail-ink);
+  font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+}
+
+.employee-detail-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--employee-detail-border);
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(40, 60, 84, 0.12);
+}
+
+.employee-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--employee-detail-line);
+  background: #fcfdff;
+}
+
+.employee-detail-toolbar__btn {
+  min-width: 54px;
+  border: 1px solid var(--employee-detail-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.7rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #111827;
+  font-size: 0.84rem;
+}
+
+.employee-detail-toolbar__btn.is-active,
+.employee-detail-toolbar__btn:hover:not(:disabled) {
+  border-color: #88a8d7;
+  background: linear-gradient(180deg, #fefefe 0%, #dfeafb 100%);
+}
+
+.employee-detail-toolbar__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.employee-detail-validation {
+  margin: 0.65rem 0.8rem 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: #fff4f4;
+}
+
+.employee-detail-hero {
+  padding: 0.65rem 0.8rem 0.5rem;
+}
+
+.employee-detail-hero__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1.5fr 1fr 1fr 140px;
+  gap: 0.9rem 1rem;
+  align-items: start;
+}
+
+.employee-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.employee-detail-field label {
+  color: #111827;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.employee-detail-field__inline {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.employee-detail-field__select-action {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.employee-detail-field__select-action .form-select {
+  min-width: 0;
+}
+
+.employee-detail-icon-btn {
+  flex: 0 0 34px;
+  border: 1px solid var(--employee-detail-border);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.employee-detail-select-btn {
+  flex: 0 0 36px;
+  border: 1px solid var(--employee-detail-border);
+  border-radius: 4px;
+  background: #fff;
+  color: #34557d;
+}
+
+.employee-detail-field__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.employee-detail-field__pair--messages {
+  min-height: 1rem;
+}
+
+.employee-detail-field--double {
+  grid-column: span 1;
+}
+
+.employee-detail-status {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 82px;
+  border: 1px solid #d0d7de;
+  background: var(--employee-detail-success-bg);
+}
+
+.employee-detail-status.is-leave {
+  background: var(--employee-detail-danger-bg);
+}
+
+.employee-detail-status__label {
+  color: var(--employee-detail-muted);
+  font-size: 0.78rem;
+}
+
+.employee-detail-status__value {
+  color: var(--employee-detail-success);
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.employee-detail-status.is-leave .employee-detail-status__value {
+  color: #9b2330;
+}
+
+.employee-detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 0 0.8rem;
+  border-top: 1px solid #88b2ff;
+  border-bottom: 1px solid #88b2ff;
+  background: #fdfefe;
+}
+
+.employee-detail-tabs__item {
+  border: 0;
+  border-right: 1px solid #a8c4ff;
+  padding: 0.45rem 1.4rem;
+  background: transparent;
+  color: #2b6ee7;
+  font-size: 0.82rem;
+}
+
+.employee-detail-tabs__item.is-active {
+  background: linear-gradient(180deg, #3f85ef 0%, #2466d0 100%);
+  color: #fff;
+}
+
+.employee-detail-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 1.1rem;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0.8rem 1.1rem;
+  background: #fafbfc;
+}
+
+.employee-detail-main {
+  min-width: 0;
+}
+
+.employee-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.employee-detail-field--full {
+  grid-column: 1 / -1;
+}
+
+.employee-detail-field--large textarea {
+  min-height: 186px;
+}
+
+.employee-detail-grid .form-control,
+.employee-detail-hero .form-control {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+  background: #fff;
+}
+
+.employee-detail-grid .form-select,
+.employee-detail-hero .form-select {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+  background-color: #fff;
+}
+
+.employee-detail-grid textarea.form-control {
+  min-height: 72px;
+}
+
+.employee-detail-side {
+  display: flex;
+  align-items: flex-start;
+}
+
+.employee-detail-photo {
+  width: 100%;
+}
+
+.employee-detail-photo__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  border: 1px solid #d0d7de;
+  background: #fff;
+}
+
+.employee-detail-photo__placeholder {
+  color: #98a2b3;
+  font-size: 0.9rem;
+}
+
+.employee-detail-photo__image {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+.employee-detail-side__btn {
+  width: 100%;
+  margin-top: 0.55rem;
+  border: 0;
+  border-radius: 2px;
+  padding: 0.42rem 0.8rem;
+  background: linear-gradient(180deg, #edbec3 0%, #e3a5ac 100%);
+  color: #4f1720;
+  font-size: 0.84rem;
+}
+
+.employee-detail-document-btn,
+.training-experience-document-btn,
+.task-follow-up-document-btn {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid var(--employee-detail-border);
+  border-radius: 4px;
+  padding: 0.35rem 0.8rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #24364b;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.employee-detail-document-btn {
+  width: fit-content;
+}
+
+.training-experience-document-btn,
+.task-follow-up-document-btn {
+  width: 100%;
+}
+
+.employee-detail-document-btn:hover:not(:disabled),
+.training-experience-document-btn:hover:not(:disabled),
+.task-follow-up-document-btn:hover:not(:disabled) {
+  border-color: #88a8d7;
+  background: linear-gradient(180deg, #fefefe 0%, #dfeafb 100%);
+}
+
+.employee-detail-document-btn:disabled,
+.training-experience-document-btn:disabled,
+.task-follow-up-document-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.employee-detail-page .text-danger {
+  font-size: 0.76rem;
+}
+
+/* 查看模式：表单控件只读样式 */
+.employee-detail-shell.is-readonly .form-control[readonly],
+.employee-detail-shell.is-readonly .form-select:disabled {
+  background-color: var(--employee-detail-surface);
+  color: var(--employee-detail-muted);
+  cursor: default;
+}
+
+/* ========== 账号及权限面板 ========== */
+.account-panel__loading,
+.account-panel__notice {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--employee-detail-muted);
+  font-size: 0.9rem;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.account-section {
+  border: 1px solid var(--employee-detail-line);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  background: #fff;
+}
+
+.account-section__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.account-section__header--inline {
+  align-items: center;
+}
+
+.account-section__title {
+  margin: 0;
+  color: var(--employee-detail-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.account-section__desc {
+  margin: 0.2rem 0 0;
+  color: var(--employee-detail-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.account-section__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.account-perm-action,
+.account-company-action {
+  border: 1px solid var(--employee-detail-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  background: #fff;
+  color: var(--employee-detail-accent);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.account-perm-action:hover,
+.account-company-action:hover {
+  background: var(--employee-detail-accent-soft);
+}
+
+.account-perm-action:disabled,
+.account-company-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.account-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem 1rem;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.account-field label {
+  color: #111827;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.account-field .form-control,
+.account-field .form-select {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+}
+
+.account-field__password {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.account-field__password .form-control {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-field__toggle-pwd {
+  flex: 0 0 38px;
+  border: 1px solid #ccd5df;
+  border-radius: 0;
+  background: #fff;
+  color: var(--employee-detail-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-field__toggle-pwd:hover:not(:disabled) {
+  background: var(--employee-detail-surface);
+}
+
+.account-field__hint {
+  color: var(--employee-detail-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.account-field--checkbox {
+  justify-content: flex-end;
+}
+
+.account-field__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  cursor: pointer;
+  font-weight: 400;
+  margin: 0;
+}
+
+.account-field__checkbox input[type="checkbox"],
+.account-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--employee-detail-accent);
+}
+
+.account-field__checkbox span {
+  color: var(--employee-detail-muted);
+  font-size: 0.84rem;
+}
+
+.account-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.account-permission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.account-permission-group {
+  border: 1px solid var(--employee-detail-line);
+}
+
+.account-permission-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--employee-detail-line);
+  background: #f9fbfe;
+}
+
+.account-permission-group__count {
+  color: var(--employee-detail-muted);
+  font-size: 0.76rem;
+}
+
+.account-table-shell {
+  overflow: auto;
+}
+
+.account-table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.account-table thead th {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--employee-detail-line);
+  background: #f3f6fa;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.account-table tbody td {
+  padding: 0.6rem 0.65rem;
+  border-bottom: 1px solid #e9eef4;
+  color: var(--employee-detail-ink);
+  font-size: 0.82rem;
+  vertical-align: middle;
+}
+
+.account-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.account-table--permissions th:nth-child(1),
+.account-table--permissions td:nth-child(1) {
+  width: 60px;
+  text-align: center;
+}
+
+.account-table--permissions th:nth-child(3),
+.account-table--permissions td:nth-child(3) {
+  width: 120px;
+  text-align: center;
+}
+
+.account-table--companies {
+  min-width: 100%;
+}
+
+.account-table--companies th:nth-child(1),
+.account-table--companies td:nth-child(1) {
+  width: 54px;
+  text-align: center;
+}
+
+.account-table--companies th:nth-child(2),
+.account-table--companies td:nth-child(2) {
+  width: 78px;
+  text-align: center;
+}
+
+.account-table--companies th:nth-child(3),
+.account-table--companies td:nth-child(3) {
+  width: 110px;
+}
+
+.account-table__title {
+  font-size: 0.83rem;
+  color: var(--employee-detail-ink);
+}
+
+.account-table__code {
+  margin-top: 0.15rem;
+  color: #7b8794;
+  font-size: 0.72rem;
+}
+
+.account-table__empty {
+  padding: 1.4rem 0.8rem;
+  text-align: center;
+  color: var(--employee-detail-muted);
+}
+
+.account-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.account-checkbox--center {
+  justify-content: center;
+}
+
+.account-checkbox span {
+  color: var(--employee-detail-ink);
+  font-size: 0.8rem;
+}
+
+.account-empty-state {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--employee-detail-muted);
+  font-size: 0.85rem;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.1rem;
+}
+
+/* ========== 考勤及工资页签 ========== */
+.attendance-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.attendance-section {
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+  padding: 0.9rem 1rem;
+}
+
+.attendance-grid,
+.attendance-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.attendance-grid--top {
+  margin-bottom: 0.85rem;
+}
+
+.attendance-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.attendance-field label {
+  color: #111827;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.attendance-field .form-control,
+.attendance-field .form-select {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+}
+
+.attendance-field--checkbox {
+  justify-content: flex-end;
+}
+
+.attendance-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.attendance-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--employee-detail-accent);
+}
+
+.attendance-checkbox span {
+  color: var(--employee-detail-muted);
+  font-size: 0.84rem;
+}
+
+.attendance-inline-group {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.attendance-inline-group .form-control {
+  flex: 1;
+  min-width: 0;
+}
+
+.attendance-inline-btn {
+  flex: 0 0 auto;
+  border: 1px solid var(--employee-detail-border);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f5 100%);
+  color: #2f4f74;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  white-space: nowrap;
+}
+
+.attendance-inline-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fefefe 0%, #dfeafb 100%);
+}
+
+.attendance-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 100%;
+}
+
+.attendance-note-card {
+  border: 1px solid #79c75f;
+  background: #89f05d;
+  padding: 0.9rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.attendance-note-card__title {
+  margin: 0 0 0.45rem;
+  color: #234313;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.attendance-note-card__text {
+  margin: 0.25rem 0 0;
+  color: #18350f;
+  font-size: 0.81rem;
+  line-height: 1.6;
+}
+
+.employee-detail-body--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ========== 培训历程页签 ========== */
+.training-experience-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.training-experience-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.training-experience-toolbar__filters,
+.training-experience-toolbar__actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.training-experience-toolbar__filters .form-select {
+  width: 140px;
+  border-radius: 0;
+}
+
+.training-experience-toolbar__filters .form-control {
+  width: min(320px, 100%);
+  border-radius: 0;
+}
+
+.training-experience-editor {
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.training-experience-editor__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.training-experience-editor__title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.training-experience-editor__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.training-experience-editor__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.training-experience-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  min-width: 0;
+}
+
+.training-experience-field label {
+  color: #111827;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.training-experience-field .form-control,
+.training-experience-field .form-select {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+}
+
+.training-experience-field textarea.form-control {
+  min-height: 96px;
+}
+
+.training-experience-field--full {
+  grid-column: 1 / -1;
+}
+
+.training-experience-table-shell {
+  overflow: auto;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.training-experience-table {
+  width: 100%;
+  min-width: 1240px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.training-experience-table thead th {
+  padding: 0.58rem 0.55rem;
+  border-bottom: 1px solid var(--employee-detail-line);
+  border-right: 1px solid #e5edf6;
+  background: #f3f6fa;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.training-experience-table tbody td {
+  padding: 0.55rem 0.5rem;
+  border-bottom: 1px solid #edf2f7;
+  border-right: 1px solid #edf2f7;
+  font-size: 0.8rem;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.training-experience-table__seq,
+.training-experience-table__checkbox {
+  text-align: center;
+}
+
+.training-experience-table__seq {
+  width: 56px;
+}
+
+.training-experience-table__checkbox {
+  width: 42px;
+}
+
+.training-experience-table__empty {
+  padding: 1.4rem 0.8rem;
+  text-align: center;
+  color: var(--employee-detail-muted);
+}
+
+.training-experience-table__desc {
+  line-height: 1.45;
+}
+
+.training-experience-link,
+.training-experience-archive-btn {
+  border: 0;
+  background: transparent;
+  color: #0f5fbf;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.training-experience-link {
+  font-weight: 600;
+}
+
+.training-experience-archive-btn {
+  border: 1px solid #d3dde8;
+  background: #f7ccd0;
+  color: #6b1c25;
+  padding: 0.15rem 0.45rem;
+}
+
+.training-experience-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.training-experience-footer__summary {
+  color: var(--employee-detail-muted);
+  font-size: 0.8rem;
+}
+
+.training-experience-footer__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.training-experience-pagenums {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.training-experience-pagebtn {
+  min-width: 30px;
+  height: 30px;
+  border: 1px solid var(--employee-detail-border);
+  background: #fff;
+  color: #334155;
+  font-size: 0.78rem;
+}
+
+.training-experience-pagebtn.is-active {
+  border-color: #2f7be6;
+  background: #2f7be6;
+  color: #fff;
+}
+
+.training-experience-pagebtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.training-experience-pagesize {
+  width: 96px;
+  min-height: 30px;
+  border-radius: 0;
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+}
+
+/* ========== 任务跟进页签 ========== */
+.task-follow-up-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.task-follow-up-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.task-follow-up-toolbar__filters,
+.task-follow-up-toolbar__actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.task-follow-up-toolbar__filters .form-select {
+  width: 140px;
+  border-radius: 0;
+}
+
+.task-follow-up-toolbar__filters .form-control {
+  width: min(320px, 100%);
+  border-radius: 0;
+}
+
+.task-follow-up-editor {
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.task-follow-up-editor__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.task-follow-up-editor__title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.task-follow-up-editor__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.task-follow-up-editor__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.task-follow-up-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  min-width: 0;
+}
+
+.task-follow-up-field label {
+  color: #111827;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.task-follow-up-field .form-control,
+.task-follow-up-field .form-select {
+  border-color: #ccd5df;
+  border-radius: 0;
+  min-height: 38px;
+}
+
+.task-follow-up-field textarea.form-control {
+  min-height: 90px;
+}
+
+.task-follow-up-field--full {
+  grid-column: 1 / -1;
+}
+
+.task-follow-up-table-shell {
+  overflow: auto;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.task-follow-up-table {
+  width: 100%;
+  min-width: 1450px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.task-follow-up-table thead th {
+  padding: 0.58rem 0.55rem;
+  border-bottom: 1px solid var(--employee-detail-line);
+  border-right: 1px solid #e5edf6;
+  background: #f3f6fa;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.task-follow-up-table tbody td {
+  padding: 0.55rem 0.5rem;
+  border-bottom: 1px solid #edf2f7;
+  border-right: 1px solid #edf2f7;
+  font-size: 0.8rem;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.task-follow-up-table__seq,
+.task-follow-up-table__checkbox {
+  text-align: center;
+}
+
+.task-follow-up-table__seq {
+  width: 56px;
+}
+
+.task-follow-up-table__checkbox {
+  width: 42px;
+}
+
+.task-follow-up-table__empty {
+  padding: 1.4rem 0.8rem;
+  text-align: center;
+  color: var(--employee-detail-muted);
+}
+
+.task-follow-up-table__desc {
+  line-height: 1.45;
+}
+
+.task-follow-up-link,
+.task-follow-up-archive-btn {
+  border: 0;
+  background: transparent;
+  color: #0f5fbf;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.task-follow-up-link {
+  font-weight: 600;
+}
+
+.task-follow-up-archive-btn {
+  border: 1px solid #d3dde8;
+  background: #f7ccd0;
+  color: #6b1c25;
+  padding: 0.15rem 0.45rem;
+}
+
+.task-follow-up-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--employee-detail-line);
+  background: #fff;
+}
+
+.task-follow-up-footer__summary {
+  color: var(--employee-detail-muted);
+  font-size: 0.8rem;
+}
+
+.task-follow-up-footer__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.task-follow-up-pagenums {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.task-follow-up-pagebtn {
+  min-width: 30px;
+  height: 30px;
+  border: 1px solid var(--employee-detail-border);
+  background: #fff;
+  color: #334155;
+  font-size: 0.78rem;
+}
+
+.task-follow-up-pagebtn.is-active {
+  border-color: #2f7be6;
+  background: #2f7be6;
+  color: #fff;
+}
+
+.task-follow-up-pagebtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.task-follow-up-pagesize {
+  width: 96px;
+  min-height: 30px;
+  border-radius: 0;
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+}
+
+@media (max-width: 1280px) {
+  .account-profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .training-experience-editor__grid,
+  .task-follow-up-editor__grid,
+  .attendance-grid,
+  .attendance-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-inline-group {
+    flex-direction: column;
+  }
+
+  .account-section__header,
+  .account-section__header--inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-table {
+    min-width: 520px;
+  }
+
+  .training-experience-toolbar,
+  .training-experience-editor__header,
+  .training-experience-footer,
+  .task-follow-up-toolbar,
+  .task-follow-up-editor__header,
+  .task-follow-up-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 1180px) {
+  .employee-detail-hero__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .employee-detail-status {
+    min-height: 72px;
+  }
+
+  .employee-detail-body {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-detail-side {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 760px) {
+  .employee-detail-page {
+    min-height: calc(100vh - 32px);
+    height: calc(100vh - 32px);
+  }
+
+  .employee-detail-toolbar,
+  .employee-detail-hero,
+  .employee-detail-body,
+  .employee-detail-tabs {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .employee-detail-hero__grid,
+  .employee-detail-grid,
+  .employee-detail-field__pair {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-detail-status {
+    min-height: 64px;
+  }
+}
