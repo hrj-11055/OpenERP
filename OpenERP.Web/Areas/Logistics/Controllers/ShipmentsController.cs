@@ -33,7 +33,7 @@ namespace OpenERP.Web.Areas.Logistics.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ShipmentNumber,ShipmentDate,CarrierId,Status,TotalWeight")] Shipment shipment)
+        public async Task<IActionResult> Create([Bind("ShipmentNumber,ShipmentDate,CarrierId,TotalWeight")] Shipment shipment)
         {
             if (ModelState.IsValid)
             {

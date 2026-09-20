@@ -56,21 +56,20 @@ namespace OpenERP.Web.Areas.Asset.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,AssetTag,Status,PurchaseDate,PurchaseCost,CreatedAt,UpdatedAt,IsDeleted")] AssetEntity asset)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,AssetTag,Status,PurchaseDate,PurchaseCost")] AssetEntity asset)
         {
             if (id != asset.Id) return NotFound();
+            // 加载现有实体后仅拷贝业务字段：审计字段（CreatedAt/CreatedBy）与软删除标记不允许被表单覆盖。
+            var existing = await _context.Assets.FindAsync(id);
+            if (existing == null) return NotFound();
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(asset);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Assets.Any(e => e.Id == id)) return NotFound();
-                    throw;
-                }
+                existing.Name = asset.Name;
+                existing.AssetTag = asset.AssetTag;
+                existing.Status = asset.Status;
+                existing.PurchaseDate = asset.PurchaseDate;
+                existing.PurchaseCost = asset.PurchaseCost;
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(asset);

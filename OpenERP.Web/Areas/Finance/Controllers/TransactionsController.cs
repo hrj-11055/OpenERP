@@ -33,7 +33,7 @@ namespace OpenERP.Web.Areas.Finance.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DocNumber,DocDate,AccountId,Amount,Description,Status")] Transaction tx)
+        public async Task<IActionResult> Create([Bind("DocNumber,DocDate,AccountId,Amount,Description")] Transaction tx)
         {
             if (ModelState.IsValid)
             {

@@ -40,9 +40,18 @@ public class SalesOrdersController : Controller
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create([Bind(new string[] { "OrderNumber,OrderDate,CustomerId,Status,TotalAmount" })] SalesOrder so)
+	public async Task<IActionResult> Create([Bind(new string[] { "OrderDate,CustomerId,TotalAmount" })] SalesOrder so)
 	{
 		base.ModelState.Remove("OrderNumber");
+		// 先做模型校验,校验通过后再消耗单号流水（避免校验失败导致断号）。
+		if (!base.ModelState.IsValid)
+		{
+			base.ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name", so.CustomerId);
+			return View(so);
+		}
+
+		// 单据状态由服务端控制（新建一律为草稿,不接收表单提交,防止伪造已过账单据）。
+		so.Status = "Draft";
 		string generatedOrderNumber = await TryGenerateOrderNumberAsync(so.OrderDate);
 		if (generatedOrderNumber == null)
 		{
@@ -50,14 +59,9 @@ public class SalesOrdersController : Controller
 			return View(so);
 		}
 		so.OrderNumber = generatedOrderNumber;
-		if (base.ModelState.IsValid)
-		{
-			_context.Add(so);
-			await _context.SaveChangesAsync();
-			return RedirectToAction("Index");
-		}
-		base.ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name", so.CustomerId);
-		return View(so);
+		_context.Add(so);
+		await _context.SaveChangesAsync();
+		return RedirectToAction("Index");
 	}
 
 	private async Task<string?> TryGenerateOrderNumberAsync(DateTime orderDate)
