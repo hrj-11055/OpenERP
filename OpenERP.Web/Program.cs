@@ -19,6 +19,7 @@ using OpenERP.Purchasing.Data;
 using OpenERP.Sales.Data;
 using OpenERP.Service.Data;
 using OpenERP.Transport.Data;
+using OpenERP.Web.Data.Auditing;
 using OpenERP.Web.Data.HR;
 using OpenERP.Web.Documents;
 using OpenERP.Web.Localization;
@@ -88,26 +89,26 @@ requestLocalizationOptions.RequestCultureProviders =
     new AcceptLanguageHeaderRequestCultureProvider()
 ];
 
-builder.Services.AddDbContext<PurchasingDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<SalesDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<LogisticsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<FinanceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<ProductionDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<CRMDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<ServiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<TransportDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<AssetDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<OfficeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// EF 审计字段拦截器（统一自动维护各模块实体的创建/更新信息,需 HttpContext 提供当前用户）。
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuditInterceptor>();
+
+// 各模块 DbContext 共用同一连接串与审计拦截器配置。
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+void ConfigureDbContext(IServiceProvider serviceProvider, DbContextOptionsBuilder options)
+    => options.UseSqlServer(connectionString).AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+
+builder.Services.AddDbContext<PurchasingDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<SalesDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<LogisticsDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<FinanceDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<ProductionDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<CRMDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<ServiceDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<TransportDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<AssetDbContext>(ConfigureDbContext);
+builder.Services.AddDbContext<OfficeDbContext>(ConfigureDbContext);
 
 // 注册 HR 与基础数据模块仓储。
 builder.Services.AddScoped<IHrRepository, HrSqlRepository>();
